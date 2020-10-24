@@ -1,0 +1,339 @@
+## Exercise 2: football
+
+```{r, echo = FALSE, message = FALSE}
+source(here::here("scripts/setup.R"))
+```
+
+Let's first load a dataset:
+
+```{r, echo = TRUE}
+fu <- read_csv(file = here::here("data/football.csv"))
+```
+
+### Wrangling and tidying
+
+1. Sometimes, we want to know the year of a game happening instead of
+   the exact dates. So let's split the dates into three columns:
+   `year`, `mon`, and `day`, and save the result tibble to `fu_separated`.
+   To do that, you can use:
+      - `separate` to separate the first column `date`
+        (hint : use `sep = "[-]+"` in `separate`, you'll learn about
+         regular expressions later on.)
+
+   To check your answer:
+
+   The output of `print(fu_separated, n = 5)` is
+
+   ```
+   # A tibble: 40,945 x 11
+     year  mon   day   home_team away_team home_score away_score
+     <chr> <chr> <chr> <chr>     <chr>          <dbl>      <dbl>
+   1 1872  11    30    Scotland  England            0          0
+   2 1873  03    08    England   Scotland           4          2
+   3 1874  03    07    Scotland  England            2          1
+   4 1875  03    06    England   Scotland           2          2
+   5 1876  03    04    Scotland  England            3          0
+   # … with 40,940 more rows, and 4 more variables: tournament <chr>,
+   #   city <chr>, country <chr>, neutral <lgl>
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+fu_separated <- fu %>% separate( date, into = c("year","mon", "day"), sep = "[-]+")
+
+print(fu_separated, n = 5)
+
+
+
+2. Notice that the data is recorded per game instead of per team. Suppose
+   that we want to have to study the game data per team with the following
+   information: `year`, `mon`, `day`, `home_score`, `away_score`,
+   `tournament`, `city`, `country`, `neutral`, `team_type`, `team`.
+   To do that, we need to list all the games each team played: thus, each
+   game will be recorded twice, once for the home team and once for
+   the away team.
+   Extract such a tibble from `fu_separated` and assign it to `fu_tidy`.
+
+   To check your answer:
+
+   The output of `print(fu_tidy, n = 5)` is
+
+   ```
+   # A tibble: 81,890 x 11
+     year  mon   day   home_score away_score tournament city  country
+     <chr> <chr> <chr>      <dbl>      <dbl> <chr>      <chr> <chr>
+   1 1872  11    30             0          0 Friendly   Glas… Scotla…
+   2 1872  11    30             0          0 Friendly   Glas… Scotla…
+   3 1873  03    08             4          2 Friendly   Lond… England
+   4 1873  03    08             4          2 Friendly   Lond… England
+   5 1874  03    07             2          1 Friendly   Glas… Scotla…
+   # … with 81,885 more rows, and 3 more variables: neutral <lgl>,
+   #   team_type <chr>, team <chr>
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+   
+   fu_tidy <- fu_separated %>% pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )
+   
+   print(fu_tidy, n = 5)
+
+3. Now, notice that the two columns `home_score` and `away_score` are
+   impractical: they do not indicate whether they correpond to goals scored
+   or conceded. Additionally, an important statistic is the goal difference,
+   namely the difference between goals scored and conceded.
+   From `fu_tidy`, let's extract a tibble `fu_team` that contains
+   `year`, `mon`, `day`, `scored`, `conceded`, `gd`, `team`,
+   `city`, `country`.
+
+   To check your answer:
+
+   The output of `print(fu_team, n = 5)` is
+
+   ```
+   # A tibble: 81,890 x 9
+     year  mon   day   scored conceded    gd team     city    country
+     <chr> <chr> <chr>  <dbl>    <dbl> <dbl> <chr>    <chr>   <chr>
+   1 1872  11    30         0        0     0 Scotland Glasgow Scotland
+   2 1872  11    30         0        0     0 England  Glasgow Scotland
+   3 1873  03    08         4        2     2 England  London  England
+   4 1873  03    08         2        4    -2 Scotland London  England
+   5 1874  03    07         2        1     1 Scotland Glasgow Scotland
+   # … with 81,885 more rows
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+   
+   
+
+   fu_team <- fu_tidy %>% mutate(scored = ifelse(team_type == "away_team", away_score, home_score), 
+   conceded = ifelse(team_type == "home_team",away_score, home_score), gd = scored-conceded) %>% select(year:day, scored:gd, team, city, country)
+   
+
+
+   print(fu_team, n = 5)
+   
+
+4. The `city` and `country` column represents where the game was held.
+   From `fu_team`, extract a tibble `fu_city` that concatenate the city
+   and country information into one column called `place`.
+
+   To check your answer:
+
+   The output of `print(fu_city, n = 5)` is
+
+   ```
+   # A tibble: 81,890 x 8
+     year  mon   day   scored conceded    gd team     place
+     <chr> <chr> <chr>  <dbl>    <dbl> <dbl> <chr>    <chr>
+   1 1872  11    30         0        0     0 Scotland Glasgow_Scotland
+   2 1872  11    30         0        0     0 England  Glasgow_Scotland
+   3 1873  03    08         4        2     2 England  London_England
+   4 1873  03    08         2        4    -2 Scotland London_England
+   5 1874  03    07         2        1     1 Scotland Glasgow_Scotland
+   # … with 81,885 more rows
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+   
+   fu_city <- fu_team %>% unite(place, city, country)
+   
+   print(fu_city, n = 5)
+   
+
+5. From `fu_city`, let's extract `fu_england`, a tibble containing
+   the yearly average goals scored, goals conceded, and goal differences
+   for the English team evolved over the years, sorted by descending
+   goal differences, descending goals scored, and ascending goals conceded.
+
+   To check your answer:
+
+   The output of `print(fu_england, n = 5)` is
+
+   ```
+   # A tibble: 139 x 4
+     year  scored conceded    gd
+     <chr>  <dbl>    <dbl> <dbl>
+   1 1899    6.33    1      5.33
+   2 1908    5.57    0.714  4.86
+   3 1893    5.67    1      4.67
+   4 1888    5       0.667  4.33
+   5 1891    5       1      4
+   # … with 134 more rows
+   ```
+   
+   
+   ```{r}
+   ## Your code goes here
+   ```
+   
+   fu_england <- fu_city %>% group_by(year) %>% filter(team == "England") %>% summarize(scored = mean(scored),
+   conceded = mean(conceded), gd = mean(gd)) %>% arrange( desc(gd),  desc(scored))
+ 
+   
+   print(fu_england, n = 5)
+   
+
+6. In the following, we want to look at the number of points scored and
+   attendance in various international competitions, but first,
+   some tidying that is required, as there is some double accounting
+   in `fu`.
+   Let's create a tibble `fu_tidy2` that contains columns `date`,
+   `tournament`, `team_type`, `team`, `scored`, and `year`, where
+   `date` and `tournament` as as in `fu`, and
+     - `team_type` is `"home_team"` or `"away_team"`,
+     - `team` is the name of the national team considered (i.e., either the
+       home or away team for each of the two `home_team` and `away_team`
+       columns of `fu`),
+     - `scored` is the number of points scored by the team under
+       consideration,
+     - `year` is a numeric extracted from `date`.
+
+   To check your answer:
+
+   The output of `print(fu_tidy2, n = 5)` is
+
+   ```
+   # A tibble: 81,890 x 6
+     date       tournament team_type team     scored  year
+     <date>     <chr>      <chr>     <chr>     <dbl> <dbl>
+   1 1872-11-30 Friendly   home_team Scotland      0  1872
+   2 1872-11-30 Friendly   away_team England       0  1872
+   3 1873-03-08 Friendly   home_team England       4  1873
+   4 1873-03-08 Friendly   away_team Scotland      2  1873
+   5 1874-03-07 Friendly   home_team Scotland      2  1874
+   # … with 81,885 more rows
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+   
+   
+     
+### Visualization
+
+7. From `fu_tidy2`, let's now look at the yearly number of goals scored from
+   2000 to 2019 for teams England, Germany, France, Belgium, Italy and Spain.
+   We'll do that by extracting `fu1`, a tibble obtained by grouping by team
+   and year and summing the number of goals for each groups,
+   before filtering appropriately and transforming `team` as a factor
+   sorted by median goals scored.
+
+   To check your answer:
+
+   The output of `print(fu1, n = 5)` is
+
+   ```
+   # A tibble: 120 x 3
+     team     year scored
+     <fct>   <dbl>  <dbl>
+   1 Belgium  2000     16
+   2 Belgium  2001     25
+   3 Belgium  2002     14
+   4 Belgium  2003     16
+   5 Belgium  2004      6
+   # … with 115 more rows
+   ```
+
+   The output of `print(levels(fu1$team)[1:3])` is
+
+   ```
+   [1] "Belgium" "Italy"   "France"
+   ```
+      
+   ```{r}
+   ## Your code goes here
+   ```
+
+8. Use `fu1` to produce boxplots of the number of goals scored for each team.
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+9. Before proceeding to the next plot, let's first create a tibble `fu2`
+   containing the relevant data: it should be obtained from `fu_tidy2` by
+   transforming `tournament` into a factor containing the levels
+   `"FIFA World Cup"`, `"UEFA Euro"`, and `"UEFA Nations League"`,
+   dropping NAs (i.e., observations for all other tournaments), and
+   filtering for the same 6 teams as well as observations from 2000 onwards.
+
+   To check your answer:
+
+   The output of `print(fu2, n = 5)` is
+
+   ```
+   # A tibble: 279 x 6
+     date       tournament team_type team    scored  year
+     <date>     <fct>      <chr>     <chr>    <dbl> <dbl>
+   1 2000-06-10 UEFA Euro  home_team Belgium      2  2000
+   2 2000-06-11 UEFA Euro  home_team France       3  2000
+   3 2000-06-11 UEFA Euro  away_team Italy        2  2000
+   4 2000-06-12 UEFA Euro  home_team Germany      1  2000
+   5 2000-06-12 UEFA Euro  away_team England      2  2000
+   # … with 274 more rows
+   ```
+
+   The output of `print(levels(fu2$tournament))` is
+
+   ```
+   [1] "FIFA World Cup"      "UEFA Euro"           "UEFA Nations League"
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+10. Using `fu2`, let's now draw a barplot representing the number of games that
+   team England, Germany, France, Belgium, Italy and Spain
+   participated in the FIFA World Cup, UEFA Euro, and UEFA Nations League,
+   since 2000.
+   In the bar plot, each group of columns should represent a team
+   and different column for different tournament should be
+   shown in different colors.
+
+   ```{r}
+   ## Your code goes here
+   ```
+
+11. Use `fu_tidy2` to extract `fu3`, containing a ranking the national teams
+   by World cup attendance filtered for those having attended at least 9
+   times.
+
+   To check your answer:
+
+   The output of `print(fu3, n = 5)` is
+
+   ```
+   # A tibble: 18 x 2
+     team          n
+     <chr>     <int>
+   1 Brazil       21
+   2 Germany      19
+   3 Italy        18
+   4 Argentina    17
+   5 Mexico       16
+   # … with 13 more rows
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+12. Then, use `fu3` to create barplot of the world cup attendance
+    (i.e., `n`) per team.
+    Hints: use `fct_reorder()` to transform `team` as a factor sorted by 
+    attendance, and `stat = "identity"`, and `coord_flip()` to flip the axis 
+    so that country names can be shown properly.
+   
+   ```{r}
+   ## Your code goes here
+   ```
