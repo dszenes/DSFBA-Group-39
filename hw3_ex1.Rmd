@@ -36,7 +36,9 @@ abalone <- read_csv(file = here::here("data/abalone.csv"))
    ```{r}
    ## Your code goes here
    ```
-length_sex_ring <- abalone %>% select(sex, diameter, height, rings)  %>% filter(abalone$length > 0.6) %>% arrange( sex, desc(rings))
+length_sex_ring <- abalone %>% 
+select(sex, diameter, height, rings)  %>% 
+filter(abalone$length > 0.6) %>% arrange( sex, desc(rings))
 
 
 2. Extract a tibble `count_prop` of dimension 3 x 3,
@@ -61,7 +63,10 @@ length_sex_ring <- abalone %>% select(sex, diameter, height, rings)  %>% filter(
    ## Your code goes here
    ```
    
-count_prop <- abalone %>% group_by(sex) %>% summarise( count = n()) %>% mutate (prop = count/sum(count))
+count_prop <- abalone %>% 
+group_by(sex) %>% 
+summarise( count = n()) %>% 
+mutate(prop = count/sum(count))
 
 print(count_prop, n = 5)
 
@@ -87,8 +92,11 @@ print(count_prop, n = 5)
    ## Your code goes here
    ```
    
-   mean_max_min <- abalone%>% group_by(sex) %>% summarize( weight_mean = mean(shucked_weight),
-   weight_max = max(shucked_weight), weight_min = min(shucked_weight))
+   mean_max_min <- abalone %>% 
+   group_by(sex) %>% 
+   summarize( weight_mean = mean(shucked_weight),
+   weight_max = max(shucked_weight), 
+   weight_min = min(shucked_weight))
    
    print(mean_max_min, n = 5)
    
@@ -120,7 +128,9 @@ print(count_prop, n = 5)
    ## Your code goes here
    ```
    
-   filter_na <- abalone %>% filter( diameter == NA | diameter > 0.36) %>% select (index = X, sex, length, diameter, rings, everything())
+   filter_na <- abalone %>% 
+   filter( diameter == NA | diameter > 0.36) %>% 
+   select (index = X, sex, length, diameter, rings, everything())
    
    print(filter_na, n = 5)
    
@@ -149,7 +159,8 @@ print(count_prop, n = 5)
    ## Your code goes here
    ```
    
-   transmute_abalone <- abalone %>% transmute( whole_weight_in_mg = whole_weight*1000, water_weight_in_mg = (whole_weight - (shucked_weight + shell_weight + viscera_weight))*1000)
+   transmute_abalone <- abalone %>% 
+   transmute( whole_weight_in_mg = whole_weight*1000, water_weight_in_mg = (whole_weight - (shucked_weight + shell_weight + viscera_weight))*1000)
    
    print(transmute_abalone, n = 5)
    
@@ -180,7 +191,11 @@ print(count_prop, n = 5)
    ```{r}
    ## Your code goes here
    ```
-   first_1000_rank <- abalone %>% mutate( rings_rank = row_number(rings)) %>% select( diameter, rings, rings_rank) %>% filter(rings_rank < 1001) %>% arrange(rings)
+   first_1000_rank <- abalone %>% 
+   mutate( rings_rank = row_number(rings)) %>% 
+   select( diameter, rings, rings_rank) %>% 
+   filter(rings_rank < 1001) %>% 
+   arrange(rings)
    
    print(first_1000_rank, n = 5)
    
@@ -207,7 +222,9 @@ print(count_prop, n = 5)
    ## Your code goes here
    ```
    
-   n_distinct_rings_by_sex <- abalone %>% group_by(sex) %>% summarize(distinct_rings = n_distinct(rings))
+   n_distinct_rings_by_sex <- abalone %>% 
+   group_by(sex) %>% 
+   summarize(distinct_rings = n_distinct(rings))
    
    print(n_distinct_rings_by_sex, n = 5)
    
