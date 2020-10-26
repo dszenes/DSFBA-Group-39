@@ -34,11 +34,13 @@ abalone <- read_csv(file = here::here("data/abalone.csv"))
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
+   
 length_sex_ring <- abalone %>% 
 select(sex, diameter, height, rings)  %>% 
 filter(abalone$length > 0.6) %>% arrange( sex, desc(rings))
+
+   ```
+
 
 
 2. Extract a tibble `count_prop` of dimension 3 x 3,
@@ -60,15 +62,14 @@ filter(abalone$length > 0.6) %>% arrange( sex, desc(rings))
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
    
 count_prop <- abalone %>% 
 group_by(sex) %>% 
 summarise( count = n()) %>% 
 mutate(prop = count/sum(count))
 
-print(count_prop, n = 5)
+   ```
+   
 
 3. Extract a tibble `mean_max_min` of dimension 3 x 4, which contains the
    `sex`, `weight_mean`, `weight_max` and `weight_min` columns.
@@ -89,8 +90,6 @@ print(count_prop, n = 5)
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
    
    mean_max_min <- abalone %>% 
    group_by(sex) %>% 
@@ -98,7 +97,8 @@ print(count_prop, n = 5)
    weight_max = max(shucked_weight), 
    weight_min = min(shucked_weight))
    
-   print(mean_max_min, n = 5)
+   ```
+   
    
 4. Extract a tibble `filter_na` of dimension 2963 x 10,
    which contains all columns. The dataset should be filtered for diameter
@@ -125,14 +125,14 @@ print(count_prop, n = 5)
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
    
    filter_na <- abalone %>% 
    filter( diameter == NA | diameter > 0.36) %>% 
    select (index = X, sex, length, diameter, rings, everything())
+
+   ```
    
-   print(filter_na, n = 5)
+   
    
 5. Extract a tibble `transmute_abalone` of dimension 4177 x 2,
    which contains the `whole_weight_in_mg` and `water_weight_in_mg` columns,
@@ -156,13 +156,13 @@ print(count_prop, n = 5)
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
    
    transmute_abalone <- abalone %>% 
    transmute( whole_weight_in_mg = whole_weight*1000, water_weight_in_mg = (whole_weight - (shucked_weight + shell_weight + viscera_weight))*1000)
    
-   print(transmute_abalone, n = 5)
+   ```
+   
+   
    
    
 6. Extract a tibble `first_1000_rank` of dimension 1000 x 3,
@@ -189,15 +189,17 @@ print(count_prop, n = 5)
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
+   
    first_1000_rank <- abalone %>% 
    mutate( rings_rank = row_number(rings)) %>% 
    select( diameter, rings, rings_rank) %>% 
    filter(rings_rank < 1001) %>% 
    arrange(rings)
    
-   print(first_1000_rank, n = 5)
+   ```
+  
+   
+  
    
    
 7. Extract a tibble `n_distinct_rings_by_sex` of dimension 3 x 2,
@@ -219,14 +221,15 @@ print(count_prop, n = 5)
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
    
    n_distinct_rings_by_sex <- abalone %>% 
    group_by(sex) %>% 
    summarize(distinct_rings = n_distinct(rings))
    
-   print(n_distinct_rings_by_sex, n = 5)
+   ```
+   
+
+
    
   
 ### Visualization
@@ -234,25 +237,29 @@ print(count_prop, n = 5)
 8. Draw a density plot of `rings`, colored by `sex`.
   
    ```{r}
-   ## Your code goes here
+   
+   ggplot(abalone, aes(rings, color = sex)) +
+   geom_density( )
+   
    ```
    
  
-   ggplot(abalone, aes(rings, color = sex)) +
-   geom_density( )
+
   
 9. Draw a histogram of the `diameter` with `binwidth` as 0.05,
    filled and faceted by `sex`.
   
    ```{r}
-   ## Your code goes here
-   ```
-   
- 
    
    ggplot(abalone, aes(diameter)) +
    geom_histogram( binwidth = 0.05) +
    facet_grid(sex ~ .)
+   
+   ```
+   
+ 
+   
+
    
   
 10. Draw a boxplot of `diameter` against `sex`.
@@ -260,36 +267,38 @@ print(count_prop, n = 5)
    of the median `diameter` per group.
   
    ```{r}
-   ## Your code goes here
-   ```
    
-
    ggplot(abalone, aes( reorder(sex, -diameter, median), diameter)) +
    geom_boxplot()
+   
+   ```
+   
 
   
 11. Draw a point plot of `diameter` against `rings` with a smooth curve
    obtained using the `loess` method, and faceted by `sex`.
   
    ```{r}
-   ## Your code goes here
-   ```
-  
+   
   ggplot(abalone, aes(rings, diameter))+
   geom_point()+
   geom_smooth(method = loess)+
   facet_grid(sex ~ .)
+  
+   ```
+  
   
 
   
 12. Draw a violin plot of `whole_weight` against `length` faceted by `sex`.
 
    ```{r}
-   ## Your code goes here
-   ```
    
    ggplot(abalone, aes(length, whole_weight))+
    geom_violin()+
    facet_grid(sex ~ .)
-  
+   
+   ```
+   
+ 
   
