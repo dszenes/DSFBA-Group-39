@@ -41,7 +41,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    ## Your code goes here
    ```
 
-fu_separated <- fu %>% separate( date, into = c("year","mon", "day"), sep = "[-]+")
+fu_separated <- fu %>% 
+separate( date, into = c("year","mon", "day"), sep = "[-]+")
 
 print(fu_separated, n = 5)
 
@@ -77,7 +78,8 @@ print(fu_separated, n = 5)
    ## Your code goes here
    ```
    
-   fu_tidy <- fu_separated %>% pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )
+   fu_tidy <- fu_separated %>% 
+   pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )
    
    print(fu_tidy, n = 5)
 
@@ -111,8 +113,11 @@ print(fu_separated, n = 5)
    
    
 
-   fu_team <- fu_tidy %>% mutate(scored = ifelse(team_type == "away_team", away_score, home_score), 
-   conceded = ifelse(team_type == "home_team",away_score, home_score), gd = scored-conceded) %>% select(year:day, scored:gd, team, city, country)
+   fu_team <- fu_tidy %>% 
+   mutate(scored = ifelse(team_type == "away_team", away_score, home_score), 
+   conceded = ifelse(team_type == "home_team",away_score, home_score), 
+   gd = scored-conceded) %>% 
+   select(year:day, scored:gd, team, city, country)
    
 
 
@@ -143,7 +148,8 @@ print(fu_separated, n = 5)
    ## Your code goes here
    ```
    
-   fu_city <- fu_team %>% unite(place, city, country)
+   fu_city <- fu_team %>% 
+   unite(place, city, country)
    
    print(fu_city, n = 5)
    
@@ -174,8 +180,13 @@ print(fu_separated, n = 5)
    ## Your code goes here
    ```
    
-   fu_england <- fu_city %>% group_by(year) %>% filter(team == "England") %>% summarize(scored = mean(scored),
-   conceded = mean(conceded), gd = mean(gd)) %>% arrange( desc(gd),  desc(scored))
+   fu_england <- fu_city %>% 
+   group_by(year) %>% 
+   filter(team == "England") %>% 
+   summarize(scored = mean(scored),
+   conceded = mean(conceded), 
+   gd = mean(gd)) %>% 
+   arrange( desc(gd),  desc(scored))
  
    
    print(fu_england, n = 5)
@@ -216,6 +227,14 @@ print(fu_separated, n = 5)
    ## Your code goes here
    ```
    
+   fu_tidy2 <- fu %>% 
+   pivot_longer(c(home_team,away_team), "team_type", values_to ="team" ) %>% 
+   mutate( year = str_split_fixed(date, "-", 3)[,1], 
+   scored = ifelse(team_type == "away_team", away_score, home_score)) %>%                      
+   select(date,tournament, team_type, team, scored, year)
+   
+   
+   print(fu_tidy2, n = 5)
    
      
 ### Visualization
