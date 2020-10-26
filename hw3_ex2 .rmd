@@ -1,0 +1,223 @@
+## Exercise 2: nations
+
+```{r, echo = FALSE, message = FALSE}
+source(here::here("scripts/setup.R"))
+```
+
+Let's first load a dataset:
+
+```{r, echo = TRUE}
+nations <- read_csv(file = here::here("data/nations.csv"))
+```
+
+### Wrangling
+
+1. From the `nations` tibble, extract a tibble `longevity` of dimension
+   175 x 5 that contains the `country`, `gdp_percap`, `life_expect`,
+   `population` and `region` columns.
+   The dataset should be filtered for the observations in 2016 where the
+   columns `life_expect` and `gdp_percap` are not NA.
+
+   To check your answer:
+
+   The output of `print(longevity, n = 5)` is
+
+   ```
+   # A tibble: 175 x 5
+     country         gdp_percap life_expect population region
+     <chr>                <dbl>       <dbl>      <dbl> <chr>
+   1 United Arab Em…     72400.        77.3    9269612 Middle East & Nor…
+   2 Afghanistan          1944.        63.7   34656032 South Asia
+   3 Antigua and Ba…     22661.        76.4     100963 Latin America & C…
+   4 Albania             11540.        78.3    2876101 Europe & Central …
+   5 Armenia              8833.        74.6    2924816 Europe & Central …
+   # … with 170 more rows
+   ```
+   
+   ```{r, echo = TRUE}
+   
+longevity <- nations %>%
+filter(year == 2016) %>% 
+select(country, gdp_percap, life_expect, population, region) %>% 
+filter( !(is.na(life_expect) | is.na(gdp_percap)))
+
+   ```
+
+print(longevity, n = 5)
+
+2. From `longevity`, extract a new tibble `ea_na_75_85` of dimension 15 x 5
+   that contains the `country`, `gdp_percap`, `life_expect`, `population` and
+   `region` columns.
+   The dataset should be filtered for countries in `"East Asia & Pacific"` or
+   `"North America"`, with `life_expect` between 75 and 85 included.
+   It should be sorted by decreasing `life_expect`.
+
+   To check your answer:
+
+   The output of `print(ea_na_75_85, n = 5)` is
+
+   ```
+   # A tibble: 15 x 5
+     country           gdp_percap life_expect population region
+     <chr>                  <dbl>       <dbl>      <dbl> <chr>
+   1 Hong Kong SAR, C…     58618.        84.2    7336600 East Asia & Pac…
+   2 Japan                 42281.        84.0  126994511 East Asia & Pac…
+   3 Macao SAR, China     105420.        83.8     612167 East Asia & Pac…
+   4 Singapore             87833.        82.8    5607283 East Asia & Pac…
+   5 Australia             46012.        82.5   24210809 East Asia & Pac…
+   # … with 10 more rows
+   ```
+      
+   ```{r, echo = TRUE}
+   
+ea_na_75_85 <- longevity %>% filter(region == "East Asia & Pacific" | region == "North America", life_expect >= 75 & life_expect <= 85) %>% arrange(desc(life_expect))
+   ```
+
+
+
+3. From `longevity` again, extract a tibble `top_10_perc_us` of dimension
+   19 x 6 that contains the `country`, `gdp_percap`, `life_expect`,
+   `population`, `region` and `perc_rank` columns, where
+   `perc_rank` is a new column corresponding to the percentile rank for
+   `life_expect` (hint: use `percent_rank()`). The dataset should be sorted
+   by decreasing `perc_rank` and filtered for countries with top 10%
+   `perc_rank` (i.e., `perc_rank` >= 0.9), plus `"United States"` (whose rank
+   may lie outside the top 10%).
+
+   To check your answer:
+
+   The output of `print(top_10_perc_us, n = 5)` is
+
+   ```
+   # A tibble: 19 x 6
+     country      gdp_percap life_expect population region      perc_rank
+     <chr>             <dbl>       <dbl>      <dbl> <chr>           <dbl>
+   1 Hong Kong S…     58618.        84.2    7336600 East Asia …     1.
+   2 Japan            42281.        84.0  126994511 East Asia …     0.994
+   3 Macao SAR, …    105420.        83.8     612167 East Asia …     0.989
+   4 Switzerland      63889.        82.9    8372413 Europe & C…     0.983
+   5 Spain            36305.        82.8   46484533 Europe & C…     0.977
+   # … with 14 more rows
+   ```
+      
+   ```{r, echo = TRUE}
+   
+ top_10_perc_us <- longevity %>%
+   select(country, gdp_percap, life_expect, population, region) %>%
+   mutate(perc_rank = percent_rank(life_expect)) %>%
+   arrange(desc(perc_rank)) %>%
+   filter(perc_rank >= 0.9 | country == "United States")
+
+  ```
+   
+4. From `nations`, extract a tibble `gdp_by_region` of dimension 189 x 3
+   that contains the `region`, `year` and `total_gdp` columns, where
+   `total_gdp` is a new column containing the total real GDP by
+   `region` and `year`, with real GDP being the product of `gdp_percap` and
+   `population`. The unit of `total_gdp` should be trillions of dollars
+   (hint: divide the result by 1000000000000).
+
+   To check your answer:
+
+   The output of `print(gdp_by_region, n = 5)` is
+
+   ```
+   # A tibble: 189 x 3
+   # Groups:   region [7]
+     region               year total_gdp
+     <chr>               <dbl>     <dbl>
+   1 East Asia & Pacific  1990      5.59
+   2 East Asia & Pacific  1991      6.10
+   3 East Asia & Pacific  1992      6.57
+   4 East Asia & Pacific  1993      7.11
+   5 East Asia & Pacific  1994      7.71
+   # … with 184 more rows
+   ```
+      
+   ```{r}
+   ## Your code goes here
+   ```
+
+
+gdp_by_region <- nations %>% group_by(region, year) %>% 
+filter( !(is.na(life_expect) | is.na(gdp_percap))) %>%
+summarise(total_gdp = sum(gdp_percap * population/1000000000000))
+
+
+
+5. From `nations`, extract a tibble `p_countries` of dimension 5 x 2
+   that contains `income` and `p` columns. The dataset should be
+   contain data from 2016 and `p` should be a new column
+   containing the proportions of countries with `life_expect` over 70 by
+   `income`.
+   Hint: count for countries that satisfy the condition, then divide
+   by the total count using `n()`.
+
+   To check your answer:
+
+   The output of `print(p_countries, n = 5)` is
+
+   ```
+   # A tibble: 5 x 2
+     income                  p
+     <chr>               <dbl>
+   1 High income         0.841
+   2 Low income          0.118
+   3 Lower middle income 0.426
+   4 Not classified      0
+   5 Upper middle income 0.849
+   ```
+      
+   ```{r}
+
+   ```
+??? quasi-bon output -> pas bon p et manque Not classified
+View(nations %>% group_by(income) %>% filter(year==2016, life_expect>=70) %>% summarise(count = n()) %>% mutate(prop = count/sum(count)))
+
+p_countries <- nations %>% 
+group_by(income) %>% 
+filter(year==2016, life_expect>70) %>% 
+summarise(count = n()) %>% 
+mutate(prop = count/sum(count))
+
+print(p_countries, n = 5)
+
+### Visualization
+
+6. Draw multiple horizontal boxplots for the life expectancy against region.
+   To improve the readability:
+       - use `fct_reorder()` to sort the column `region` by
+          median of `life_expect`,
+       - `coord_flip()` to make the boxplots horizontal,
+       - add a red line to show the overall median life expectancy.
+      
+   ```{r, echo = TRUE}
+  nations %>% na.omit %>%
+  mutate(region = fct_reorder(region, life_expect, .fun = 'median')) %>%
+  ggplot(aes(region,life_expect)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(x = "Region", y = "Life Expectancy")
+   ```
+
+  
+7. Draw a scatterplot for `life_exp` against `gdp_percap` with a linear
+   regression line (without standard errors), using a log-scale for the
+   x-axis.
+      
+   ```{r, echo = TRUE}
+  nations %>% na.omit %>%
+  ggplot(aes(gdp_percap, life_expect)) +
+  labs(x = "GDP per capita (log-scale)", y = "Life Expectancy") +
+  geom_point() +  geom_smooth(method = "lm", se = F, color = 'red') +
+  scale_x_log10(labels = scales::comma)
+   ```
+ 
+
+8. To understand how life expectancy evolves over time in different region, draw 
+   a lineplot for each country and a linear regression line, faceted by region.
+      
+   ```{r, echo = TRUE}
+   nations %>% na.omit %>% ggplot(aes(year, life_expect, group = country)) +
+    geom_line(alpha = 0.5) + facet_wrap(~region) + labs(x = "Year", y= "Life Expectancy")
+   ```
