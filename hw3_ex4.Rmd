@@ -1,0 +1,214 @@
+## Exercise 4: iris
+
+```{r, echo = FALSE, message = FALSE}
+source(here::here("scripts/setup.R"))
+```
+
+Let's convert iris to a tibble:
+
+```{r, echo = TRUE}
+iris <- as_tibble(iris)
+```
+
+### Wrangling and tidying
+
+1. Use `summary()` to on `iris` to compute summaries for all variables
+   assign the result to variable `summary_iris`.
+   In the remainder of this exercise, we'll try to reproduce the content of
+   this summary table by breaking it down in several steps.
+
+   To check your answer:
+
+   The output of `print(summary_iris)` is
+
+   ```
+     Sepal.Length    Sepal.Width     Petal.Length    Petal.Width
+    Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100
+    1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300
+    Median :5.800   Median :3.000   Median :4.350   Median :1.300
+    Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199
+    3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800
+    Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500
+          Species
+    setosa    :50
+    versicolor:50
+    virginica :50
+   ```
+   
+   ```{r}
+summary_iris <- iris %>% summary
+   ```
+
+
+2. First, let's compute the column that contains the counts across the
+   different species of iris and assign it to `species_count`, which should
+   contain two colums `Species` and `num`, representing each specie of iris
+   and how many of each specie are found in the dataset.
+
+   To check your answer:
+
+   The output of `print(species_count, n = 1)` is
+
+   ```
+   # A tibble: 3 x 2
+     Species   num
+     <fct>   <int>
+   1 setosa     50
+   # … with 2 more rows
+   ```
+   
+   ```{r}
+species_count <- iris %>% group_by(Species) %>% tally %>% summarise(Species,num=n)
+   ```
+
+3. Now let's focus on the numerical variables: for all columns except
+   for `Species`, compute their minimum, 25th quantile, median, mean,
+   75th quantile and maximum, and assign the result to `summary_stats`.
+
+   To check your answer:
+
+   The output of `print(summary_stats, n = 5)` is
+
+   ```
+   # A tibble: 1 x 24
+     Sepal.Length_Mi… Sepal.Width_Min. Petal.Length_Mi… Petal.Width_Min.
+                <dbl>            <dbl>            <dbl>            <dbl>
+   1              4.3                2                1              0.1
+   # … with 20 more variables:  Sepal.Length_1st Qu.  <dbl>,
+   #    Sepal.Width_1st Qu.  <dbl>,  Petal.Length_1st Qu.  <dbl>,
+   #    Petal.Width_1st Qu.  <dbl>, Sepal.Length_Median <dbl>,
+   #   Sepal.Width_Median <dbl>, Petal.Length_Median <dbl>,
+   #   Petal.Width_Median <dbl>, Sepal.Length_Mean <dbl>,
+   #   Sepal.Width_Mean <dbl>, Petal.Length_Mean <dbl>,
+   #   Petal.Width_Mean <dbl>,  Sepal.Length_3rd Qu.  <dbl>,
+   #    Sepal.Width_3rd Qu.  <dbl>,  Petal.Length_3rd Qu.  <dbl>,
+   #    Petal.Width_3rd Qu.  <dbl>, Sepal.Length_Max. <dbl>,
+   #   Sepal.Width_Max. <dbl>, Petal.Length_Max. <dbl>,
+   #   Petal.Width_Max. <dbl>
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+summary_stats <- iris %>% select(-(Species)) %>% summarise(
+  across(.cols = everything(), ~ min(.x, na.rm = TRUE), .names = "{.col}_Min"),
+  across(.cols = everything(), ~ quantile(.x, na.rm = TRUE), .names = "{.col}_1stQuantile"),
+  across(.cols = everything(), ~ median(.x, na.rm = TRUE), .names = "{.col}_Median"),
+  across(.cols = everything(), ~ mean(.x, na.rm = TRUE), .names = "{.col}_Mean"),
+  across(.cols = everything(), ~ quantile(.x, na.rm = TRUE), .names = "{.col}_3rdQuantile"),
+  across(.cols = everything(), ~ max(.x, na.rm = TRUE), .names = "{.col}_Max")
+)
+
+iris %>%
+  group_by(Species) %>%
+  summarise(across(
+    .cols = is.numeric, 
+    .fns = list(Mean = mean, SD = sd), na.rm = TRUE, 
+    .names = "{col}_{fn}"
+    ))
+
+
+4. Let's now tidy this tibble to get a result that is easier to understand
+   and closer to the output `summary()`: we want to transform this one-row
+   tibble into a longer tibble where each row is a variable
+   (i.e., one of `Petal.Length`, `Petal.Width`, `Sepal.Length` and
+   `Sepal.Width`), and each column is a summary statistics computed for
+   the corresponding variable.
+   We'll do that in three steps:
+   First, we will transform our one-row tibble into a tibble `summary_long`
+   with three columns:
+     - `variable`, containing the variable name (e.g. `Sepal.Length`),
+     - `stat`, containing the name of the summary statistic computed on
+       the `variable` of the same row (e.g. `1st Qu.`),
+     - `value` containing the value of the `stat` (e.g. `5.1`).
+  Assign the result to tibble `summary_long`.
+
+   To check your answer:
+
+   The output of `print(summary_long, n = 5)` is
+
+   ```
+   # A tibble: 24 x 3
+     variable     stat    value
+     <chr>        <chr>   <dbl>
+   1 Sepal.Length Min.      4.3
+   2 Sepal.Width  Min.      2
+   3 Petal.Length Min.      1
+   4 Petal.Width  Min.      0.1
+   5 Sepal.Length 1st Qu.   5.1
+   # … with 19 more rows
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+5. As for the second step, from `summary_long`, extract a tibble
+   `summary_stats_tidy` in which each row is a variable
+   (i.e., one of `Petal.Length`, `Petal.Width`, `Sepal.Length` and
+   `Sepal.Width`) and each column is a summary stat computed
+   for each variable (i.e., `Min.`, `1st Qu.`, `Median`, `Mean`,
+   `3rd Qu.` and `Max.`).
+
+   To check your answer:
+
+   The output of `print(summary_stats_tidy, n = 5)` is
+
+   ```
+   # A tibble: 4 x 7
+     variable      Min.  1st Qu.  Median  Mean  3rd Qu.   Max.
+     <chr>        <dbl>     <dbl>  <dbl> <dbl>     <dbl> <dbl>
+   1 Sepal.Length   4.3       5.1   5.8   5.84       6.4   7.9
+   2 Sepal.Width    2         2.8   3     3.06       3.3   4.4
+   3 Petal.Length   1         1.6   4.35  3.76       5.1   6.9
+   4 Petal.Width    0.1       0.3   1.3   1.20       1.8   2.5
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+6. We are getting closer! The final step: we need to transpose our tibble to
+   something similar to `summary(iris)`. Transpose `summary_stats_tidy` into
+   a tibble `summary_stats_transposed`. It should have five columns:
+   the first, named `Stat` contains the name of the summary statistic
+   and the others (`Petal.Length`, `Petal.Width`, `Sepal.Length` and
+   `Sepal.Width`) contain the values for each variable.
+   To do that, you can successively use `pivot_longer` and `pivot_wider`.
+
+   To check your answer:
+
+   The output of `print(summary_stats_transposed, n = 5)` is
+
+   ```
+   # A tibble: 6 x 5
+     Stat    Sepal.Length Sepal.Width Petal.Length Petal.Width
+     <chr>          <dbl>       <dbl>        <dbl>       <dbl>
+   1 Min.            4.3         2            1           0.1
+   2 1st Qu.         5.1         2.8          1.6         0.3
+   3 Median          5.8         3            4.35        1.3
+   4 Mean            5.84        3.06         3.76        1.20
+   5 3rd Qu.         6.4         3.3          5.1         1.8
+   # … with 1 more row
+   ```
+   
+   ```{r}
+   ## Your code goes here
+   ```
+
+### Visualization
+
+7.  Draw a scatterplot of the petal length against sepal length, colored by 
+    species, and add a linear regression line for each group.
+   
+   ```{r}
+   ## Your code goes here
+   ```
+    
+8. Now, let's produce a scatterplot of sepal width against sepal length, 
+   faceted by species, and add a linear regression line for each group.
+   
+   ```{r}
+   ## Your code goes here
+   ```
+   
