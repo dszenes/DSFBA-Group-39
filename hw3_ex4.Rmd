@@ -36,9 +36,16 @@ iris <- as_tibble(iris)
    ```
    
    ```{r}
-options(digits = 4)
-summary_iris <- iris %>% summary(digits = 4)
+   
+
+ summary_iris <- iris %>% 
+ summary(digits = 4)
+ 
+ kable(summary_iris, "simple")
+   
    ```
+   
+
 
 2. First, let's compute the column that contains the counts across the
    different species of iris and assign it to `species_count`, which should
@@ -58,8 +65,17 @@ summary_iris <- iris %>% summary(digits = 4)
    ```
    
    ```{r}
-species_count <- iris %>% group_by(Species) %>% tally %>% summarise(Species,num = n)
+   
+   species_count <- iris %>% 
+   count(Species, name = "num")
+   
+   kable(species_count, "simple")
+   
    ```
+   
+   
+print(species_count, n = 1)
+
 
 3. Now let's focus on the numerical variables: for all columns except
    for `Species`, compute their minimum, 25th quantile, median, mean,
@@ -88,12 +104,26 @@ species_count <- iris %>% group_by(Species) %>% tally %>% summarise(Species,num 
    ```
    
    ```{r}
-   ## Your code goes here
-   ```
- 
-summary_stats <- iris %>% select(-(Species)) %>% summarise(across(everything(), list(Min=min, Q1=~quantile(., probs = 0.25), Median=median, Mean = mean, Q3=~quantile(., probs = 0.75), Max=max), .names = "{.col}_{.fn}")) %>% select(contains("Min"), contains("Q1"), contains("Median"), contains("Mean"), contains("Q3"),contains("Max"))
+   
 
-View(summary_stats)
+
+   summary_stats <- iris %>% 
+   summarise(across(-(Species),
+   list(Min=min, 
+   "1st Qu"=~quantile(., probs = 0.25), 
+   Median=median, Mean = mean, 
+   "3rd Qu"=~quantile(., probs = 0.75), 
+   Max=max), 
+   .names = "{.col}_{.fn}")) %>%
+   select(contains(c("Min","1st Qu","Median","Mean","3rd Qu","Max")))
+   
+   kable(summary_stats, "simple")
+
+   ```
+   
+   print(summary_stats, n = 5)
+
+
 
 4. Let's now tidy this tibble to get a result that is easier to understand
    and closer to the output `summary()`: we want to transform this one-row
@@ -127,10 +157,16 @@ View(summary_stats)
    ```
    
    ```{r}
-   ## Your code goes here
+   
+summary_long <- summary_stats %>% 
+pivot_longer(everything()) %>% 
+separate(name, c("variable","stat"), sep = "_")
+
+kable(head(summary_long), "simple")
+   
    ```
 
-summary_long <- summary_stats %>% pivot_longer(everything()) %>% separate(name, c("variable","stat"), sep = "_")
+
 
 5. As for the second step, from `summary_long`, extract a tibble
    `summary_stats_tidy` in which each row is a variable
@@ -154,10 +190,14 @@ summary_long <- summary_stats %>% pivot_longer(everything()) %>% separate(name, 
    ```
    
    ```{r}
-   ## Your code goes here
+   
+   summary_stats_tidy <- summary_long %>% 
+   pivot_wider(names_from = stat, values_from = value) 
+   
+   kable(summary_stats_tidy, "simple")
+   
    ```
- summary_stats_tidy <- summary_long %>% pivot_wider(names_from = stat, values_from = value) 
-View(summary_stats_tidy)
+  
 
 6. We are getting closer! The final step: we need to transpose our tibble to
    something similar to `summary(iris)`. Transpose `summary_stats_tidy` into
@@ -184,10 +224,17 @@ View(summary_stats_tidy)
    ```
    
    ```{r}
-   ## Your code goes here
+   
+  summary_stats_transposed <-
+  summary_stats_tidy %>% 
+  pivot_longer(c(`Min`, `1st Qu`, `Median`, `Mean`, `3rd Qu`, `Max`), names_to = "Stat") %>% 
+  pivot_wider(names_from = variable, values_from = value)
+   
+   kable(summary_stats_transposed, "simple")
+   
    ```
-summary_stats_transposed <-
-  summary_stats_tidy %>% pivot_longer(c(`Min`, `Q1`, `Median`, `Mean`, `Q3`, `Max`), names_to = "Stat") %>% pivot_wider(names_from = variable, values_from = value)
+   
+
 
 ### Visualization
 
@@ -195,16 +242,24 @@ summary_stats_transposed <-
     species, and add a linear regression line for each group.
    
    ```{r}
-   ## Your code goes here
+   
+   iris %>% 
+   ggplot(aes(Sepal.Length,Petal.Length, color=Species)) + 
+   geom_point() +  
+   geom_smooth(method=lm)
+   
    ```
-iris %>% ggplot(aes(Sepal.Length,Petal.Length, color=Species)) + geom_point() +  geom_smooth(method=lm)
-
-
+    
 8. Now, let's produce a scatterplot of sepal width against sepal length, 
    faceted by species, and add a linear regression line for each group.
    
    ```{r}
-   ## Your code goes here
+   
+  iris %>% 
+  ggplot(aes(Sepal.Length, Sepal.Width)) +  
+  geom_point()+
+  facet_wrap(~Species) +  
+  geom_smooth(method=lm)
+   
    ```
-iris %>% ggplot(aes(Sepal.Length,Petal.Length)) +  geom_point()+facet_wrap(~Species) +  geom_smooth(method=lm)
-
+   

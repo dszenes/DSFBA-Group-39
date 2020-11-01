@@ -39,8 +39,10 @@ fu <- read_csv(file = here::here("data/football.csv"))
    
    ```{r}
    
-fu_separated <- fu %>% 
-separate( date, into = c("year","mon", "day"), sep = "[-]+")
+   fu_separated <- fu %>% 
+   separate( date, into = c("year","mon", "day"), sep = "[-]+")
+   
+   kable(head(fu_separated), "simple")
 
    ```
 
@@ -78,10 +80,11 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    ```{r}
    
    fu_tidy <- fu_separated %>% 
-   pivot_longer(c(home_team,away_team), "team_type", values_to ="team")
+   pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )
+   
+   kable(head(fu_tidy), "simple")
    
    ```
-   
 
    
 
@@ -118,14 +121,14 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    gd = scored-conceded) %>% 
    select(year:day, scored:gd, team, city, country)
    
+   kable(head(fu_team), "simple")
+   
    ```
    
-   
 
    
 
 
-   print(fu_team, n = 5)
    
 
 4. The `city` and `country` column represents where the game was held.
@@ -153,13 +156,12 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    fu_city <- fu_team %>% 
    unite(place, city, country)
    
+   kable(head(fu_city), "simple")
+   
    
    ```
+
    
-   fu_city <- fu_team %>% 
-   unite(place, city, country)
-   
- 
 
 5. From `fu_city`, let's extract `fu_england`, a tibble containing
    the yearly average goals scored, goals conceded, and goal differences
@@ -189,15 +191,12 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    group_by(year) %>% 
    filter(team == "England") %>% 
    summarize(scored = mean(scored),
-   conceded = mean(conceded), 
-   gd = mean(gd)) %>% 
-   arrange( desc(gd),  desc(scored))
+   conceded = mean(conceded), gd = mean(gd)) %>% 
+   arrange( desc(gd),  desc(scored), conceded)
+   
+   kable(head(fu_england), "simple")
    
    ```
-   
- 
-   
- 
    
 
 6. In the following, we want to look at the number of points scored and
@@ -233,19 +232,19 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    
    ```{r}
    
-     
    fu_tidy2 <- fu %>% 
    pivot_longer(c(home_team,away_team), "team_type", values_to ="team" ) %>% 
    mutate( year = str_split_fixed(date, "-", 3)[,1], 
-   scored = ifelse(team_type == "away_team", away_score, home_score)) %>%                      
-   select(date,tournament, team_type, team, scored, year)
+   scored = ifelse(team_type == "away_team", away_score, home_score)) %>%                                            select(date,tournament, team_type, team, scored, year)
+   
+   kable(head(fu_tidy2), "simple")
+   
    
    ```
    
-
+  
    
-
-     
+  
 ### Visualization
 
 7. From `fu_tidy2`, let's now look at the yearly number of goals scored from
@@ -287,12 +286,15 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    ungroup(team) %>%
    mutate( team = fct_reorder(team, scored, median)) 
    
+   kable(head(fu1), "simple")
+   
    ```
+   
 
 8. Use `fu1` to produce boxplots of the number of goals scored for each team.
    
    ```{r}
-   
+ 
    ggplot(fu1, aes( team, scored)) +
    geom_boxplot()
    
@@ -332,10 +334,17 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    fu2 <- fu_tidy2 %>%
    mutate( tournament = factor(tournament, c("FIFA World Cup", "UEFA Euro", "UEFA Nations League"))) %>%
    filter(team %in% c("England","Germany","France","Belgium","Italy","Spain"),
-   year >= 2000, 
-   !(is.na(tournament))) %>%
+   year >= 2000,
+   !(is.na(tournament)))
    
+   kable(head(fu2), "simple")
+  
    ```
+   
+print(fu2, n = 5)
+
+print(levels(fu2$tournament))
+   
 
 10. Using `fu2`, let's now draw a barplot representing the number of games that
    team England, Germany, France, Belgium, Italy and Spain
@@ -346,6 +355,7 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    shown in different colors.
 
    ```{r}
+   
    
    ggplot(fu2, aes(team, fill = tournament ))+
    geom_bar( position=position_dodge())
@@ -374,6 +384,7 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    
    ```{r}
    
+  
    fu3 <- fu_tidy2 %>%
    filter(tournament =="FIFA World Cup") %>%
    group_by(team) %>%
@@ -381,7 +392,14 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    filter(n >= 9) %>%
    arrange(desc(n)) 
    
+   kable(head(fu3), "simple")
+   
+   
    ```
+
+print(fu3, n = 5)
+
+
 
 12. Then, use `fu3` to create barplot of the world cup attendance
     (i.e., `n`) per team.
@@ -394,5 +412,6 @@ separate( date, into = c("year","mon", "day"), sep = "[-]+")
    ggplot(fu3, aes(fct_reorder(team, n), n))+
    geom_bar(stat = "identity")+
    coord_flip()
+   
    
    ```
