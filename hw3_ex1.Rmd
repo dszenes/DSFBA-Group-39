@@ -35,12 +35,15 @@ abalone <- read_csv(file = here::here("data/abalone.csv"))
    
    ```{r}
    
-length_sex_ring <- abalone %>% 
+length_sex_ring <-
+abalone %>% 
 select(sex, diameter, height, rings)  %>% 
-filter(abalone$length > 0.6) %>% arrange( sex, desc(rings))
+filter(abalone$length > 0.6) %>% 
+arrange( sex, desc(rings))
+
+kable(head(length_sex_ring), "simple")
 
    ```
-
 
 
 2. Extract a tibble `count_prop` of dimension 3 x 3,
@@ -63,13 +66,18 @@ filter(abalone$length > 0.6) %>% arrange( sex, desc(rings))
    
    ```{r}
    
-count_prop <- abalone %>% 
-group_by(sex) %>% 
-summarise( count = n()) %>% 
-mutate(prop = count/sum(count))
+count_prop <- 
+abalone %>% group_by(sex) %>% 
+summarize( count = n()) %>% 
+mutate (prop = count/sum(count))
+
+kable(count_prop, "simple")
 
    ```
    
+
+
+
 
 3. Extract a tibble `mean_max_min` of dimension 3 x 4, which contains the
    `sex`, `weight_mean`, `weight_max` and `weight_min` columns.
@@ -97,8 +105,11 @@ mutate(prop = count/sum(count))
    weight_max = max(shucked_weight), 
    weight_min = min(shucked_weight))
    
+   kable(mean_max_min, "simple")
+   
    ```
    
+
    
 4. Extract a tibble `filter_na` of dimension 2963 x 10,
    which contains all columns. The dataset should be filtered for diameter
@@ -126,13 +137,16 @@ mutate(prop = count/sum(count))
    
    ```{r}
    
-   filter_na <- abalone %>% 
-   filter( diameter == NA | diameter > 0.36) %>% 
-   select (index = X, sex, length, diameter, rings, everything())
-
+   filter_na <- 
+   abalone %>% 
+   filter( is.na(diameter) | diameter > 0.36) %>% select (index = X, sex, length, diameter, rings,               everything())
+   
+   kable(head(filter_na), "simple")
+   
    ```
-   
-   
+  
+ 
+
    
 5. Extract a tibble `transmute_abalone` of dimension 4177 x 2,
    which contains the `whole_weight_in_mg` and `water_weight_in_mg` columns,
@@ -158,12 +172,13 @@ mutate(prop = count/sum(count))
    ```{r}
    
    transmute_abalone <- abalone %>% 
-   transmute( whole_weight_in_mg = whole_weight*1000, water_weight_in_mg = (whole_weight - (shucked_weight + shell_weight + viscera_weight))*1000)
+   transmute( whole_weight_in_mg = whole_weight*1000, water_weight_in_mg = (whole_weight - (shucked_weight +    shell_weight + viscera_weight))*1000)
+   
+   kable(head(transmute_abalone), "simple")
    
    ```
    
-   
-   
+  
    
 6. Extract a tibble `first_1000_rank` of dimension 1000 x 3,
    which contains the `diameter`, `rings` and `rings_rank` columns, sorted
@@ -196,12 +211,10 @@ mutate(prop = count/sum(count))
    filter(rings_rank < 1001) %>% 
    arrange(rings)
    
+   kable(head(first_1000_rank), "simple")
+   
    ```
-  
-   
-  
-   
-   
+
 7. Extract a tibble `n_distinct_rings_by_sex` of dimension 3 x 2,
    which contains the `sex` and `distinct_rings` columns.
    The dataset should be grouped by `sex` and then summarized to
@@ -222,15 +235,19 @@ mutate(prop = count/sum(count))
    
    ```{r}
    
-   n_distinct_rings_by_sex <- abalone %>% 
+   n_distinct_rings_by_sex <- 
+   abalone %>% 
    group_by(sex) %>% 
    summarize(distinct_rings = n_distinct(rings))
    
+   kable(n_distinct_rings_by_sex, "simple")
+   
+   
    ```
    
+  
 
-
-   
+  
   
 ### Visualization
 
@@ -239,12 +256,12 @@ mutate(prop = count/sum(count))
    ```{r}
    
    ggplot(abalone, aes(rings, color = sex)) +
-   geom_density( )
+   geom_density() 
    
    ```
    
  
-
+  
   
 9. Draw a histogram of the `diameter` with `binwidth` as 0.05,
    filled and faceted by `sex`.
@@ -259,7 +276,7 @@ mutate(prop = count/sum(count))
    
  
    
-
+ 
    
   
 10. Draw a boxplot of `diameter` against `sex`.
@@ -268,8 +285,8 @@ mutate(prop = count/sum(count))
   
    ```{r}
    
-   ggplot(abalone, aes( reorder(sex, -diameter, median), diameter)) +
-   geom_boxplot()
+  ggplot(abalone, aes( reorder(sex, -diameter, median), diameter)) +
+  geom_boxplot()
    
    ```
    
@@ -284,8 +301,9 @@ mutate(prop = count/sum(count))
   geom_point()+
   geom_smooth(method = loess)+
   facet_grid(sex ~ .)
-  
+   
    ```
+  
   
   
 
