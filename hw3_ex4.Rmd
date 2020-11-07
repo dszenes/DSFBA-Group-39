@@ -35,15 +35,16 @@ iris <- as_tibble(iris)
     virginica :50
    ```
    
-   ```{r}
-   
+```{r}
 
- summary_iris <- iris %>% 
- summary(digits = 4)
- 
- kable(summary_iris, "simple")
-   
-   ```
+options(digits = 4)
+summary_iris <- iris %>%
+   summary(digits = 4)
+
+options(knitr.kable.NA = '')
+kable(summary_iris) %>% kable_styling(bootstrap_options = c("striped"))
+
+```
    
 
 
@@ -64,17 +65,13 @@ iris <- as_tibble(iris)
    # … with 2 more rows
    ```
    
-   ```{r}
-   
-   species_count <- iris %>% 
+```{r}
+
+species_count <- iris %>%
    count(Species, name = "num")
+kable(species_count) %>% kable_styling(full_width = FALSE)
    
-   kable(species_count, "simple")
-   
-   ```
-   
-   
-print(species_count, n = 1)
+```
 
 
 3. Now let's focus on the numerical variables: for all columns except
@@ -103,26 +100,29 @@ print(species_count, n = 1)
    #   Petal.Width_Max. <dbl>
    ```
    
-   ```{r}
+```{r}
+
+summary_stats <- iris %>%
+   summarise(across(
+      -(Species),
+      list(
+         Min = min,
+         "1st Qu" =  ~ quantile(., probs = 0.25),
+         Median = median,
+         Mean = mean,
+         "3rd Qu" =  ~ quantile(., probs = 0.75),
+         Max = max
+      ),
+      .names = "{.col}_{.fn}"
+   )) %>%
+   select(contains(c(
+      "Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max"
+   )))
+
+kable(summary_stats) %>% kable_styling() %>% scroll_box(width = "900px", height = "100px")
+
+```
    
-
-
-   summary_stats <- iris %>% 
-   summarise(across(-(Species),
-   list(Min=min, 
-   "1st Qu"=~quantile(., probs = 0.25), 
-   Median=median, Mean = mean, 
-   "3rd Qu"=~quantile(., probs = 0.75), 
-   Max=max), 
-   .names = "{.col}_{.fn}")) %>%
-   select(contains(c("Min","1st Qu","Median","Mean","3rd Qu","Max")))
-   
-   kable(summary_stats, "simple")
-
-   ```
-   
-   print(summary_stats, n = 5)
-
 
 
 4. Let's now tidy this tibble to get a result that is easier to understand
@@ -156,15 +156,15 @@ print(species_count, n = 1)
    # … with 19 more rows
    ```
    
-   ```{r}
+```{r}
    
-summary_long <- summary_stats %>% 
-pivot_longer(everything()) %>% 
-separate(name, c("variable","stat"), sep = "_")
+summary_long <- summary_stats %>%
+   pivot_longer(everything()) %>%
+   separate(name, c("variable", "stat"), sep = "_")
 
-kable(head(summary_long), "simple")
+kable(summary_long) %>% kable_styling() %>% scroll_box(width = "500px", height = "200px")
    
-   ```
+```
 
 
 
@@ -189,14 +189,17 @@ kable(head(summary_long), "simple")
    4 Petal.Width    0.1       0.3   1.3   1.20       1.8   2.5
    ```
    
-   ```{r}
+```{r}
    
    summary_stats_tidy <- summary_long %>% 
    pivot_wider(names_from = stat, values_from = value) 
    
-   kable(summary_stats_tidy, "simple")
-   
-   ```
+kable(summary_stats_tidy) %>% kable_styling() %>% column_spec(
+   1,
+   bold = TRUE
+)
+
+```
   
 
 6. We are getting closer! The final step: we need to transpose our tibble to
@@ -223,16 +226,19 @@ kable(head(summary_long), "simple")
    # … with 1 more row
    ```
    
-   ```{r}
+```{r}
    
   summary_stats_transposed <-
   summary_stats_tidy %>% 
   pivot_longer(c(`Min`, `1st Qu`, `Median`, `Mean`, `3rd Qu`, `Max`), names_to = "Stat") %>% 
   pivot_wider(names_from = variable, values_from = value)
    
-   kable(summary_stats_transposed, "simple")
-   
-   ```
+   kable(summary_stats_transposed) %>% kable_styling() %>% column_spec(
+   1,
+   bold = TRUE
+)
+
+```
    
 
 
@@ -241,25 +247,40 @@ kable(head(summary_long), "simple")
 7.  Draw a scatterplot of the petal length against sepal length, colored by 
     species, and add a linear regression line for each group.
    
-   ```{r}
    
-   iris %>% 
-   ggplot(aes(Sepal.Length,Petal.Length, color=Species)) + 
-   geom_point() +  
-   geom_smooth(method=lm)
+```{r}
    
-   ```
+iris %>%
+   ggplot(aes(Sepal.Length, Petal.Length, color = Species)) +
+   geom_point() +
+   labs( x = "Sepal length [cm]", y = "Petal length [cm]") +
+   ggtitle("Petal and Sepal length of iris") +
+   geom_smooth(
+      aes(group = Species),
+      method = lm,
+      se = F,
+      colour = "black",
+      size = 0.5
+   )
+   
+```
     
 8. Now, let's produce a scatterplot of sepal width against sepal length, 
    faceted by species, and add a linear regression line for each group.
    
-   ```{r}
+```{r}
    
   iris %>% 
-  ggplot(aes(Sepal.Length, Sepal.Width)) +  
-  geom_point()+
+  ggplot(aes(Sepal.Length, Sepal.Width, color = Species)) +  
+  geom_point() +
+   labs( x = "Sepal length [cm]", y = "Petal length [cm]") +
+   ggtitle("Petal and Sepal length of iris") +
   facet_wrap(~Species) +  
-  geom_smooth(method=lm)
-   
-   ```
+geom_smooth(aes(group = Species),
+      method = lm,
+      se = F,
+      colour = "black",
+      size = 0.5
+   )
+```
    
