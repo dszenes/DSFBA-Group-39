@@ -9,7 +9,6 @@ Let's convert iris to a tibble:
 ```{r, echo = TRUE}
 iris <- as_tibble(iris)
 ```
-
 ### Wrangling and tidying
 
 1. Use `summary()` to on `iris` to compute summaries for all variables
@@ -37,12 +36,12 @@ iris <- as_tibble(iris)
    
 ```{r}
 
-options(digits = 4)
+options(digits = 4) #set the number of decimal places in our environment equals to maximum 4 
 summary_iris <- iris %>%
-   summary(digits = 4)
+   summary(digits = 4) #output the statistical summary of the dataset iris
 
-options(knitr.kable.NA = '')
-kable(summary_iris) %>% kable_styling(bootstrap_options = c("striped"))
+options(knitr.kable.NA = '') #remove unwanted values displayed 
+kable(summary_iris) %>% kable_styling(bootstrap_options = c("striped")) #choose a particular style for the table
 
 ```
    
@@ -68,8 +67,8 @@ kable(summary_iris) %>% kable_styling(bootstrap_options = c("striped"))
 ```{r}
 
 species_count <- iris %>%
-   count(Species, name = "num")
-kable(species_count) %>% kable_styling(full_width = FALSE)
+   count(Species, name = "num") #show the number of each type of iris in the data set in a new column num
+kable(species_count) %>% kable_styling(full_width = FALSE) #change the format of the output table
    
 ```
 
@@ -114,12 +113,12 @@ summary_stats <- iris %>%
          Max = max
       ),
       .names = "{.col}_{.fn}"
-   )) %>%
+   )) %>% #summarise all the iris data set in creating a new data set. for each column, except the categorial one, of iris data set, compute few functions. Set the new column names as the old-column name first and the function associated with then.
    select(contains(c(
       "Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max"
-   )))
+   ))) #change the order in order to have the same statistics for each column
 
-kable(summary_stats) %>% kable_styling() %>% scroll_box(width = "900px", height = "100px")
+kable(summary_stats) %>% kable_styling() %>% scroll_box(width = "900px", height = "100px") #output the new dataset in a scroll box
 
 ```
    
@@ -159,10 +158,10 @@ kable(summary_stats) %>% kable_styling() %>% scroll_box(width = "900px", height 
 ```{r}
    
 summary_long <- summary_stats %>%
-   pivot_longer(everything()) %>%
-   separate(name, c("variable", "stat"), sep = "_")
+   pivot_longer(everything()) %>% #take 1.4 1 x 24 tibble, transpose the columns into rows
+   separate(name, c("variable", "stat"), sep = "_") # add new column with the informations that were already in the 
 
-kable(summary_long) %>% kable_styling() %>% scroll_box(width = "500px", height = "200px")
+kable(summary_long) %>% kable_styling() %>% scroll_box(width = "500px", height = "200px") #output the new dataset in a scroll box
    
 ```
 
@@ -192,12 +191,12 @@ kable(summary_long) %>% kable_styling() %>% scroll_box(width = "500px", height =
 ```{r}
    
    summary_stats_tidy <- summary_long %>% 
-   pivot_wider(names_from = stat, values_from = value) 
+   pivot_wider(names_from = stat, values_from = value) #for each category in the stat column, made a new column
    
 kable(summary_stats_tidy) %>% kable_styling() %>% column_spec(
    1,
    bold = TRUE
-)
+) #for the variable column, change the row names in bold black
 
 ```
   
@@ -230,14 +229,14 @@ kable(summary_stats_tidy) %>% kable_styling() %>% column_spec(
    
   summary_stats_transposed <-
   summary_stats_tidy %>% 
-  pivot_longer(c(`Min`, `1st Qu`, `Median`, `Mean`, `3rd Qu`, `Max`), names_to = "Stat") %>% 
-  pivot_wider(names_from = variable, values_from = value)
+  pivot_longer(c(`Min`, `1st Qu`, `Median`, `Mean`, `3rd Qu`, `Max`), names_to = "Stat") %>% #use the columns in order to make new rows
+  pivot_wider(names_from = variable, values_from = value) # use the rows in the variable column in order to make new columns
    
    kable(summary_stats_transposed) %>% kable_styling() %>% column_spec(
    1,
    bold = TRUE
-)
-
+) #for the variable column, change the row names in bold black
+   
 ```
    
 
@@ -251,16 +250,20 @@ kable(summary_stats_tidy) %>% kable_styling() %>% column_spec(
 ```{r}
    
 iris %>%
-   ggplot(aes(Sepal.Length, Petal.Length, color = Species)) +
-   geom_point() +
-   labs( x = "Sepal length [cm]", y = "Petal length [cm]") +
-   ggtitle("Petal and Sepal length of iris") +
+   ggplot(aes(Sepal.Length, Petal.Length, color = Species)) + #color our data according to the different Species
+   geom_point() + #draw a scatterplot
+   labs(x = "Sepal length [cm]", y = "Petal length [cm]") + #add some labels
+   ggtitle("Petal and Sepal length of iris") + #add a title
    geom_smooth(
       aes(group = Species),
+      #draw a regression line for each group
       method = lm,
+      #choose a linear regression
       se = F,
+      #without the standard error
       colour = "black",
-      size = 0.5
+      #define the color of the regression line
+      size = 0.5 #and the thickness
    )
    
 ```
@@ -270,17 +273,22 @@ iris %>%
    
 ```{r}
    
-  iris %>% 
-  ggplot(aes(Sepal.Length, Sepal.Width, color = Species)) +  
-  geom_point() +
-   labs( x = "Sepal length [cm]", y = "Petal length [cm]") +
-   ggtitle("Petal and Sepal length of iris") +
-  facet_wrap(~Species) +  
-geom_smooth(aes(group = Species),
+iris %>%
+   ggplot(aes(Sepal.Length, Sepal.Width, color = Species)) +
+   geom_point() +
+   labs(x = "Sepal length [cm]", y = "Petal length [cm]") + #add some labels
+   ggtitle("Petal and Sepal length of iris") + #add a title
+   facet_wrap( ~ Species) +  #divide a graphic into several panels, corresponding to the Species difference
+   geom_smooth(
+      aes(group = Species),
+      #draw a regression line for each group
       method = lm,
+      #choose a linear regression
       se = F,
+      #without the standard error
       colour = "black",
-      size = 0.5
+      #define the color of the regression line
+      size = 0.5 #and the thickness
    )
 ```
    
