@@ -34,19 +34,18 @@ nations <- read_csv(file = here::here("data/nations.csv"))
    # … with 170 more rows
    ```
    
-   ```{r}
+```{r}
    
-   longevity <- nations %>%
-   filter(year == 2016, !(is.na(life_expect) | is.na(gdp_percap))) %>% 
-   select(country, gdp_percap, life_expect, population, region)
-   
-   kable(head(longevity), "simple")
-   
-   ```
-   
-   
+longevity <- nations %>%
+   filter(year == 2016,!(is.na(life_expect) |
+                            is.na(gdp_percap))) %>% #condition the data set on year 2016, while removing NA data
+   select(country, gdp_percap, life_expect, population, region) #show the country, gdp per capita, life expectency, population and region variable
 
-print(longevity, n = 5)
+kable(longevity) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+
+
+```
+
 
 2. From `longevity`, extract a new tibble `ea_na_75_85` of dimension 15 x 5
    that contains the `country`, `gdp_percap`, `life_expect`, `population` and
@@ -71,16 +70,19 @@ print(longevity, n = 5)
    # … with 10 more rows
    ```
       
-   ```{r}
+```{r}
    
-  ea_na_75_85 <- longevity %>% 
-  filter(region == "East Asia & Pacific" | region == "North America", 
-  life_expect >= 75 & life_expect <= 85) %>% 
-  arrange(desc(life_expect))
-  
-  kable(head(ea_na_75_85), "simple")
+ea_na_75_85 <- longevity %>%
+   filter(
+      region == "East Asia & Pacific" | region == "North America",
+      life_expect >= 75 & life_expect <= 85
+   ) %>% #condition the longevity (point 1) on particular regions (East Asia & Pacific, North America) and between a life expectency of 75 and 85.
+   arrange(desc(life_expect)) #show the tibble with descendant order in the life expectency column
+
+kable(ea_na_75_85) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+
    
-   ```
+```
    
   
 
@@ -109,17 +111,17 @@ print(longevity, n = 5)
    # … with 14 more rows
    ```
       
-   ```{r}
+```{r}
    
-   top_10_perc_us <- longevity %>%
-   select(country, gdp_percap, life_expect, population, region) %>%
-   mutate(perc_rank = percent_rank(life_expect)) %>%
-   arrange(desc(perc_rank)) %>%
-   filter(perc_rank >= 0.9 | country == "United States")
+top_10_perc_us <- longevity %>%
+   select(country, gdp_percap, life_expect, population, region) %>% #show the country, gdp per capita, life expectency, population and region variable
+   mutate(perc_rank = percent_rank(life_expect)) %>% #create a new column corresponding to the life expectency percentile rank
+   arrange(desc(perc_rank)) %>% #show the tibble with descendant order in the percentile rank column
+   filter(perc_rank >= 0.9 | country == "United States") #consider only the values where the percentile rank is larger or equal to 0.9. We want also to show the values for the US.
+
+kable(top_10_perc_us) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
    
-   kable(head(top_10_perc_us), "simple")
-   
-   ```
+```
    
 
 4. From `nations`, extract a tibble `gdp_by_region` of dimension 189 x 3
@@ -146,14 +148,14 @@ print(longevity, n = 5)
    # … with 184 more rows
    ```
       
-   ```{r}
+```{r}
    
-   gdp_by_region <- nations %>% group_by(region, year) %>% 
-   summarise(total_gdp = sum(gdp_percap * population/1000000000000, na.rm = TRUE))
+gdp_by_region <- nations %>% group_by(region, year) %>%
+   summarise(total_gdp = sum(gdp_percap * population / 1000000000000, na.rm = TRUE)) #show the region and year variable from the nations data, while creating a new variable (with the gdp_percap and population variable in the nations dataset) corresponding to the total real GDP (unit in trillion)
+
+kable(gdp_by_region) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
    
-   kable(head(gdp_by_region), "simple")
-   
-   ```
+```
    
 
    
@@ -180,19 +182,17 @@ print(longevity, n = 5)
    5 Upper middle income 0.849
    ```
       
-   ```{r}
-   
-   
-   
-   p_countries <- nations %>% 
-   group_by(income) %>% 
-   filter(year==2016) %>%
-   summarise(count = sum(life_expect>70, na.rm = TRUE)/n()) 
-   
-   kable(p_countries, "simple")
-   
-   
-   ```
+```{r}
+
+p_countries <- nations %>%
+   group_by(income) %>% #Group the country by their income category
+   filter(year == 2016) %>% #Condition on year 2016
+   summarise(count = sum(life_expect > 70, na.rm = TRUE) / n()) #create a new variable showing  the proportions of countries with a life expectency over 70 year
+
+kable(p_countries, "simple") #show output in the html
+
+
+```
    
  
 ### Visualization
@@ -204,17 +204,17 @@ print(longevity, n = 5)
        - `coord_flip()` to make the boxplots horizontal,
        - add a red line to show the overall median life expectancy.
       
-   ```{r}
+```{r}
+
+nations %>%
+   filter(!(is.na(life_expect)))  %>% #remove NA values
+   mutate(region = fct_reorder(region, life_expect, .fun = 'median')) %>% #sort the ordering based on life expectancy median
+   ggplot(aes(region, life_expect)) + #plot the life expectancy variable against region
+   geom_boxplot() + #show a boxplot
+   coord_flip() + #make it horizontal
+   labs(x = "Region", y = "Life Expectancy") #add some labels
    
-   nations %>% 
-   filter( !(is.na(life_expect)))  %>%
-   mutate(region = fct_reorder(region, life_expect, .fun = 'median')) %>%
-   ggplot(aes(region,life_expect)) +
-   geom_boxplot() +
-   coord_flip() +
-   labs(x = "Region", y = "Life Expectancy")
-   
-   ```
+```
 
 
 
@@ -222,30 +222,31 @@ print(longevity, n = 5)
    regression line (without standard errors), using a log-scale for the
    x-axis.
       
-   ```{r}
+```{r}
    
-   nations %>% 
-   filter( !(is.na(life_expect) | is.na(gdp_percap))) %>%
+nations %>%
+   filter(!(is.na(life_expect) | is.na(gdp_percap))) %>% #remove NA values in the variable in question
    ggplot(aes(gdp_percap, life_expect)) +
-   labs(x = "GDP per capita (log-scale)", y = "Life Expectancy") +
-   geom_point() +  
-   geom_smooth(method = "lm", se = F, color = 'red') +
-   scale_x_log10(labels = scales::comma)
+   labs(x = "GDP per capita (log-scale)", y = "Life Expectancy") + #add some labels
+   geom_point() + #draw a scatterplot
+   geom_smooth(method = "lm", se = F, color = 'red') + #add a red linear regression without the stardard error
+   scale_x_log10(labels = scales::comma) #change the scale in the x axis
    
-   ```
+```
    
   
 
 8. To understand how life expectancy evolves over time in different region, draw 
    a lineplot for each country and a linear regression line, faceted by region.
       
-   ```{r}
+```{r}
    
-   nations %>% 
-   filter( !(is.na(life_expect))) %>% 
+nations %>%
+   filter(!(is.na(life_expect))) %>% #remove NA values
    ggplot(aes(year, life_expect, group = country)) +
-   geom_line(alpha = 0.5) + facet_wrap(~region) + 
-   labs(x = "Year", y= "Life Expectancy")
-   
-   ```
+   geom_line(alpha = 0.5) + #draw a lineplot
+   facet_wrap(~ region) + #divide a graphic into several panels, corresponding to the region difference
+   labs(x = "Year", y = "Life Expectancy") #add some labels
+
+```
    
