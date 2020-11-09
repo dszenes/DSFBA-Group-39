@@ -35,7 +35,6 @@ nations <- read_csv(file = here::here("data/nations.csv"))
    ```
    
 ```{r}
-   
 longevity <- nations %>%
    filter(year == 2016,!(is.na(life_expect) |
                             is.na(gdp_percap))) %>% #condition the data set on year 2016, while removing NA data
@@ -194,7 +193,8 @@ kable(p_countries, "simple") #show output in the html
 
 ```
    
- 
+   
+
 ### Visualization
 
 6. Draw multiple horizontal boxplots for the life expectancy against region.
