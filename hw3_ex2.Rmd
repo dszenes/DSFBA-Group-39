@@ -211,9 +211,11 @@ nations %>%
    mutate(region = fct_reorder(region, life_expect, .fun = 'median')) %>% #sort the ordering based on life expectancy median
    ggplot(aes(region, life_expect)) + #plot the life expectancy variable against region
    geom_boxplot() + #show a boxplot
+   geom_hline(aes(yintercept = median(life_expect, na.rm = T)),   # Ignore NA values for mean
+               color = "red", size = 0.5) +
    coord_flip() + #make it horizontal
    labs(x = "Region", y = "Life Expectancy") #add some labels
-   
+
 ```
 
 
@@ -245,7 +247,7 @@ nations %>%
    filter(!(is.na(life_expect))) %>% #remove NA values
    ggplot(aes(year, life_expect, group = country)) +
    geom_line(alpha = 0.5) + #draw a lineplot
-   facet_wrap(~ region) + #divide a graphic into several panels, corresponding to the region difference
+   facet_wrap(~ region, scales='free') + #divide a graphic into several panels, corresponding to the region difference
    labs(x = "Year", y = "Life Expectancy") #add some labels
 
 ```
