@@ -33,17 +33,17 @@ abalone <- read_csv(file = here::here("data/abalone.csv"))
    # … with 1,211 more rows
    ```
    
-   ```{r}
+``` {r}
    
 length_sex_ring <-
-abalone %>% 
-select(sex, diameter, height, rings)  %>% 
-filter(abalone$length > 0.6) %>% 
-arrange( sex, desc(rings))
+abalone %>%                                     # extract from database
+select(sex, diameter, height, rings)  %>%       # select relevant variables
+filter(abalone$length > 0.6) %>%                # filter for value of `length` variable
+arrange( sex, desc(rings))                      # sort by increasing `sex`and decreasing `rings`
 
-kable(head(length_sex_ring), "simple")
+kable(length_sex_ring) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
 
-   ```
+``` 
 
 
 2. Extract a tibble `count_prop` of dimension 3 x 3,
@@ -64,16 +64,17 @@ kable(head(length_sex_ring), "simple")
    3 M      1528 0.366
    ```
    
-   ```{r}
+```{r}
    
 count_prop <- 
-abalone %>% group_by(sex) %>% 
-summarize( count = n()) %>% 
-mutate (prop = count/sum(count))
+abalone %>%                                # extract from database
+group_by(sex) %>%                          # group by sex
+summarize( count = n()) %>%                # count total number for each group
+mutate (prop = count/sum(count))           # and their relative proportion
 
 kable(count_prop, "simple")
 
-   ```
+```
    
 
 
@@ -97,17 +98,18 @@ kable(count_prop, "simple")
    3 M           0.433      1.35      0.0065
    ```
    
-   ```{r}
+```{r}
    
-   mean_max_min <- abalone %>% 
-   group_by(sex) %>% 
-   summarize( weight_mean = mean(shucked_weight),
+   mean_max_min <- 
+   abalone %>%                                        # extract from database
+   group_by(sex) %>%                                  # group by increasing sex
+   summarize( weight_mean = mean(shucked_weight),     # find mean, max, min for `shucked_weight` variable
    weight_max = max(shucked_weight), 
    weight_min = min(shucked_weight))
    
    kable(mean_max_min, "simple")
    
-   ```
+```
    
 
    
@@ -135,15 +137,16 @@ kable(count_prop, "simple")
    #   shell_weight <dbl>
    ```
    
-   ```{r}
+```{r}
    
    filter_na <- 
-   abalone %>% 
-   filter( is.na(diameter) | diameter > 0.36) %>% select (index = X, sex, length, diameter, rings,               everything())
+   abalone %>%                                                       # extract from database                     
+   filter( is.na(diameter) | diameter > 0.36) %>%                    # filter for relevant values for diameter 
+   select (index = X, sex, length, diameter, rings, everything())    # rename X column and reorder the columns
    
-   kable(head(filter_na), "simple")
+   kable(filter_na) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
-   ```
+```
   
  
 
@@ -169,14 +172,21 @@ kable(count_prop, "simple")
    # … with 4,172 more rows
    ```
    
-   ```{r}
+```{r}
+   
+   # extract from database, subtract all other weights from
+   # whole weight to obtain water weight, multiply by 1000 to obtain values in mg,
+   # use transmute to preserve only our two newly created columns
    
    transmute_abalone <- abalone %>% 
-   transmute( whole_weight_in_mg = whole_weight*1000, water_weight_in_mg = (whole_weight - (shucked_weight +    shell_weight + viscera_weight))*1000)
+   transmute( whole_weight_in_mg = whole_weight*1000, 
+   water_weight_in_mg = (whole_weight - (shucked_weight +    shell_weight + viscera_weight))*1000)   
    
-   kable(head(transmute_abalone), "simple")
+ 
    
-   ```
+   kable(transmute_abalone) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   
+```
    
   
    
@@ -203,17 +213,19 @@ kable(count_prop, "simple")
    # … with 995 more rows
    ```
    
-   ```{r}
+```{r}
    
-   first_1000_rank <- abalone %>% 
-   mutate( rings_rank = row_number(rings)) %>% 
-   select( diameter, rings, rings_rank) %>% 
-   filter(rings_rank < 1001) %>% 
-   arrange(rings)
    
-   kable(head(first_1000_rank), "simple")
    
-   ```
+   first_1000_rank <- abalone %>%                  # extract from database
+   mutate( rings_rank = row_number(rings)) %>%     # create column based on rings rank
+   select( diameter, rings, rings_rank) %>%        # select desired variables
+   filter(rings_rank < 1001) %>%                   # limit to the first 1000 observations
+   arrange(rings_rank)                             # sort by ascending rings_rank
+   
+   kable(first_1000_rank) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   
+```
 
 7. Extract a tibble `n_distinct_rings_by_sex` of dimension 3 x 2,
    which contains the `sex` and `distinct_rings` columns.
@@ -233,17 +245,17 @@ kable(count_prop, "simple")
    3 M                 24
    ```
    
-   ```{r}
+```{r}
    
    n_distinct_rings_by_sex <- 
-   abalone %>% 
-   group_by(sex) %>% 
-   summarize(distinct_rings = n_distinct(rings))
+   abalone %>%                                     # extract from database
+   group_by(sex) %>%                               # group by sex
+   summarize(distinct_rings = n_distinct(rings))   # count distinct rings
    
    kable(n_distinct_rings_by_sex, "simple")
    
    
-   ```
+```
    
   
 
@@ -253,12 +265,13 @@ kable(count_prop, "simple")
 
 8. Draw a density plot of `rings`, colored by `sex`.
   
-   ```{r}
+```{r}
    
-   ggplot(abalone, aes(rings, color = sex)) +
-   geom_density() 
+   ggplot(abalone, aes(rings, color = sex)) +      # plot rings colored by sex
+   geom_density() +                                # in a density plot
+   labs( x = "Rings", y = "Density")               # specify labels
    
-   ```
+```
    
  
   
@@ -266,13 +279,14 @@ kable(count_prop, "simple")
 9. Draw a histogram of the `diameter` with `binwidth` as 0.05,
    filled and faceted by `sex`.
   
-   ```{r}
+```{r}
    
-   ggplot(abalone, aes(diameter)) +
-   geom_histogram( binwidth = 0.05) +
-   facet_grid(sex ~ .)
+   ggplot(abalone, aes(diameter)) +       # plot diameter
+   geom_histogram( binwidth = 0.05) +     # in a histogram of with the right binwidth
+   facet_grid(sex ~ .) +                  # facet by sex
+   labs( x = "Diameter by sex", y = "")   # specify labels 
    
-   ```
+```
    
  
    
@@ -283,26 +297,37 @@ kable(count_prop, "simple")
    The ordering of boxes from left to right should be in descending order
    of the median `diameter` per group.
   
-   ```{r}
+```{r}
    
-  ggplot(abalone, aes( reorder(sex, -diameter, median), diameter)) +
-  geom_boxplot()
+   # plot diameter aginst sex in descending order of median diameter
+   # in a boxplot and specify labels
    
-   ```
+  ggplot(abalone, aes( reorder(sex, -diameter, median), diameter)) +    
+  geom_boxplot() +                                                   
+  labs( x = "Diameter by sex", y = "") 
+  
+  ggplot(abalone, aes( fct_reorder(sex, diameter, .desc = TRUE), diameter)) +    
+  geom_boxplot() +                                                   
+  labs( x = "Diameter by sex", y = "") 
+  
+
+   
+```
    
 
   
 11. Draw a point plot of `diameter` against `rings` with a smooth curve
    obtained using the `loess` method, and faceted by `sex`.
   
-   ```{r}
+```{r}
    
-  ggplot(abalone, aes(rings, diameter))+
-  geom_point()+
-  geom_smooth(method = loess)+
-  facet_grid(sex ~ .)
+  ggplot(abalone, aes(rings, diameter))+     # plot diameter against rings
+  geom_point()+                              # in a point plot
+  geom_smooth(method = loess)+               # smooth curve and loess method
+  facet_grid(sex ~ .) +                      # facet by sex
+  labs( x = "Rings", y = "Diameter")         # specify labels
    
-   ```
+```
   
   
   
@@ -310,13 +335,14 @@ kable(count_prop, "simple")
   
 12. Draw a violin plot of `whole_weight` against `length` faceted by `sex`.
 
-   ```{r}
+```{r}
    
-   ggplot(abalone, aes(length, whole_weight))+
-   geom_violin()+
-   facet_grid(sex ~ .)
+   ggplot(abalone, aes(length, whole_weight)) +     # plot whole weight aginst length
+   geom_violin() +                                  # in a violin plot  
+   facet_grid(sex ~ .) +                            # facet by sex
+   labs( x = "Length", y = "Whole weight")          # specify labels
    
-   ```
+```
    
  
   

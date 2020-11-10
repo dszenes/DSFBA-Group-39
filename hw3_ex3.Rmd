@@ -37,14 +37,14 @@ fu <- read_csv(file = here::here("data/football.csv"))
    #   city <chr>, country <chr>, neutral <lgl>
    ```
    
-   ```{r}
+```{r}
    
-   fu_separated <- fu %>% 
-   separate( date, into = c("year","mon", "day"), sep = "[-]+")
+   fu_separated <- fu %>%                                         # extract from database
+   separate( date, into = c("year","mon", "day"), sep = "[-]+")   # seperate date into year, mon, day variables
    
-   kable(head(fu_separated), "simple")
+   kable(fu_separated) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
 
-   ```
+```
 
 
 
@@ -77,14 +77,17 @@ fu <- read_csv(file = here::here("data/football.csv"))
    #   team_type <chr>, team <chr>
    ```
    
-   ```{r}
+```{r}
    
-   fu_tidy <- fu_separated %>% 
-   pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )
+   # extract from database, create team_type variable, with home_team and away_team as values
+   # and assign the values of home_team and away team to new variable team
    
-   kable(head(fu_tidy), "simple")
+   fu_tidy <- fu_separated %>%                                                
+   pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )      
+                                                
+   kable(fu_tidy) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
-   ```
+```
 
    
 
@@ -113,17 +116,17 @@ fu <- read_csv(file = here::here("data/football.csv"))
    # … with 81,885 more rows
    ```
    
-   ```{r}
+```{r}
    
-   fu_team <- fu_tidy %>% 
-   mutate(scored = ifelse(team_type == "away_team", away_score, home_score), 
-   conceded = ifelse(team_type == "home_team",away_score, home_score), 
-   gd = scored-conceded) %>% 
-   select(year:day, scored:gd, team, city, country)
+   fu_team <- fu_tidy %>%                                                     # extract from database
+   mutate(scored = ifelse(team_type == "away_team", away_score, home_score),  # create scored and conceded
+   conceded = ifelse(team_type == "home_team",away_score, home_score),        # variables that alternate between
+   gd = scored-conceded) %>%                                                  # taking away_score and home_score
+   select(year:day, scored:gd, team, city, country)                           # as a value, gd is the difference                                                                               # between the two of them, select                                                                               # desired variables
    
-   kable(head(fu_team), "simple")
+   kable(fu_team) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
-   ```
+```
    
 
    
@@ -151,15 +154,15 @@ fu <- read_csv(file = here::here("data/football.csv"))
    # … with 81,885 more rows
    ```
    
-   ```{r}
+```{r}
    
-   fu_city <- fu_team %>% 
-   unite(place, city, country)
+   fu_city <- fu_team %>%           # extract from database
+   unite(place, city, country)      # unite city and country into new place variable
    
-   kable(head(fu_city), "simple")
+   kable(fu_city) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
    
-   ```
+```
 
    
 
@@ -185,18 +188,19 @@ fu <- read_csv(file = here::here("data/football.csv"))
    ```
    
    
-   ```{r}
+```{r}
    
-   fu_england <- fu_city %>% 
-   group_by(year) %>% 
-   filter(team == "England") %>% 
-   summarize(scored = mean(scored),
-   conceded = mean(conceded), gd = mean(gd)) %>% 
-   arrange( desc(gd),  desc(scored), conceded)
+   fu_england <- fu_city %>%                       # extract from database
+   group_by(year) %>%                              # group by year
+   filter(team == "England") %>%                   # filter for England
+   summarize(scored = mean(scored),                # create variables with means
+   conceded = mean(conceded),                      # for scored, conceded and gd
+   gd = mean(gd)) %>%                              
+   arrange( desc(gd),  desc(scored), conceded)     # sort rows in desired order
    
-   kable(head(fu_england), "simple")
+   kable(fu_england) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
-   ```
+```
    
 
 6. In the following, we want to look at the number of points scored and
@@ -230,17 +234,21 @@ fu <- read_csv(file = here::here("data/football.csv"))
    # … with 81,885 more rows
    ```
    
-   ```{r}
+```{r}
    
-   fu_tidy2 <- fu %>% 
+   # same as fu_tidy for team_type and team variables, split date variable to extract year
+   # scored variable created based on wether matching away_team with away_score and vice versa
+   # select desired variables
+   
+   fu_tidy2 <- fu %>%
    pivot_longer(c(home_team,away_team), "team_type", values_to ="team" ) %>% 
    mutate( year = str_split_fixed(date, "-", 3)[,1], 
-   scored = ifelse(team_type == "away_team", away_score, home_score)) %>%                                            select(date,tournament, team_type, team, scored, year)
+   scored = ifelse(team_type == "away_team", away_score, home_score)) %>%                                          select(date,tournament, team_type, team, scored, year)
    
-   kable(head(fu_tidy2), "simple")
+   kable(fu_tidy2) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
    
-   ```
+```
    
   
    
@@ -276,29 +284,30 @@ fu <- read_csv(file = here::here("data/football.csv"))
    [1] "Belgium" "Italy"   "France"
    ```
       
-   ```{r}
+```{r}
    
-   fu1 <- fu_tidy2 %>% 
-   group_by(team, year) %>% 
-   summarize(scored = sum(scored)) %>%
+   fu1 <- fu_tidy2 %>%                   # extract from database                             
+   group_by(team, year) %>%              # group by team and year
+   summarize(scored = sum(scored)) %>%   # sum to find goals scored by team per year
    filter(team %in% c("England","Germany","France","Belgium","Italy","Spain"),
-   year >= 2000) %>%
-   ungroup(team) %>%
+   year >= 2000) %>%                     # filter for dwsired teams, matches after from
+   ungroup(team) %>%                     # ungroup by team in order to reorder team as factor
    mutate( team = fct_reorder(team, scored, median)) 
    
-   kable(head(fu1), "simple")
+  kable(fu1) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
-   ```
+```
    
 
 8. Use `fu1` to produce boxplots of the number of goals scored for each team.
    
-   ```{r}
+```{r}
  
-   ggplot(fu1, aes( team, scored)) +
-   geom_boxplot()
+   ggplot(fu1, aes( team, scored)) +         # plot team and scored
+   geom_boxplot() +                          # in a boxplot
+   labs( x = "Goals scored by team", y = "") # with labels
    
-   ```
+```
 
 9. Before proceeding to the next plot, let's first create a tibble `fu2`
    containing the relevant data: it should be obtained from `fu_tidy2` by
@@ -329,7 +338,10 @@ fu <- read_csv(file = here::here("data/football.csv"))
    [1] "FIFA World Cup"      "UEFA Euro"           "UEFA Nations League"
    ```
    
-   ```{r}
+```{r}
+   
+   # change tournament variable to factor with relevant levels, filter for relevant teams
+   # year, remve NAs for tournament variable
    
    fu2 <- fu_tidy2 %>%
    mutate( tournament = factor(tournament, c("FIFA World Cup", "UEFA Euro", "UEFA Nations League"))) %>%
@@ -337,13 +349,11 @@ fu <- read_csv(file = here::here("data/football.csv"))
    year >= 2000,
    !(is.na(tournament)))
    
-   kable(head(fu2), "simple")
+   kable(fu2) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
   
-   ```
+```
    
-print(fu2, n = 5)
 
-print(levels(fu2$tournament))
    
 
 10. Using `fu2`, let's now draw a barplot representing the number of games that
@@ -354,13 +364,16 @@ print(levels(fu2$tournament))
    and different column for different tournament should be
    shown in different colors.
 
-   ```{r}
+```{r}
+   
+   ggplot(fu2, aes(team, fill = tournament ))+        # plot teams and tournament in a barplot
+   geom_bar( position=position_dodge())+              # make sure a column is a
+   labs( x = "Games played since 2000", y = "")       # tournament per team, add labels
+    
    
    
-   ggplot(fu2, aes(team, fill = tournament ))+
-   geom_bar( position=position_dodge())
    
-   ```
+```
 
 11. Use `fu_tidy2` to extract `fu3`, containing a ranking the national teams
    by World cup attendance filtered for those having attended at least 9
@@ -382,22 +395,22 @@ print(levels(fu2$tournament))
    # … with 13 more rows
    ```
    
-   ```{r}
+```{r}
    
   
-   fu3 <- fu_tidy2 %>%
-   filter(tournament =="FIFA World Cup") %>%
-   group_by(team) %>%
-   summarize(n = n_distinct(year)) %>%
-   filter(n >= 9) %>%
-   arrange(desc(n)) 
+   fu3 <- fu_tidy2 %>%                       # extract from database
+   filter(tournament =="FIFA World Cup") %>% # filter for World cup 
+   group_by(team) %>%                        # group by team
+   summarize(n = n_distinct(year)) %>%       # summarize by distinct year to get tournament participations
+   filter(n >= 9) %>%                        # at least 9 participations
+   arrange(desc(n))                          # ranking of highest
    
-   kable(head(fu3), "simple")
+   kable(fu3) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
    
-   ```
+```
 
-print(fu3, n = 5)
+
 
 
 
@@ -407,11 +420,12 @@ print(fu3, n = 5)
     attendance, and `stat = "identity"`, and `coord_flip()` to flip the axis 
     so that country names can be shown properly.
    
-   ```{r}
+```{r}
    
-   ggplot(fu3, aes(fct_reorder(team, n), n))+
-   geom_bar(stat = "identity")+
-   coord_flip()
+   ggplot(fu3, aes(fct_reorder(team, n), n))+         # plot teams and WC attendances
+   geom_bar(stat = "identity")+                       # in a barplot with an x and y variable
+   coord_flip() +                                     # make it horizontal
+   labs( x = "", y = "World Cup attendance by team")  # labels
    
    
-   ```
+```
