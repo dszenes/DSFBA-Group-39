@@ -41,7 +41,13 @@ select(sex, diameter, height, rings)  %>%       # select relevant variables
 filter(abalone$length > 0.6) %>%                # filter for value of `length` variable
 arrange( sex, desc(rings))                      # sort by increasing `sex`and decreasing `rings`
 
-kable(length_sex_ring) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+kable(length_sex_ring, , caption = "Sex, dimensions and ring filtered by length") %>% 
+   kable_styling() %>% 
+   scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+
+   
+
+
 
 ``` 
 
@@ -72,7 +78,7 @@ group_by(sex) %>%                          # group by sex
 summarize( count = n()) %>%                # count total number for each group
 mutate (prop = count/sum(count))           # and their relative proportion
 
-kable(count_prop, "simple")
+kable(count_prop, "simple", caption = "Total number and proprtion by sex")  #show output in the html
 
 ```
    
@@ -107,7 +113,7 @@ kable(count_prop, "simple")
    weight_max = max(shucked_weight), 
    weight_min = min(shucked_weight))
    
-   kable(mean_max_min, "simple")
+   kable(mean_max_min, "simple", caption = "Mean, max and min of shucked wieght by sex") #show output in the html
    
 ```
    
@@ -144,7 +150,8 @@ kable(count_prop, "simple")
    filter( is.na(diameter) | diameter > 0.36) %>%                    # filter for relevant values for diameter 
    select (index = X, sex, length, diameter, rings, everything())    # rename X column and reorder the columns
    
-   kable(filter_na) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(filter_na, caption = "Table wih small and missing diameter vaues removed") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box
    
 ```
   
@@ -184,7 +191,8 @@ kable(count_prop, "simple")
    
  
    
-   kable(transmute_abalone) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(transmute_abalone, caption = "Whole weight and water weight in mg") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box
    
 ```
    
@@ -223,7 +231,8 @@ kable(count_prop, "simple")
    filter(rings_rank < 1001) %>%                   # limit to the first 1000 observations
    arrange(rings_rank)                             # sort by ascending rings_rank
    
-   kable(first_1000_rank) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(first_1000_rank, caption = "First 1000 with fewest rings") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box
    
 ```
 
@@ -252,7 +261,8 @@ kable(count_prop, "simple")
    group_by(sex) %>%                               # group by sex
    summarize(distinct_rings = n_distinct(rings))   # count distinct rings
    
-   kable(n_distinct_rings_by_sex, "simple")
+   kable(n_distinct_rings_by_sex, "simple", caption = "Count of distinct number of rings per sex") 
+   #show output in the html
    
    
 ```

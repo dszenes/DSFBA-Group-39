@@ -1,4 +1,4 @@
-## Exercise 2: football
+## Exercise 3: football
 
 ```{r, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
@@ -42,7 +42,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    fu_separated <- fu %>%                                         # extract from database
    separate( date, into = c("year","mon", "day"), sep = "[-]+")   # seperate date into year, mon, day variables
    
-   kable(fu_separated) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(head(fu_separated, 1000), caption = "Table with seperated date variable") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box limited to 1st 1000 values
 
 ```
 
@@ -85,7 +86,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    fu_tidy <- fu_separated %>%                                                
    pivot_longer(c(home_team,away_team), "team_type", values_to ="team" )      
                                                 
-   kable(fu_tidy) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(head(fu_tidy, 1000),  caption = "Tidy football data") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box limited to 1st 1000 values
    
 ```
 
@@ -124,7 +126,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    gd = scored-conceded) %>%                                                  # taking away_score and home_score
    select(year:day, scored:gd, team, city, country)                           # as a value, gd is the difference                                                                               # between the two of them, select                                                                               # desired variables
    
-   kable(fu_team) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(head(fu_team, 1000), caption = "Data per team with goals scored, conceded and goal difference") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box limited to 1st 1000 values
    
 ```
    
@@ -159,7 +162,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    fu_city <- fu_team %>%           # extract from database
    unite(place, city, country)      # unite city and country into new place variable
    
-   kable(fu_city) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(head(fu_city, 1000),  caption = "Data by place") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box limited to 1st 1000 values
    
    
 ```
@@ -198,7 +202,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    gd = mean(gd)) %>%                              
    arrange( desc(gd),  desc(scored), conceded)     # sort rows in desired order
    
-   kable(fu_england) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(fu_england,  caption = "English national team") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box
    
 ```
    
@@ -245,7 +250,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    mutate( year = str_split_fixed(date, "-", 3)[,1], 
    scored = ifelse(team_type == "away_team", away_score, home_score)) %>%                                          select(date,tournament, team_type, team, scored, year)
    
-   kable(fu_tidy2) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(head(fu_tidy2, 1000),  caption = "A different tidy data table") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   #output the data cleaning in a scroll box limited to 1st 1000 values
    
    
 ```
@@ -294,7 +300,8 @@ fu <- read_csv(file = here::here("data/football.csv"))
    ungroup(team) %>%                     # ungroup by team in order to reorder team as factor
    mutate( team = fct_reorder(team, scored, median)) 
    
-  kable(fu1) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+  kable(fu1,  caption = "Goals scored for 6 national teams") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+  #output the data cleaning in a scroll box
    
 ```
    
@@ -349,7 +356,7 @@ fu <- read_csv(file = here::here("data/football.csv"))
    year >= 2000,
    !(is.na(tournament)))
    
-   kable(fu2) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(fu2,  caption = "Data from for 6 national teams in 3 international tournaments") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
   
 ```
    
@@ -405,7 +412,7 @@ fu <- read_csv(file = here::here("data/football.csv"))
    filter(n >= 9) %>%                        # at least 9 participations
    arrange(desc(n))                          # ranking of highest
    
-   kable(fu3) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
+   kable(fu3,  caption = "World cup participations by national team") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px")
    
    
 ```

@@ -40,7 +40,7 @@ longevity <- nations %>%
                             is.na(gdp_percap))) %>% #condition the data set on year 2016, while removing NA data
    select(country, gdp_percap, life_expect, population, region) #show the country, gdp per capita, life expectency, population and region variable
 
-kable(longevity) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+kable(longevity, caption = "Longevity in 2016") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
 
 
 ```
@@ -78,7 +78,7 @@ ea_na_75_85 <- longevity %>%
    ) %>% #condition the longevity (point 1) on particular regions (East Asia & Pacific, North America) and between a life expectency of 75 and 85.
    arrange(desc(life_expect)) #show the tibble with descendant order in the life expectency column
 
-kable(ea_na_75_85) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+kable(ea_na_75_85, "East Asian and North American countries with life expectancies between 75 and 85") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
 
    
 ```
@@ -118,7 +118,7 @@ top_10_perc_us <- longevity %>%
    arrange(desc(perc_rank)) %>% #show the tibble with descendant order in the percentile rank column
    filter(perc_rank >= 0.9 | country == "United States") #consider only the values where the percentile rank is larger or equal to 0.9. We want also to show the values for the US.
 
-kable(top_10_perc_us) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+kable(top_10_perc_us, caption = "Top 10 percent in life expectany and the US") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
    
 ```
    
@@ -152,7 +152,7 @@ kable(top_10_perc_us) %>% kable_styling() %>% scroll_box(width = "900px", height
 gdp_by_region <- nations %>% group_by(region, year) %>%
    summarise(total_gdp = sum(gdp_percap * population / 1000000000000, na.rm = TRUE)) #show the region and year variable from the nations data, while creating a new variable (with the gdp_percap and population variable in the nations dataset) corresponding to the total real GDP (unit in trillion)
 
-kable(gdp_by_region) %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
+kable(gdp_by_region, caption = "GDP by region") %>% kable_styling() %>% scroll_box(width = "900px", height = "300px") #output the data cleaning in a scroll box
    
 ```
    
@@ -188,7 +188,7 @@ p_countries <- nations %>%
    filter(year == 2016) %>% #Condition on year 2016
    summarise(count = sum(life_expect > 70, na.rm = TRUE) / n()) #create a new variable showing  the proportions of countries with a life expectency over 70 year
 
-kable(p_countries, "simple") #show output in the html
+kable(p_countries, "simple",  caption = "Proportion of countries with life expectancy over 70 by income category") #show output in the html
 
 
 ```

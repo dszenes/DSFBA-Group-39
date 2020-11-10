@@ -41,7 +41,7 @@ summary_iris <- iris %>%
    summary(digits = 4) #output the statistical summary of the dataset iris
 
 options(knitr.kable.NA = '') #remove unwanted values displayed 
-kable(summary_iris) %>% kable_styling(bootstrap_options = c("striped")) #choose a particular style for the table
+kable(summary_iris,  caption = "Iris summary table") %>% kable_styling(bootstrap_options = c("striped")) #choose a particular style for the table
 
 ```
    
@@ -68,7 +68,7 @@ kable(summary_iris) %>% kable_styling(bootstrap_options = c("striped")) #choose 
 
 species_count <- iris %>%
    count(Species, name = "num") #show the number of each type of iris in the data set in a new column num
-kable(species_count) %>% kable_styling(full_width = FALSE) #change the format of the output table
+kable(species_count,  caption = "Count for each species ") %>% kable_styling(full_width = FALSE) #change the format of the output table
    
 ```
 
@@ -118,7 +118,7 @@ summary_stats <- iris %>%
       "Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max"
    ))) #change the order in order to have the same statistics for each column
 
-kable(summary_stats) %>% kable_styling() %>% scroll_box(width = "900px", height = "100px") #output the new dataset in a scroll box
+kable(summary_stat,  caption = "Summary statistics") %>% kable_styling() %>% scroll_box(width = "900px", height = "100px") #output the new dataset in a scroll box
 
 ```
    
@@ -161,7 +161,7 @@ summary_long <- summary_stats %>%
    pivot_longer(everything()) %>% #take 1.4 1 x 24 tibble, transpose the columns into rows
    separate(name, c("variable", "stat"), sep = "_") # add new column with the informations that were already in the 
 
-kable(summary_long) %>% kable_styling() %>% scroll_box(width = "500px", height = "200px") #output the new dataset in a scroll box
+kable(summary_long,  caption = "First step of tidying: long table") %>% kable_styling() %>% scroll_box(width = "500px", height = "200px") #output the new dataset in a scroll box
    
 ```
 
@@ -193,7 +193,7 @@ kable(summary_long) %>% kable_styling() %>% scroll_box(width = "500px", height =
    summary_stats_tidy <- summary_long %>% 
    pivot_wider(names_from = stat, values_from = value) #for each category in the stat column, made a new column
    
-kable(summary_stats_tidy) %>% kable_styling() %>% column_spec(
+kable(summary_stats_tidy,  caption = "Second step of tidying: rows are vairables, and columns are stats") %>% kable_styling() %>% column_spec(
    1,
    bold = TRUE
 ) #for the variable column, change the row names in bold black
@@ -232,7 +232,7 @@ kable(summary_stats_tidy) %>% kable_styling() %>% column_spec(
   pivot_longer(c(`Min`, `1st Qu`, `Median`, `Mean`, `3rd Qu`, `Max`), names_to = "Stat") %>% #use the columns in order to make new rows
   pivot_wider(names_from = variable, values_from = value) # use the rows in the variable column in order to make new columns
    
-   kable(summary_stats_transposed) %>% kable_styling() %>% column_spec(
+   kable(summary_stats_transposed,  caption = "Final step of tidying: transposed table") %>% kable_styling() %>% column_spec(
    1,
    bold = TRUE
 ) #for the variable column, change the row names in bold black
