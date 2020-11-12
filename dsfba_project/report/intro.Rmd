@@ -7,3 +7,24 @@ source(here::here("scripts/setup.R"))
 * Overview and Motivation
 * Related Work
 * Research questions
+
+
+```{r, echo = TRUE}
+data1 <- read_csv(file = here::here("data/Police_Department_Incidents_-_Previous_Year__2016_.csv"))
+data2 <- read_csv(file = here::here("data/SOCIO-ECO/Community_Development_Public_Service_Program_Activities_by_Supervisor_District.csv"))
+data3 <- read_csv(file = here::here("data/SOCIO-ECO/community-resiliency-indicator-system-1.csv"))
+data4 <- read_csv(file = here::here("data/TRANSPORT/Major_Transit_Stops_(2017).csv"))
+data5 <- read_csv(file = here::here("data/EDUCATION/Schools (1).csv"))
+data6 <- read_csv(file = here::here("data/EDUCATION/Word_University_Rank_2020.csv"))
+data7 <- read_csv(file = here::here("data/EDUCATION/Colleges_in_San_Francisco__2011_.csv"))
+data8 <- read_csv(file = here::here("data/EDUCATION/High-Schools-master.csv"))
+
+View(data1)
+View(data2)
+View(data3)
+View(data4)
+View(data5)
+View(data6)
+View(data7)
+View(data8)
+```
