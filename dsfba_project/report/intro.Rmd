@@ -27,4 +27,21 @@ View(data5)
 View(data6)
 View(data7)
 View(data8)
+
+data1 <- as_tibble(data1)
+data2 <- as_tibble(data2)
+data3 <- as_tibble(data3)
+data4 <- as_tibble(data4)
+data5 <- as_tibble(data5)
+data6 <- as_tibble(data6)
+data7 <- as_tibble(data7)
+data8 <- as_tibble(data8)
+
+```
+
+```{r}
+
+data1 %>% count(DayOfWeek, name = "num")
+g <- data1 %>% count(Category, name = "num") %>% arrange(desc(num))
+
 ```
