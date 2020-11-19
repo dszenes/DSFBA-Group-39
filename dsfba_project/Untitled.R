@@ -1,39 +1,37 @@
-library(sf)
-mymap <- st_read("data/San Francisco Neighborhood Boundaries.kml")
-plot(mymap %>% select(Name)
-)
-mymap %>% select(Name)
-
-View(mymap)
-
-
-View(data2)
-summary(data2)
-
 crime <- data2 %>% select(`Incident Date`,`Incident Time`,`Incident Year`, `Incident Day of Week`,
                  `Incident Category`,`Incident Subcategory`, `Incident Description`,
                  `Police District`, point)
 #select the variable that we're interested in
 
+View(crime %>% count(`Incident Category`, name = "num") %>% arrange(desc(num)))
+#count the number of crime given their category (time period 2018-2020)
+View(crime %>% count(`Incident Day of Week`, name = "day") %>% arrange(desc(day)))
+#count the number of crime given their day of the week (time period 2018-2020)
 
-crime_clean <- crime %>%
+
+crime_number <- crime %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
+  add_column(crime = 1) %>% select(crime, `Incident Date`)
+#establish the number of crime from 2018 to 2020
+
+crime_number_monhtly <- crime_number %>%
+  mutate(month = month(`Incident Date`, label = TRUE),
+         year  = year(`Incident Date`)) %>%
+  group_by(year, month) %>%
+  summarise(tcrimemonth = sum(crime)) %>% mutate(monthcrime = make_date(year, month)) %>%
+  select(monthcrime, tcrimemonth)
+#group the number of crime per month given the time period 2018 to 2020
+
+ggplot(crime_number_monhtly, aes(x = monthcrime, y = tcrimemonth)) +
+  geom_smooth()
+#timeseries graph
+
+
+crime_clean <- crime_number %>%
   separate( `Incident Date`, into = c("year","mon", "day"), sep = "[-]+")
 # change the incident date column in order to have year, month and the day in different column
-View(crime_clean)
-
-View(crime_clean %>% count(`Incident Category`, name = "num") %>% arrange(desc(num)))
-#count the number of crime given their category
-View(crime_clean %>% count(`Incident Day of Week`, name = "day") %>% arrange(desc(day)))
-#count the number of crime given their day of the week
-
- crime_clean_asc <- crime_clean %>% arrange(`Incident Time`) %>%  arrange(day) %>%  arrange(mon) %>% arrange(year) %>%
-  rowid_to_column(var = 'crime number')
-
-timeseriesmonth <- crime_clean_asc %>% group_by(mon, year) %>% summarize( count = n()) %>% arrange(year)
 
 
-ggplot(data = crime, aes(x = `Incident Date`, y = pop))+
-  geom_line(color = "#00AFBB", size = 2)
+
 
 library("leaflet")
 library("magrittr")
