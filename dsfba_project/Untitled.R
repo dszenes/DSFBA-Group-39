@@ -30,8 +30,31 @@ crime_clean <- crime_number %>%
   separate( `Incident Date`, into = c("year","mon", "day"), sep = "[-]+")
 # change the incident date column in order to have year, month and the day in different column
 
+#################################################
+
+library(lubridate)
+
+data1.2 <- data1 %>% mutate(Date = mdy(Date))
+
+crime_number2 <- data1.2  %>% arrange(Time) %>%  arrange(Date) %>%
+  add_column(crime = 1) %>% select(crime, Date)
+#establish the number of crime from 2003 to 2017
 
 
+
+crime_number_monhtly2 <- crime_number2 %>%
+  mutate(month = month(Date, label = TRUE),
+         year  = year(Date)) %>%
+  group_by(year, month) %>%
+  summarise(tcrimemonth = sum(crime)) %>% mutate(monthcrime = make_date(year, month)) %>%
+  select(monthcrime, tcrimemonth)
+#group the number of crime per month given the time period 2003 to 2017
+
+ggplot(crime_number_monhtly2, aes(x = monthcrime, y = tcrimemonth)) +
+  geom_smooth()
+#timeseries graph
+
+#################################################
 
 library("leaflet")
 library("magrittr")
@@ -41,3 +64,7 @@ SFMAP <-
   addProviderTiles(providers$Stamen.TonerLines,
                    options = providerTileOptions(opacity = 1)) %>%
   addProviderTiles(providers$Stamen.TonerLabels)
+
+
+
+
