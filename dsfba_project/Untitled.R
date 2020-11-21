@@ -3,7 +3,14 @@ crime <- data2 %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week
                  `Police District`, point)
 #select the variable that we're interested in (time horizon 2018-2020)
 
-
+crime_separated <-
+  crime %>% # extract from database
+  separate(point, into = c("long", "lat"), sep = "[,]+")
+ crime_separated$lat = substr(crime_separated$lat, 2 , nchar(crime_separated$lat) - 1)
+  crime_separated$long = substr(crime_separated$long, 2 , nchar(crime_separated$long))
+    
+View(crime_separated)
+ View(crime)
 
 #######################################################################################
 #BIND DES DEUX DATA ->2003-2018 & 2018-2020 POUR AVOIR 2003-2020
@@ -127,4 +134,11 @@ SFMAP <-
   addProviderTiles(providers$Stamen.TonerLines,
                    options = providerTileOptions(opacity = 1)) %>%
   addProviderTiles(providers$Stamen.TonerLabels)
+
+
+
+leaflet(data = crime_separated) %>%
+  addTiles() %>%
+  addMarkers() %>%
+  frameWidget()
 
