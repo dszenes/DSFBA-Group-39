@@ -97,13 +97,19 @@ crime_number_monhtly0320 <- crime_number0320 %>%
   select(monthcrime, tcrimemonth)
 #group the number of crime per month given the time period 2018 to 2020
 
+library(ggthemes)
+install.packages("ggthemes")
 ggplot(crime_number_monhtly0320, aes(x = monthcrime, y = tcrimemonth)) +
-  geom_smooth(se = F) +
+  theme_economist_white() +
+  scale_color_economist(name = "Seasons:") +
+  geom_smooth(se = F)
 #timeseries graph
 
 
 crime_clean <- crime_number %>%
-  separate( `Incident Date`, into = c("year","mon", "day"), sep = "[-]+")
+  separate( `Incident Date`,
+            into = c("year","mon", "day"),
+            sep = "[-]+")
 # change the incident date column in order to have year, month and the day in different column
 
 #######################################################################################
@@ -116,7 +122,8 @@ library("leaflet")
 library("magrittr")
 
 SFMAP <-
-  leaflet() %>% addTiles() %>% setView(-122.42, 37.78, zoom = 11) %>% addProviderTiles(providers$MtbMap) %>%
+  leaflet() %>% addTiles() %>% setView(-122.42, 37.78, zoom = 11) %>%
+  addProviderTiles(providers$MtbMap) %>%
   addProviderTiles(providers$Stamen.TonerLines,
                    options = providerTileOptions(opacity = 1)) %>%
   addProviderTiles(providers$Stamen.TonerLabels)
