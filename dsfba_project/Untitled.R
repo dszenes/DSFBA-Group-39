@@ -1,3 +1,48 @@
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "1"] <- "Bayview Hunters Point"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "2"] <- "Bernal Heights"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "3"] <- "Castro/Upper Market"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "4"] <- "Chinatown"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "5"] <- "Excelsior"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "6"] <- "Financial District/South Beach"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "7"] <- "Glen Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "8"] <- "Golden Gate Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "9"] <- "Haight Ashbury"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "10"] <- "Hayes Valley"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "11"] <- "Inner Richmond"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "12"] <- "Inner Sunset"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "13"] <- "Japantown"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "14"] <- "Lakeshore"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "15"] <- "Lincoln Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "16"] <- "Lone Mountain/USF"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "17"] <- "Marina"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "18"] <- "McLaren Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "19"] <- "Mission"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "20"] <- "Mission Bay"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "21"] <- "Nob Hill"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "22"] <- "Noe Valley"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "23"] <- "North Beach"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "24"] <- "Oceanview/Merced/Ingleside"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "25"] <- "Outer Mission"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "26"] <- "Outer Richmond"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "27"] <- "Pacific Heights"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "28"] <- "Portola"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "29"] <- "Potrero Hill"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "30"] <- "Presidio"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "31"] <- "Presidio Heights"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "32"] <- "Russian Hill"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "33"] <- "Seacliff"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "34"] <- "South of Market"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "35"] <- "Sunset/Parkside"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "36"] <- "Tenderloin"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "37"] <- "Treasure Island"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "38"] <- "Twin Peaks"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "39"] <- "Visitacion Valley"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "40"] <- "West of Twin Peaks"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "41"] <- "Western Addition"
+#changing the level of the neighborhood, in order to make them coincide with the other data table and the shd file
+#####
+
+
 crime <- data2 %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
                  `Incident Category`, `Incident Description`,
                  `Police District`, point)
@@ -13,7 +58,7 @@ crime_separated$lat = substr(crime_separated$lat, 2 , nchar(crime_separated$lat)
   crime_separated$lon <- sapply( crime_separated$lon, as.numeric)
 
 View(crime_separated)
- View(crime)
+View(crime)
  
 #######################################################################################
 #BIND DES DEUX DATA ->2003-2018 & 2018-2020 POUR AVOIR 2003-2020
@@ -24,7 +69,8 @@ data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>%
     `Incident Day of Week` = DayOfWeek,
     `Incident Category` = Category,
     `Incident Description` = Descript,
-    `Police District` = PdDistrict,
+    `Police District` = PdDistrict
+    
     point = location
   ) #change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
 
@@ -36,7 +82,7 @@ crime2 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident 
 police2003_2020 <- bind_rows(crime, crime2)
 #bind both data set
 
-police2003_2020 %>% count(`Incident Category`, name = "num") %>% arrange(desc(num))
+data2 %>% count(`Analysis Neighborhood`, name = "num") %>% arrange(desc(num))
 #count the number of crime given their category (time period 2018-2020)
 police2003_2020 %>% count(`Incident Day of Week`, name = "day") %>% arrange(desc(day))
 #count the number of crime given their day of the week (time period 2018-2020)
@@ -127,11 +173,6 @@ crime_clean <- crime_number %>%
 #VISUALISATION
 
 library("leaflet")
-SFMAP <-
-  leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>%   addMarkers(-122.42, 37.78, popup = "SF")
-
-
 ###################################################
 #POUR REPRESENTATION AVEC ADD MARKER -> BIEN FILTRER LA DATA SET SINON CA PLANTE CPU PROBLEM
 
@@ -148,12 +189,49 @@ essai$lon <- sapply( essai$lon, as.numeric)
 
 SFMAP <-
   leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>%
-  addMarkers(lng = essai$lon, lat = essai$lat, popup = essai$`Incident Category`) %>%
+  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
+  addPolylines(data = data10) %>%
+  addMarkers(lng = essai$lon, lat = essai$lat, popup = essai$`Incident Category`, clusterOptions = markerClusterOptions()) %>%
+  #add a marker for every point of the data set
   addProviderTiles(providers$MtbMap) %>%
   addProviderTiles(providers$Stamen.TonerLines,
                    options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels)
+  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map
 
 
+#######################################################################################
+#######################################################################################
 
+
+library(sp)
+
+neighborhoods <- st_read("data/SF Find Neighborhoods.kml") %>% select(Name, geometry)
+View(neighborhoods)
+
+head(neighborhoods)
+
+neighborhoods <- read_csv(file = here::here("data/planning_neighborhoods.csv"))
+
+
+plot(neighborhoods) +
+  geom_polygon(data = essai, aes(fill = essai), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw()
+plot
+
+#######################################################################################
+#######################################################################################
+library(sf)
+
+map <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
+
+map %>% ggplot() + geom_sf() +
+geom_point(
+  aes(x = lon, y = lat)
+  ,
+  data = essai
+  ,
+  na.rm = T
+  ,
+  size = .5
+)
