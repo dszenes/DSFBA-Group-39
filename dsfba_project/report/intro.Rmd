@@ -9,39 +9,31 @@ source(here::here("scripts/setup.R"))
 * Research questions
 
 
+
 ```{r, echo = TRUE}
-data1 <- read_csv(file = here::here("data/Police_Department_Incidents_-_Previous_Year__2016_.csv"))
-data2 <- read_csv(file = here::here("data/SOCIO-ECO/Community_Development_Public_Service_Program_Activities_by_Supervisor_District.csv"))
-data3 <- read_csv(file = here::here("data/SOCIO-ECO/community-resiliency-indicator-system-1.csv"))
-data4 <- read_csv(file = here::here("data/TRANSPORT/Major_Transit_Stops_(2017).csv"))
-data5 <- read_csv(file = here::here("data/EDUCATION/Schools (1).csv"))
-data6 <- read_csv(file = here::here("data/EDUCATION/Word_University_Rank_2020.csv"))
-data7 <- read_csv(file = here::here("data/EDUCATION/Colleges_in_San_Francisco__2011_.csv"))
-data8 <- read_csv(file = here::here("data/EDUCATION/High-Schools-master.csv"))
-
-View(data1)
-View(data2)
-View(data3)
-View(data4)
-View(data5)
-View(data6)
-View(data7)
-View(data8)
-
+data1 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__Historical_2003_to_May_2018.csv")) 
 data1 <- as_tibble(data1)
+
+data2 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__2018_to_Present.csv"))
 data2 <- as_tibble(data2)
+
+data3 <- read_csv(file = here::here("data/American_Community_Survey_2012-2016.csv"))
 data3 <- as_tibble(data3)
+
+data4 <- read_csv(file = here::here("data/American_Community_Survey_2010-2014.csv"))
 data4 <- as_tibble(data4)
+
+data5 <- read_csv(file = here::here("data/American_Community_Survey_2011-2015.csv"))
 data5 <- as_tibble(data5)
+
+data6 <- read_csv(file = here::here("data/American_Community_Survey_2005-2009.csv"))
 data6 <- as_tibble(data6)
-data7 <- as_tibble(data7)
-data8 <- as_tibble(data8)
 
-```
+library(sp)
+library(spData)
+data7 <- st_read(dsn = here::here("data/Transit_Routes.shp"))
 
-```{r}
-
-data1 %>% count(DayOfWeek, name = "num")
-g <- data1 %>% count(Category, name = "num") %>% arrange(desc(num))
+data8 <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
+View(data8)
 
 ```
