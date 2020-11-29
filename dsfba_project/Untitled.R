@@ -41,25 +41,32 @@ data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "40"] <
 data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "41"] <- "Western Addition"
 #changing the level of the neighborhood, in order to make them coincide with the other data table and the shd file
 #####
+nbrofcrimeperneigh <- data1 %>% count(`Analysis Neighborhoods 2 2`, name = "num") %>% arrange(desc(num))
 
-
-crime <- data2 %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
-                 `Incident Category`, `Incident Description`,
-                 `Police District`, point)
+crime2018_2020 <-
+  data2 %>% select(
+    `Incident Date`,
+    `Incident Time`,
+    `Incident Day of Week`,
+    `Incident Category`,
+    `Incident Description`,
+    `Police District`,
+    point,
+    `Analysis Neighborhood`
+  ) %>%
+  separate(point, into = c("lon", "lat"), sep = "[,]+")
 #select the variable that we're interested in (time horizon 2018-2020)
 
-crime_separated <-
-  crime %>% filter(!is.na(point)) %>% separate(point, into = c("lon", "lat"), sep = "[,]+")
+crime2018_2020$`Analysis Neighborhood`[crime2018_2020$`Analysis Neighborhood` == "Mission"] <- "Mission Bay"
+#rename the rows in the column Analysis Neighborhood, in order have the same neighboorhood in the two data set
  
-crime_separated$lat = substr(crime_separated$lat, 2 , nchar(crime_separated$lat) - 1)
-  crime_separated$lon = substr(crime_separated$lon, 2 , nchar(crime_separated$lon))
-  options(digits = 13)
-  crime_separated$lat <- sapply( crime_separated$lat, as.numeric)
-  crime_separated$lon <- sapply( crime_separated$lon, as.numeric)
+crime2018_2020$lat = substr(crime2018_2020$lat, 2 , nchar(crime2018_2020$lat) - 1)
+crime2018_2020$lon = substr(crime2018_2020$lon, 2 , nchar(crime2018_2020$lon))
+options(digits = 13)
+crime2018_2020$lat <- sapply(crime2018_2020$lat, as.numeric)
+crime2018_2020$lon <- sapply(crime2018_2020$lon, as.numeric)
+#Clean some of the column in order to make geospacial representation
 
-View(crime_separated)
-View(crime)
- 
 #######################################################################################
 #BIND DES DEUX DATA ->2003-2018 & 2018-2020 POUR AVOIR 2003-2020
 data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>% 
@@ -69,28 +76,33 @@ data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>%
     `Incident Day of Week` = DayOfWeek,
     `Incident Category` = Category,
     `Incident Description` = Descript,
-    `Police District` = PdDistrict
-    
+    `Police District` = PdDistrict,
+    `Analysis Neighborhood` = `Analysis Neighborhoods 2 2`,
     point = location
   ) #change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
 
-crime2 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
+crime2003_2018 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
                                      `Incident Category`, `Incident Description`,
-                                     `Police District`, point)
+                                     `Police District`, point, `Analysis Neighborhood`)
 #select the variable that we're interested in
 
-police2003_2020 <- bind_rows(crime, crime2)
+crime2003_2020 <- bind_rows(crime2018_2020, crime2003_2018)
 #bind both data set
 
-data2 %>% count(`Analysis Neighborhood`, name = "num") %>% arrange(desc(num))
-#count the number of crime given their category (time period 2018-2020)
-police2003_2020 %>% count(`Incident Day of Week`, name = "day") %>% arrange(desc(day))
+crime2018_2020 %>% count(`Analysis Neighborhood`, name = "num") %>% arrange(desc(num))
+#for each neighborhood, count the number of crime (time period 2018-2020)
+crime2003_2018 %>% count(`Analysis Neighborhood`, name = "num") %>% arrange(desc(num))
+#for each neighborhood, count the number of crime (time period 2003-2018)
+crime2003_2020 %>% count(`Analysis Neighborhood`, name = "num") %>% arrange(desc(num))
+#for each neighborhood, count the number of crime (time period 2003-2020)
+
+crime2003_2020 %>% count(`Incident Day of Week`, name = "day") %>% arrange(desc(day))
 #count the number of crime given their day of the week (time period 2018-2020)
 
 #######################################################################################
 #MANIPULATION SUR LA DATA SET 2018-2020
 
-crime_number <- crime %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
+crime_number <- crime2018_2020 %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
   add_column(crime = 1) %>% select(crime, `Incident Date`)
 #establish the number of crime from 2018 to 2020
 
@@ -139,7 +151,7 @@ ggplot(crime_number_monhtly2, aes(x = monthcrime, y = tcrimemonth)) +
 #######################################################################################
 #MANIPULATION SUR LA DATA SET 2003-2020
 
-crime_number0320 <- police2003_2020 %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
+crime_number0320 <- crime2003_2020 %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
   add_column(crime = 1) %>% select(crime, `Incident Date`)
 #establish the number of crime from 2018 to 2020
 
@@ -147,24 +159,16 @@ crime_number_monhtly0320 <- crime_number0320 %>%
   mutate(month = month(`Incident Date`, label = TRUE),
          year  = year(`Incident Date`)) %>%
   group_by(year, month) %>%
-  summarise(tcrimemonth = sum(crime)) %>% mutate(monthcrime = make_date(year, month)) %>%
-  select(monthcrime, tcrimemonth)
+  summarise(`Crime per Month` = sum(crime)) %>% mutate(`Month` = make_date(year, month)) %>%
+  select(`Month`, `Crime per Month`)
 #group the number of crime per month given the time period 2018 to 2020
 
 library(ggthemes)
-install.packages("ggthemes")
 ggplot(crime_number_monhtly0320, aes(x = monthcrime, y = tcrimemonth)) +
   theme_economist_white() +
   scale_color_economist(name = "Seasons:") +
   geom_smooth(se = F)
 #timeseries graph
-
-
-crime_clean <- crime_number %>%
-  separate( `Incident Date`,
-            into = c("year","mon", "day"),
-            sep = "[-]+")
-# change the incident date column in order to have year, month and the day in different column
 
 #######################################################################################
 #######################################################################################
@@ -176,22 +180,21 @@ library("leaflet")
 ###################################################
 #POUR REPRESENTATION AVEC ADD MARKER -> BIEN FILTRER LA DATA SET SINON CA PLANTE CPU PROBLEM
 
-essai <-
+onedaytry <-
   crime %>% filter(!is.na(point), `Incident Date` == "2020-08-15") %>%
   separate(point, into = c("lat", "lon"), sep = "[,]+")
 
-essai$lon = substr(essai$lon, 2 , nchar(essai$lon) - 1)
-essai$lat = substr(essai$lat, 2 , nchar(essai$lat))
+onedaytry$lon = substr(onedaytry$lon, 2 , nchar(onedaytry$lon) - 1)
+onedaytry$lat = substr(onedaytry$lat, 2 , nchar(onedaytry$lat))
 options(digits = 13)
-essai$lat <- sapply( essai$lat, as.numeric)
-essai$lon <- sapply( essai$lon, as.numeric)
+onedaytry$lat <- sapply( onedaytry$lat, as.numeric)
+onedaytry$lon <- sapply( onedaytry$lon, as.numeric)
 
 
 SFMAP <-
   leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
   setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  addPolylines(data = data10) %>%
-  addMarkers(lng = essai$lon, lat = essai$lat, popup = essai$`Incident Category`, clusterOptions = markerClusterOptions()) %>%
+  addMarkers(lng = onedaytry$lon, lat = onedaytry$lat, popup = onedaytry$`Incident Category`, clusterOptions = markerClusterOptions()) %>%
   #add a marker for every point of the data set
   addProviderTiles(providers$MtbMap) %>%
   addProviderTiles(providers$Stamen.TonerLines,
@@ -203,9 +206,9 @@ SFMAP <-
 #######################################################################################
 
 
-library(sp)
+library(sf)
 
-neighborhoods <- st_read("data/SF Find Neighborhoods.kml") %>% select(Name, geometry)
+neighborhoods <- st_read("data/Analysis Neighborhoods.kml") %>% select(Name, geometry)
 View(neighborhoods)
 
 head(neighborhoods)
