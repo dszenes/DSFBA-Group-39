@@ -1,3 +1,4 @@
+
 # 3 Data
 
 ```{r, echo = FALSE, message = FALSE}
@@ -171,14 +172,32 @@ Those data sets contains 41 rows (each rows is one neighborhood of San Francisco
   + `Median Household Income` this column highlights the median household income for each neighbourhood.
   + `Percent in Poverty` this column highlights the % in poverty  for each neighbourhood.
   + `Unemployment Rate` this column highlights the % of unemployment for each neighbourhood.
-  + `Population Density per Acre` this column highlights the number of people per Acre for each neighborhood
+  + `Population Density per Acre` this column highlights the number of people per Acre for each neighborhood.
+  
+  
   
   With all these variables, we can see each neighborhood in terms of the number and density of the population, household composition, race, age distribution, education, languages spoken, and the economy of the neighborhood. This will be very helpful in answering some of our research questions.
   
   
-  ## 3.3 Geospacialisation Data
-
+## 3.3 Transport Data
 ### 3.3.1 Public transport
+
+Next, we will upload a dataset that counts the number of transit stops in SFMTA system. We will use this data to analyze the transit situation by neighborhood.
+
+```{r}
+data8 <- read_csv(file = here::here("data/Muni_Stops.csv"))
+```
+Source of the data set: [https://catalog.data.gov/dataset/muni-stops].
+
+* Here are the columns we are going to focus on::
+  + `STOPNAME` Give all the name of all the transit stop
+  + `shape` The point geometry used for mapping features
+  + `Analysis Neighborhoods` This column gives in which neighborhood of San Franciso the transit stops is.
+  
+We don't even bother to show you the other columns of this data set because we haven't found any information about its meaning. We will only use this data set to see if the density of the number of public transports coincides with the neighborhoods with the most crime.
+  
+## 3.4 Geospacialisation Data
+### 3.4.1 Public transport
 
 ```{r}
 data7 <- st_read(dsn = here::here("data/Transit_Routes.shp"))
@@ -189,10 +208,10 @@ Source of the data set: [https://geodata.lib.berkeley.edu/catalog/stanford-mq273
 
 This data set will be useful to analyze the density of the public transport network and find a comparison with the neighbourhoods with the most crime.
 
-### 3.3.2 Neighborhood
+### 3.4.2 Neighborhood
 
 ```{r}
-data8 <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
+data9 <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
 ```
 Source of the data set: [https://data.sfgov.org/Geographic-Locations-and-Boundaries/Analysis-Neighborhoods/p5b7-5n3h]
 
