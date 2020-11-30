@@ -5,35 +5,27 @@ source(here::here("scripts/setup.R"))
 ```
 
 * Overview and Motivation
+
+The objective of this project is to overview  the crime situation in a city. We will focus our attention on San Francisco, which is a city known for its cultural richness as well as its economic strength.  Starting from the media observation that our society is only increasing its violence, we will begin by determining if the dangerousness of crime has increased over time, in a period of 20 years. To explain these changes, we will focus on the evolution of certain demographic variables (population density, income, poverty, unemployment rate, ethnicity of the population and education) specific to the different neighborhoods of San Francisco. Considering that criminals travel, we will also determine whether public transportation density is correlated with crime. Finally, we will focus on the societal change created by the lockdown of COVID19 that might be transferred to crime.
+One member of the group took a criminology course during his bachelor's degree and was deeply interested in explaining the crime. Seeking to understand the why of crime is really research that could be useful for other studies and there is still a lot to be discovered. We also wanted to follow how the criminal world reacted to the current event affecting the world.
+
+
 * Related Work
-* Research questions
+
+We were very interested in the presentation of the assistant Ilia Azizi during the course. Working with geospatial visualization was a deep passion for us and we took working with geospatial data as a challenge.
 
 
 
-```{r, echo = TRUE}
-data1 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__Historical_2003_to_May_2018.csv")) 
-data1 <- as_tibble(data1)
+* The research questions we will attempt to answer with this project are:
 
-data2 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__2018_to_Present.csv"))
-data2 <- as_tibble(data2)
+1. **Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate can explain this change?**
 
-data3 <- read_csv(file = here::here("data/American_Community_Survey_2012-2016.csv"))
-data3 <- as_tibble(data3)
+2. **Does the population density influence the criminality rate and seriousness?**
 
-data4 <- read_csv(file = here::here("data/American_Community_Survey_2010-2014.csv"))
-data4 <- as_tibble(data4)
+3. **Given the organization of public transport in the city, can we say that the places with the most crime are those that are the most connected by transport?**
 
-data5 <- read_csv(file = here::here("data/American_Community_Survey_2011-2015.csv"))
-data5 <- as_tibble(data5)
+4. **Does the COVID change tendencies concerning criminality in San Francisco?**
 
-data6 <- read_csv(file = here::here("data/American_Community_Survey_2005-2009.csv"))
-data6 <- as_tibble(data6)
 
-library(sp)
-library(spData)
-data7 <- st_read(dsn = here::here("data/Transit_Routes.shp"))
 
-data8 <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
-View(data8)
 
-```
