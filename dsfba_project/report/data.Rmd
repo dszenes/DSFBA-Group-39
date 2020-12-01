@@ -51,7 +51,7 @@ This dataset covers the period from the 1st January 2018 to the day in 2020 wher
 
 In order to be able to join the two datasets that have a different temporality and thus focus on variables to answer the chosen research questions, we have removed a few columns. 
 
-* We will focus on these variables:`Incident Datetime`, `Incident Date`, `Incident Time`, `Incident Year`, `Incident Day of Week`, `Incident Category`, `Resolution`, `Analysis Neighborhood`, `Latitude`, `Longitude`, `point`.
+* We will focus on these variables:`Incident Date`, `Incident Time`, `Incident Day of Week`, `Incident Category`, `Resolution`, `Analysis Neighborhood`, `point`.
 
 This information will be useful to us in order to look at the evolution of crime over time and also to analyze crime by neighborhood and thus be able to analyze whether this variation in crime across neighborhoods can be explained by socio-economic variables.
 
@@ -218,5 +218,157 @@ Source of the data set: [https://data.sfgov.org/Geographic-Locations-and-Boundar
 This data set contains multi-polygons that are supposed to represent the segmentation of neighbourhoods according to the Analysis of Neighborhood. We will use this data set extensively for our geospatial analyses.
 
 * Wrangling/cleaning
+
+```{r}
+crime2018_2020 <-
+  data2 %>% select(
+    `Incident Date`,
+    `Incident Time`,
+    `Incident Day of Week`,
+    `Incident Category`,
+    `Incident Description`,
+    `Resolution`,
+    point,
+    `Analysis Neighborhood`
+  ) %>%
+  separate(point, into = c("lon", "lat"), sep = "[,]+")
+#select the variable that we're interested in (time horizon 2018-2020)
+
+crime2018_2020$`Analysis Neighborhood`[crime2018_2020$`Analysis Neighborhood` == "Mission"] <- "Mission Bay"
+#rename the rows in the column Analysis Neighborhood, in order have the same neighboorhood in the two data set
+
+crime2018_2020$lat = substr(crime2018_2020$lat, 2 , nchar(crime2018_2020$lat) - 1)
+crime2018_2020$lon = substr(crime2018_2020$lon, 2 , nchar(crime2018_2020$lon))
+options(digits = 13)
+crime2018_2020$lat <- sapply(crime2018_2020$lat, as.numeric)
+crime2018_2020$lon <- sapply(crime2018_2020$lon, as.numeric)
+#Clean some of the column in order to make geospacial representation
+```
+
+```{r}
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "1"] <- "Bayview Hunters Point"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "2"] <- "Bernal Heights"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "3"] <- "Haight Ashbury"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "4"] <- "Mission Bay"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "5"] <- "Castro/UpperMarket"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "6"] <- "Chinatown"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "7"] <- "Excelsior"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "8"] <- "Financial District"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "9"] <- "Hayes Valley"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "10"] <- "Glen Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "11"] <- "Inner Richmond"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "12"] <- "Golden Gate Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "13"] <- "Marina"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "14"] <- "Inner Sunset"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "15"] <- "Japantown"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "16"] <- "Lakeshore"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "17"] <- "Lincoln Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "18"] <- "Lone Mountain"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "19"] <- "McLaren Park"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "20"] <- "Mission"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "21"] <- "Nob Hill"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "22"] <- "Noe Valley"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "23"] <- "North Beach"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "24"] <- "Oceanview/Merced/Ingleside"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "25"] <- "Portola"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "26"] <- "Potrero Hill"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "27"] <- "Presidio"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "28"] <- "Outer Mission"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "29"] <- "Outer Richmond"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "30"] <- "Pacific Height"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "31"] <- "Presidio Heights"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "32"] <- "Russian Hill"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "33"] <- "Seacliff"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "34"] <- "South of Market"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "35"] <- "Sunset/Parkside"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "36"] <- "Tenderloin"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "37"] <- "Treasure Island"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "38"] <- "Twin Peaks"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "39"] <- "Visitacion Valley"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "40"] <- "Western Addition"
+data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "41"] <- "West of Twin Peaks"
+#change the `Analysis Neighborhoods 2 2` values. In the raw dataset, each neighborhood is characterized by a number. These code lines are used to assign the neighborhood names to each number.
+
+data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>% 
+  rename(
+    `Incident Date` = Date,
+    `Incident Time` = Time,
+    `Incident Day of Week` = DayOfWeek,
+    `Incident Category` = Category,
+    `Incident Description` = Descript,
+    `Analysis Neighborhood` = `Analysis Neighborhoods 2 2`,
+    point = location
+  ) #change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
+
+crime2003_2018 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
+                                     `Incident Category`, `Incident Description`,
+                                     Resolution, point, `Analysis Neighborhood`)
+#select the variable that we're interested in
+
+crime2003_2020 <- bind_rows(crime2018_2020, crime2003_2018)
+#bind both data set
+```
+
+```{r}
+p <- data8 %>% separate(shape, into = c("point","lon", "lat"), sep = "[ ]+") #separate the geo information from the shape column in order to make a longitude and a latitude column.
+
+p$lat = substr(p$lat, 1 , nchar(p$lat) - 1)
+p$lon = substr(p$lon, 2 , nchar(p$lon))
+#remove unnecessary characters
+
+options(digits = 6)
+p$lat <- sapply(p$lat, as.numeric)
+p$lon <- sapply(p$lon, as.numeric)
+#change the column type: from chr to num
+
+transport <- p %>% select("STOPNAME", "lat", "lon","Analysis Neighborhoods") %>% filter(!(is.na(`Analysis Neighborhoods`)))
+#select the variable of interest while removing the NA values if a transport stops is not characterized by his neighborhood
+
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "1"] <- "Bayview Hunters Point"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "2"] <- "Bernal Heights"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "3"] <- "Haight Ashbury"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "4"] <- "Mission Bay"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "5"] <- "Castro/UpperMarket"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "6"] <- "Chinatown"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "7"] <- "Excelsior"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "8"] <- "Financial District"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "9"] <- "Hayes Valley"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "10"] <- "Glen Park"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "11"] <- "Inner Richmond"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "12"] <- "Golden Gate Park"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "13"] <- "Marina"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "14"] <- "Inner Sunset"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "15"] <- "Japantown"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "16"] <- "Lakeshore"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "17"] <- "Lincoln Park"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "18"] <- "Lone Mountain"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "19"] <- "McLaren Park"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "20"] <- "Mission"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "21"] <- "Nob Hill"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "22"] <- "Noe Valley"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "23"] <- "North Beach"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "24"] <- "Oceanview/Merced/Ingleside"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "25"] <- "Portola"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "26"] <- "Potrero Hill"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "27"] <- "Presidio"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "28"] <- "Outer Mission"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "29"] <- "Outer Richmond"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "30"] <- "Pacific Height"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "31"] <- "Presidio Heights"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "32"] <- "Russian Hill"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "33"] <- "Seacliff"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "34"] <- "South of Market"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "35"] <- "Sunset/Parkside"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "36"] <- "Tenderloin"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "37"] <- "Treasure Island"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "38"] <- "Twin Peaks"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "39"] <- "Visitacion Valley"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "40"] <- "Western Addition"
+transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "41"] <- "West of Twin Peaks"
+#change the `Analysis Neighborhoods` values. In the raw dataset, each neighborhood is characterized by a number. These code lines are used to assign the neighborhood names to each number.
+
+```
+
+
 * Spotting mistakes and missing data (could be part of EDA too)
 * Listing anomalies and outliers (could be part of EDA too)
