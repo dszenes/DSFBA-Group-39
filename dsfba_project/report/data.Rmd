@@ -415,6 +415,28 @@ crime2003_2020_datesep <- crime2003_2020 %>%
   mutate(day  = day(`Incident Date`), month = month(`Incident Date`, label = TRUE),
          year  = year(`Incident Date`)) %>% select(-`Incident Date`)
 ```
+```{r}
+# We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
+
+crime_2016_neighborhood <- crime2003_2020_datesep %>% 
+  filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
+  count(`Analysis Neighborhood`, name = "Total crimes")
+
+violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
+  filter(year == 2016, `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+
+#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes 
+  
+demostats_2016 <- data3 %>% filter(!(is.na(NEIGHBORHOOD)))
+
+crime_demostats_2016 <- bind_cols(violent_crime_2016_neighborhood, crime_2016_neighborhood, demostats_2016) %>%
+  select(-(NEIGHBORHOOD), -("Analysis Neighborhood...3"), everything()) %>%
+  rename(`Analysis Neighborhood` = `Analysis Neighborhood...1`)
+
+
+ 
+
+```
 
 ```{r}
 p <- data8 %>% separate(shape, into = c("point","lon", "lat"), sep = "[ ]+") #separate the geo information from the shape column in order to make a longitude and a latitude column.
