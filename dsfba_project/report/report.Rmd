@@ -1,6 +1,6 @@
 ---
 title: "A cool title"
-author: "Name I, First Name I and Name II, First Name II"
+author: "Szenes, Daniel and del Perugia, Louis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---

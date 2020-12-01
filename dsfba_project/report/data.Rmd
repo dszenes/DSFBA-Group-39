@@ -1,14 +1,14 @@
-# 3 Data
+# 2 Data
 
 ```{r, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
 
-## 3.1 Crime Data
+## 2.1 Crime Data
 
 First, we will load two data sets that record the incident reports that have been filed to the police.
 
-### 3.1.1 2018 To Present
+### 2.1.1 2018 To Present
 ```{r}
 data2 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__2018_to_Present.csv"))
 data2 <- as_tibble(data2)
@@ -52,7 +52,7 @@ In order to be able to join the two datasets that have a different temporality a
 
 This information will be useful to us in order to look at the evolution of crime over time and also to analyze crime by neighborhood and thus be able to analyze whether this variation in crime across neighborhoods can be explained by socio-economic variables.
 
-### 3.1.2 2003 To 2018
+### 2.1.2 2003 To 2018
 
 ```{r}
 data1 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__Historical_2003_to_May_2018.csv")) 
@@ -85,9 +85,9 @@ This dataset covers the period from the 1st January 2003 to the 15th May 2018 an
 
 For the `Analysis Neighborhoods 2 2`, we had to see if the neighbourhood numbers corresponded to an alphabetical ranking of the neighbourhoods. It was absolutely not the case and we had to look for each number, which was the corresponding neighborhood. All this in order to join the two data sets.
 
-## 3.2 Socio-Economic Data
+## 2.2 Socio-Economic Data
 
-### 3.2.1 2012 To 2016
+### 2.2.1 2012 To 2016
 
 Then, we will load four data sets that record the evolution of some socio-economic variables for each neighborhood of San Francisco. As these reports - built with census data - were only exported in pdf format, we decided to create our own data set in csv in order to use the information from these reports for different periods.
 
@@ -99,7 +99,7 @@ kable(str(data3))
 ```
 Source of the data set: [https://default.sfplanning.org/publications_reports/SF_NGBD_SocioEconomic_Profiles/2012-2016_ACS_Profile_Neighborhoods_Final.pdf]
 
-### 3.2.2 2010 To 2014
+### 2.2.2 2010 To 2014
 
 ```{r}
 data4 <- read_csv(file = here::here("data/American_Community_Survey_2010-2014.csv"))
@@ -110,7 +110,7 @@ kable(str(data4))
 Source of the data set: [https://default.sfplanning.org/publications_reports/SF_NGBD_SocioEconomic_Profiles/2011-2015_ACS_Profile_Neighborhoods_Final.pdf]
 
 
-### 3.2.3 2011 To 2015
+### 2.2.3 2011 To 2015
 
 ```{r}
 data5 <- read_csv(file = here::here("data/American_Community_Survey_2011-2015.csv"))
@@ -120,7 +120,7 @@ kable(str(data5))
 ```
 Source of the data set: [https://default.sfplanning.org/publications_reports/SF_NGBD_SocioEconomic_Profiles/2010-2014_ACS_Profile_Neighborhoods_v3AH.pdf]
 
-### 3.2.4 2005 To 2009
+### 2.2.4 2005 To 2009
 
 ```{r}
 data6 <- read_csv(file = here::here("data/American_Community_Survey_2005-2009.csv"))
@@ -176,13 +176,14 @@ Those data sets contains 41 rows (each rows is one neighborhood of San Francisco
   With all these variables, we can see each neighborhood in terms of the number and density of the population, household composition, race, age distribution, education, languages spoken, and the economy of the neighborhood. This will be very helpful in answering some of our research questions.
   
   
-## 3.3 Transport Data
-### 3.3.1 Public transport
+## 2.3 Transport Data
+### 2.3.1 Public transport
 
 Next, we will upload a dataset that counts the number of transit stops in SFMTA system. We will use this data to analyze the transit situation by neighborhood.
 
 ```{r}
 data8 <- read_csv(file = here::here("data/Muni_Stops.csv"))
+kable(str(data8))
 ```
 Source of the data set: [https://catalog.data.gov/dataset/muni-stops].
 
@@ -193,8 +194,8 @@ Source of the data set: [https://catalog.data.gov/dataset/muni-stops].
   
 We don't even bother to show you the other columns of this data set because we haven't found any information about its meaning. We will only use this data set to see if the density of the number of public transports coincides with the neighborhoods with the most crime.
   
-## 3.4 Geospacialisation Data
-### 3.4.1 Public transport
+## 2.4 Geospacialisation Data
+### 2.4.1 Public transport
 
 ```{r}
 data7 <- st_read(dsn = here::here("data/Transit_Routes.shp"))
@@ -205,7 +206,7 @@ Source of the data set: [https://geodata.lib.berkeley.edu/catalog/stanford-mq273
 
 This data set will be useful to analyze the density of the public transport network and find a comparison with the neighbourhoods with the most crime.
 
-### 3.4.2 Neighborhood
+### 2.4.2 Neighborhood
 
 ```{r}
 data9 <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
@@ -244,6 +245,8 @@ crime2018_2020$lon <- sapply(crime2018_2020$lon, as.numeric)
 #Clean some of the column in order to make geospacial representation
 ```
 
+
+Here is our cleaned data set which takes into account all crimes from 2003 to 2020. We highlight the first 5 observations of this data set. We will use this data set to look at the crime trends.
 ```{r}
 data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "1"] <- "Bayview Hunters Point"
 data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "2"] <- "Bernal Heights"
@@ -297,20 +300,34 @@ data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>%
     `Incident Description` = Descript,
     `Analysis Neighborhood` = `Analysis Neighborhoods 2 2`,
     point = location
-  ) #change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
+  ) %>%
+  separate(point, into = c("point","lon", "lat"), sep = "[ ]+")
 
-crime2003_2018 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
-                                     `Incident Category`, `Incident Description`,
-                                     Resolution, point, `Analysis Neighborhood`)
+data1_colchange$lat = substr(data1_colchange$lat, 1 , nchar(data1_colchange$lat) - 1)
+data1_colchange$lon = substr(data1_colchange$lon, 2 , nchar(data1_colchange$lon))
+options(digits = 13)
+data1_colchange$lat <- sapply(data1_colchange$lat, as.numeric)
+data1_colchange$lon <- sapply(data1_colchange$lon, as.numeric)
+#change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
+
+crime2003_2018 <-
+  data1_colchange %>% select(
+    `Incident Date`,
+    `Incident Time`,
+    `Incident Day of Week`,
+    `Incident Category`,
+    `Incident Description`,
+    Resolution,
+    lat,
+    lon,
+    `Analysis Neighborhood`
+  ) 
 #select the variable that we're interested in
 
 crime2003_2020 <- bind_rows(crime2018_2020, crime2003_2018)
 #bind both data set
 
-```
 
-
-```{r}
 crime2003_2020$`Incident Category`[crime2003_2020$`Incident Category` == "ARSON"] <-
   "Arson"
 crime2003_2020$`Incident Category`[crime2003_2020$`Incident Category` ==
@@ -407,37 +424,17 @@ crime2003_2020$`Incident Category`[crime2003_2020$`Incident Category` ==
 crime2003_2020$`Incident Category`[crime2003_2020$`Incident Category` ==
                                      "Tresspassing"] <- "Trespassing"
 #harmonize the categories in the regrouped dataset
+
+kable(head(crime2003_2020), "simple")
 ```
 
-
-```{r}
-crime2003_2020_datesep <- crime2003_2020 %>%
-  mutate(day  = day(`Incident Date`), month = month(`Incident Date`, label = TRUE),
-         year  = year(`Incident Date`)) %>% select(-`Incident Date`)
-```
-```{r}
-# We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
-
-crime_2016_neighborhood <- crime2003_2020_datesep %>% 
-  filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
-  count(`Analysis Neighborhood`, name = "Total crimes")
-
-violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
-  filter(year == 2016, `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
-
-#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes 
-  
-demostats_2016 <- data3 %>% filter(!(is.na(NEIGHBORHOOD)))
-
-crime_demostats_2016 <- bind_cols(violent_crime_2016_neighborhood, crime_2016_neighborhood, demostats_2016) %>%
-  select(-(NEIGHBORHOOD), -("Analysis Neighborhood...3"), everything()) %>%
-  rename(`Analysis Neighborhood` = `Analysis Neighborhood...1`)
+As you can see here, they're few NA values for the latitude and longitude. If we want to make a time-series with this data, its actually stupid to remove NA values just because the we don't have the location information  For now, we keep those NA values. But if we've to make some of geospacialization, we're going to remove those NA values.
 
 
- 
 
-```
 
+
+Here is our cleaned data set that counts the number of public transportation stops in San Francisco. We took the time to modify the numbers associated to each neighborhood by changing them with their own names. We will use this data set to see if there is a correlation between crime and public transport density.
 ```{r}
 p <- data8 %>% separate(shape, into = c("point","lon", "lat"), sep = "[ ]+") #separate the geo information from the shape column in order to make a longitude and a latitude column.
 
@@ -494,6 +491,40 @@ transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "39"] <
 transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "40"] <- "Western Addition"
 transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "41"] <- "West of Twin Peaks"
 #change the `Analysis Neighborhoods` values. In the raw dataset, each neighborhood is characterized by a number. These code lines are used to assign the neighborhood names to each number.
+
+kable(head(transport), "simple")
 ```
+
+
+
+
+
+This data set highlights the number of crimes by neighborhood for the year 2016. We have combined the crime information with our socio-economic data. This dataset will be useful to build a linear regression as well as other geospatial analysis.
+
+```{r}
+crime2003_2020_datesep <- crime2003_2020 %>%
+  mutate(day  = day(`Incident Date`), month = month(`Incident Date`, label = TRUE),
+         year  = year(`Incident Date`)) %>% select(-`Incident Date`)
+```
+```{r}
+# We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
+
+crime_2016_neighborhood <- crime2003_2020_datesep %>% 
+  filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
+  count(`Analysis Neighborhood`, name = "Total crimes")
+
+violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
+  filter(year == 2016, `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+
+#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes
+demostats_2016 <- data3 %>% filter(!(is.na(NEIGHBORHOOD)))
+
+crime_demostats_2016 <- bind_cols(violent_crime_2016_neighborhood, crime_2016_neighborhood, demostats_2016) %>%
+  select( everything(), -(NEIGHBORHOOD), -(`Analysis Neighborhood...3`),) %>%
+  rename(`Analysis Neighborhood` = `Analysis Neighborhood...1`)
+
+kable(crime_demostats_2016) %>% kable_styling() %>% scroll_box(width = "1000px", height = "800px")
+```
+
 * Spotting mistakes and missing data (could be part of EDA too)
 * Listing anomalies and outliers (could be part of EDA too)

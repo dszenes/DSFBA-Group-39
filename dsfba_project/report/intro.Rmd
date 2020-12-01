@@ -1,4 +1,4 @@
-# Introduction
+# 1 Introduction
 
 ```{r, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
@@ -18,13 +18,11 @@ We were very interested in the presentation of the assistant Ilia Azizi during t
 
 * The research questions we will attempt to answer with this project are:
 
-1. **Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate can explain this change?**
+1. **Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate, population density can explain this change?**
 
-2. **Does the population density influence the criminality rate and seriousness?**
+2. **Given the organization of public transport in the city, can we say that the places with the most crime are those that are the most connected by transport?**
 
-3. **Given the organization of public transport in the city, can we say that the places with the most crime are those that are the most connected by transport?**
-
-4. **Does the COVID change tendencies concerning criminality in San Francisco?**
+3. **Does the COVID change tendencies concerning criminality in San Francisco?**
 
 
 
