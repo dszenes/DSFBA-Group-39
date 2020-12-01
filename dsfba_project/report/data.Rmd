@@ -289,6 +289,28 @@ data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "40"] <
 data1$`Analysis Neighborhoods 2 2`[data1$`Analysis Neighborhoods 2 2` == "41"] <- "West of Twin Peaks"
 #change the `Analysis Neighborhoods 2 2` values. In the raw dataset, each neighborhood is characterized by a number. These code lines are used to assign the neighborhood names to each number.
 
+data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>% 
+  rename(
+    `Incident Date` = Date,
+    `Incident Time` = Time,
+    `Incident Day of Week` = DayOfWeek,
+    `Incident Category` = Category,
+    `Incident Description` = Descript,
+    `Analysis Neighborhood` = `Analysis Neighborhoods 2 2`,
+    point = location
+  ) #change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
+
+crime2003_2018 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
+                                     `Incident Category`, `Incident Description`,
+                                     Resolution, point, `Analysis Neighborhood`)
+#select the variable that we're interested in
+
+crime2003_2020 <- bind_rows(crime2018_2020, crime2003_2018)
+#bind both data set
+```
+
+```{r}
+
 police2003_2020$`Incident Category`[police2003_2020$`Incident Category`=="ARSON"] <- "Arson"
 police2003_2020$`Incident Category`[police2003_2020$`Incident Category`=="ASSAULT"] <- "Assault"
 police2003_2020$`Incident Category`[police2003_2020$`Incident Category`=="BURGLARY"] <- "Burglary"
@@ -338,24 +360,6 @@ police2003_2020$`Incident Category`[police2003_2020$`Incident Category`=="TREA"]
 police2003_2020$`Incident Category`[police2003_2020$`Incident Category`=="Tresspassing"] <- "Trespassing"
 #harmonize the categories in the regrouped dataset
 
-data1_colchange <- data1 %>% mutate(Date = mdy(Date)) %>% 
-  rename(
-    `Incident Date` = Date,
-    `Incident Time` = Time,
-    `Incident Day of Week` = DayOfWeek,
-    `Incident Category` = Category,
-    `Incident Description` = Descript,
-    `Analysis Neighborhood` = `Analysis Neighborhoods 2 2`,
-    point = location
-  ) #change the column name of the data set with horizon 2003-2018 in order to bind the 2 data set
-
-crime2003_2018 <- data1_colchange %>% select(`Incident Date`,`Incident Time`, `Incident Day of Week`,
-                                     `Incident Category`, `Incident Description`,
-                                     Resolution, point, `Analysis Neighborhood`)
-#select the variable that we're interested in
-
-crime2003_2020 <- bind_rows(crime2018_2020, crime2003_2018)
-#bind both data set
 ```
 
 ```{r}
