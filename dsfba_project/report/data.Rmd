@@ -507,21 +507,53 @@ crime2003_2020_datesep <- crime2003_2020 %>%
          year  = year(`Incident Date`)) %>% select(-`Incident Date`)
 ```
 ```{r}
-# We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
 
+# We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
 crime_2016_neighborhood <- crime2003_2020_datesep %>% 
   filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
-  count(`Analysis Neighborhood`, name = "Total crimes")
+  count(`Analysis Neighborhood`, name = "Total crimes") %>% 
+  select("Total crimes")
 
 violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
-  filter(year == 2016, `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+  filter(year == 2016, `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")) %>% count(`Analysis Neighborhood`, name = "Violent crimes") %>%
+  select("Violent crimes")
+#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes 
+  
+crime_demostats_2016 <- bind_cols(violent_crime_2016_neighborhood, crime_2016_neighborhood, demostats_2016) %>% 
+  mutate( `Family Households` = `Family Households` * `Total Population`,
+           `Non-Family Households` = `Non-Family Households` * `Total Population`,
+            `Asian` = `Asian` * `Total Population`,
+            `Black/African American` = `Black/African American` * `Total Population`,
+            `White` = `White` * `Total Population`,
+            `Native American Indian` = `Native American Indian` * `Total Population`,
+            `Native Hawaiian/Pacific Islander` = `Native Hawaiian/Pacific Islander` * `Total Population`,
+            `Other/Two or More Races` = `Other/Two or More Races` * `Total Population`,
+            `Latino (of Any Race)` = `Latino (of Any Race)` * `Total Population`,
+            `0-4 years` = `0-4 years` * `Total Population`,
+            `5-17 years` = `5-17 years` * `Total Population`,
+            `18-34 years` = `18-34 years` * `Total Population`,
+            `35-59 years` = `35-59 years` * `Total Population`,
+            `60 and older` = `60 and older` * `Total Population`,
+            `High School or Less` = `High School or Less` * `Total Population`,
+            `Some College/Associate Degree` = `Some College/Associate Degree` * `Total Population`,
+            `College Degree` = `College Degree` * `Total Population`, 
+            `Foreign Born` = `Foreign Born` * `Total Population`,
+            `English Only` = `English Only` * `Total Population`,
+            `Spanish Only` = `Spanish Only` * `Total Population`,
+            `Asian/Pacific Islander` = `Asian/Pacific Islander` * `Total Population`,
+            `Other European Languages` = `Other European Languages` * `Total Population`,
+            `Other Languages` = `Other Languages` * `Total Population`,
+            `Number of people Poverty` = `Percent in Poverty` * `Total Population`,
+            `Unemployed population` = `Unemployment Rate` * `Total Population`,
+            `Graduate/Professional Degree` = `Graduate/Professional Degree` * `Total Population`) %>%
+  rename( `Analysis Neighborhood`= `NEIGHBORHOOD`) %>%
+  select(`Analysis Neighborhood`, everything())
 
-#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes
-demostats_2016 <- data3 %>% filter(!(is.na(NEIGHBORHOOD)))
+crime_demostats_2016 <- crime_demostats_2016[, c(-38,-39)] 
 
-crime_demostats_2016 <- bind_cols(violent_crime_2016_neighborhood, crime_2016_neighborhood, demostats_2016) %>%
-  select( everything(), -(NEIGHBORHOOD), -(`Analysis Neighborhood...3`),) %>%
-  rename(`Analysis Neighborhood` = `Analysis Neighborhood...1`)
+
+
+# for the purpose of analysis we have decided to turn all proportions into absolute numbers in order to have a regression that we can better interpret
 
 kable(crime_demostats_2016) %>% kable_styling() %>% scroll_box(width = "1000px", height = "800px")
 ```
