@@ -209,7 +209,13 @@ This data set will be useful to analyze the density of the public transport netw
 ### 2.4.2 Neighborhood
 
 ```{r}
-data9 <- st_read(dsn = here::here("data/geo_export_a105db98-2460-49d1-9618-57cf22a53772.shp"))
+
+data9 <- st_read(dsn = here::here("data/Analysis Neighborhoods.geojson"))
+
+st_crs(data9)
+data9 <- st_transform(data9, crs = 2227)
+neigh <- st_transform(data9,crs = "+proj=longlat +datum=WGS84")
+plot(data9$geometry)
 ```
 Source of the data set: [https://data.sfgov.org/Geographic-Locations-and-Boundaries/Analysis-Neighborhoods/p5b7-5n3h]
 
@@ -321,7 +327,7 @@ crime2003_2018 <-
     lat,
     lon,
     `Analysis Neighborhood`
-  ) 
+  )
 #select the variable that we're interested in
 
 crime2003_2020 <- bind_rows(crime2018_2020, crime2003_2018)
@@ -425,8 +431,20 @@ crime2003_2020$`Incident Category`[crime2003_2020$`Incident Category` ==
                                      "Tresspassing"] <- "Trespassing"
 #harmonize the categories in the regrouped dataset
 
+crime2003_2020$Resolution[crime2003_2020$Resolution ==
+                                     "Cite or Arrest Adult"] <- "ARREST, CITED"
+crime2003_2020$Resolution[crime2003_2020$Resolution ==
+                                     "Open or Active"] <- "OPEN"
+crime2003_2020$Resolution[crime2003_2020$Resolution ==
+                                     "Unfounded"] <- "NONE"
+crime2003_2020$Resolution[crime2003_2020$Resolution ==
+                                     "Exceptional Adult"] <- "ARREST, CITED"
+#harmonize the resolutions in the regrouped dataset
+
 kable(head(crime2003_2020), "simple")
 ```
+
+
 
 As you can see here, they're few NA values for the latitude and longitude. If we want to make a time-series with this data, its actually stupid to remove NA values just because the we don't have the location information  For now, we keep those NA values. But if we've to make some of geospacialization, we're going to remove those NA values.
 
@@ -492,7 +510,9 @@ transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "40"] <
 transport$`Analysis Neighborhoods`[transport$`Analysis Neighborhoods` == "41"] <- "West of Twin Peaks"
 #change the `Analysis Neighborhoods` values. In the raw dataset, each neighborhood is characterized by a number. These code lines are used to assign the neighborhood names to each number.
 
-kable(head(transport), "simple")
+numstops <- transport %>% count(`Analysis Neighborhoods`, name = "number of stops")
+
+kable(head(numstops), "simple")
 ```
 
 
@@ -506,57 +526,61 @@ crime2003_2020_datesep <- crime2003_2020 %>%
   mutate(day  = day(`Incident Date`), month = month(`Incident Date`, label = TRUE),
          year  = year(`Incident Date`)) %>% select(-`Incident Date`)
 ```
-```{r}
 
+```{r}
 # We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
+crime_2016 <- crime2003_2020_datesep %>% 
+  filter(year == 2016)
+
 crime_2016_neighborhood <- crime2003_2020_datesep %>% 
   filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
-  count(`Analysis Neighborhood`, name = "Total crimes") %>% 
-  select("Total crimes")
+  count(`Analysis Neighborhood`, name = "Total crimes")
 
 violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
-  filter(year == 2016, `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")) %>% count(`Analysis Neighborhood`, name = "Violent crimes") %>%
-  select("Violent crimes")
-#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes 
-  
-crime_demostats_2016 <- bind_cols(violent_crime_2016_neighborhood, crime_2016_neighborhood, demostats_2016) %>% 
-  mutate( `Family Households` = `Family Households` * `Total Population`,
-           `Non-Family Households` = `Non-Family Households` * `Total Population`,
-            `Asian` = `Asian` * `Total Population`,
-            `Black/African American` = `Black/African American` * `Total Population`,
-            `White` = `White` * `Total Population`,
-            `Native American Indian` = `Native American Indian` * `Total Population`,
-            `Native Hawaiian/Pacific Islander` = `Native Hawaiian/Pacific Islander` * `Total Population`,
-            `Other/Two or More Races` = `Other/Two or More Races` * `Total Population`,
-            `Latino (of Any Race)` = `Latino (of Any Race)` * `Total Population`,
-            `0-4 years` = `0-4 years` * `Total Population`,
-            `5-17 years` = `5-17 years` * `Total Population`,
-            `18-34 years` = `18-34 years` * `Total Population`,
-            `35-59 years` = `35-59 years` * `Total Population`,
-            `60 and older` = `60 and older` * `Total Population`,
-            `High School or Less` = `High School or Less` * `Total Population`,
-            `Some College/Associate Degree` = `Some College/Associate Degree` * `Total Population`,
-            `College Degree` = `College Degree` * `Total Population`, 
-            `Foreign Born` = `Foreign Born` * `Total Population`,
-            `English Only` = `English Only` * `Total Population`,
-            `Spanish Only` = `Spanish Only` * `Total Population`,
-            `Asian/Pacific Islander` = `Asian/Pacific Islander` * `Total Population`,
-            `Other European Languages` = `Other European Languages` * `Total Population`,
-            `Other Languages` = `Other Languages` * `Total Population`,
-            `Number of people Poverty` = `Percent in Poverty` * `Total Population`,
-            `Unemployed population` = `Unemployment Rate` * `Total Population`,
-            `Graduate/Professional Degree` = `Graduate/Professional Degree` * `Total Population`) %>%
-  rename( `Analysis Neighborhood`= `NEIGHBORHOOD`) %>%
+  filter(year == 2016,!(is.na(`Analysis Neighborhood`)),`Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") | `Analysis Neighborhood` == "Presidio") %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+violent_crime_2016_neighborhood$`Violent crimes`[violent_crime_2016_neighborhood$`Violent crimes` == "51"] <- "0"
+
+#We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes
+demostats_2016 <- data3[-c(42,43,44,45,46,47,48), ]
+
+crime_demostats_2016 <-
+  bind_cols(violent_crime_2016_neighborhood,
+            crime_2016_neighborhood,
+            demostats_2016, neigh, numstops) %>%
+  mutate(
+    `Family Households` = `Family Households` * `Total Population`,
+    `Non-Family Households` = `Non-Family Households` * `Total Population`,
+    `Asian` = `Asian` * `Total Population`,
+    `Black/African American` = `Black/African American` * `Total Population`,
+    `White` = `White` * `Total Population`,
+    `Native American Indian` = `Native American Indian` * `Total Population`,
+    `Native Hawaiian/Pacific Islander` = `Native Hawaiian/Pacific Islander` * `Total Population`,
+    `Other/Two or More Races` = `Other/Two or More Races` * `Total Population`,
+    `Latino (of Any Race)` = `Latino (of Any Race)` * `Total Population`,
+    `0-4 years` = `0-4 years` * `Total Population`,
+    `5-17 years` = `5-17 years` * `Total Population`,
+    `18-34 years` = `18-34 years` * `Total Population`,
+    `35-59 years` = `35-59 years` * `Total Population`,
+    `60 and older` = `60 and older` * `Total Population`,
+    `High School or Less` = `High School or Less` * `Total Population`,
+    `Some College/Associate Degree` = `Some College/Associate Degree` * `Total Population`,
+    `College Degree` = `College Degree` * `Total Population`,
+    `Foreign Born` = `Foreign Born` * `Total Population`,
+    `English Only` = `English Only` * `Total Population`,
+    `Spanish Only` = `Spanish Only` * `Total Population`,
+    `Asian/Pacific Islander` = `Asian/Pacific Islander` * `Total Population`,
+    `Other European Languages` = `Other European Languages` * `Total Population`,
+    `Other Languages` = `Other Languages` * `Total Population`,
+    `Number of people Poverty` = `Percent in Poverty` * `Total Population`,
+    `Unemployed population` = `Unemployment Rate` * `Total Population`,
+    `Graduate/Professional Degree` = `Graduate/Professional Degree` * `Total Population`
+  ) %>%
+  rename(`Analysis Neighborhood` = `NEIGHBORHOOD`) %>%
   select(`Analysis Neighborhood`, everything())
 
-crime_demostats_2016 <- crime_demostats_2016[, c(-38,-39)] 
+crime_demostats_2016 %>% arrange(everything(), )
 
-
-
-# for the purpose of analysis we have decided to turn all proportions into absolute numbers in order to have a regression that we can better interpret
+crime_demostats_2016 <- crime_demostats_2016[, c(-38, -39)]
 
 kable(crime_demostats_2016) %>% kable_styling() %>% scroll_box(width = "1000px", height = "800px")
 ```
-
-* Spotting mistakes and missing data (could be part of EDA too)
-* Listing anomalies and outliers (could be part of EDA too)

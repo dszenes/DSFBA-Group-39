@@ -8,8 +8,26 @@ source(here::here("scripts/setup.R"))
 * Identifying the most important variables
 * Univariate visualizations
 
+For the first part of the exploratory data analysis, we want to look at temporal trends in crime in San Francisco. Can we see patterns that recur at certain times of the day, at certain times of the year?
+
 ```{r}
-kable(head(crime2003_2020 %>% count(`Incident Time`, name = "hour of the day") %>% arrange(desc(`hour of the day`))), "simple")
+sephour <- crime2003_2020 %>% separate(`Incident Time`, into = c("hour","min", "sec"), sep = "[:]+")
+#separate the time to have a column of hours, minutes and seconds. All this to have intervals by hours of the crimes.
+
+kable(head(sephour %>% count(hour, name = "hour of the day") %>% arrange(desc(`hour of the day`))), "simple")
+#show on the Rmardown a table with the first 5 rows
+```
+
+```{r}
+kable(head(crime2003_2020 %>% count(`Incident Category`, name = "category") %>% arrange(desc(category))), "simple")
+#Count the number of crimes by category and show the first 5 lines on the markdown
+```
+
+```{r}
+heatmap_cat_hour <- crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft", "Other", "Non-Criminal", " Assault", "Motor Vehicle Theft", "Drugs/Narcotics", "Vandalism", "Warrant", "Burglary")) %>% separate(`Incident Time`, into = c("hour","min", "sec"), sep = "[:]+") %>% select(hour,`Incident Category`) %>% group_by(hour, `Incident Category`) %>% count(`Incident Category`)
+
+heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = n)) + 
+  geom_tile()
 ```
 
 ```{r}
@@ -17,11 +35,54 @@ kable(head(crime2003_2020 %>% count(`Incident Day of Week`, name = "day") %>% ar
 ```
 
 ```{r}
-kable(head(crime2003_2020 %>% count(Resolution, name = "resolution") %>% arrange(desc(resolution))), "simple") 
+crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft", "Other", "Non-Criminal", " Assault", "Motor Vehicle Theft", "Drugs/Narcotics", "Vandalism", "Warrant", "Burglary")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
 ```
 
 ```{r}
-kable(head(crime2003_2020 %>% count(`Incident Category`, name = "category") %>% arrange(desc(category))), "simple")
+crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Other")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Non-Criminal")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Assault")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Motor Vehicle Theft")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Drugs/Narcotics")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Vandalism")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Warrant")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+crime2003_2020 %>% filter(`Incident Category` %in% c("Burglary")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+
+```
+
+```{r}
+leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
+  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
+  addPolygons(data = neigh$geometry) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
+  addMarkers(
+    lng = crime_2016$lon,
+    lat = crime_2016$lat,
+    popup = crime_2016$`Incident Category`,
+    clusterOptions = markerClusterOptions()
+  ) %>%
+  #add a marker for every point of the data set
+  addProviderTiles(providers$MtbMap) %>%
+  addProviderTiles(providers$Stamen.TonerLines,
+                   options = providerTileOptions(opacity = 1)) %>%
+  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map
+```
+
+```{r}
+piechartres <- head(crime2003_2020 %>% count(Resolution, name = "resolution") %>% arrange(desc(resolution)))
+
+ggplot(piechartres, aes(x = "", y = resolution, fill = Resolution)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0)
+
 ```
 
 ```{r}
@@ -43,18 +104,6 @@ ggplot(crime_number_monhtly, aes(x = `Month`, y = `Crime per Month`)) +
   scale_color_economist(name = "Seasons:") +
   geom_smooth(se = F)
 ```
-
-```{r}
-SFMAP <-
-  leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  #add a marker for every point of the data set
-  addProviderTiles(providers$MtbMap) %>%
-  addProviderTiles(providers$Stamen.TonerLines,
-                   options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map
-```
-
 
 * Multivariate visualizations
 * Summary tables
