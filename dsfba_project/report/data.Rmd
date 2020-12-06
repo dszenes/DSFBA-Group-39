@@ -209,12 +209,11 @@ This data set will be useful to analyze the density of the public transport netw
 ### 2.4.2 Neighborhood
 
 ```{r}
-
 data9 <- st_read(dsn = here::here("data/Analysis Neighborhoods.geojson"))
-
-st_crs(data9)
-data9 <- st_transform(data9, crs = 2227)
-neigh <- st_transform(data9,crs = "+proj=longlat +datum=WGS84")
+data9 %>% arrange(nhood)
+st_crs(data9 %>% arrange(nhood))
+data9bis <- st_transform(data9 %>% arrange(nhood), crs = 2227)
+neigh <- st_transform(data9bis,crs = "+proj=longlat +datum=WGS84")
 plot(data9$geometry)
 ```
 Source of the data set: [https://data.sfgov.org/Geographic-Locations-and-Boundaries/Analysis-Neighborhoods/p5b7-5n3h]
@@ -576,9 +575,7 @@ crime_demostats_2016 <-
     `Graduate/Professional Degree` = `Graduate/Professional Degree` * `Total Population`
   ) %>%
   rename(`Analysis Neighborhood` = `NEIGHBORHOOD`) %>%
-  select(`Analysis Neighborhood`, everything())
-
-crime_demostats_2016 %>% arrange(everything(), )
+  select(everything(), -(`Time Horizon`),-(`Analysis Neighborhood...1`), -(`Analysis Neighborhood...3`), -(nhood), -(`Analysis Neighborhoods`)) %>% arrange(`Analysis Neighborhood`)
 
 crime_demostats_2016 <- crime_demostats_2016[, c(-38, -39)]
 
