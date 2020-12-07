@@ -8,19 +8,56 @@ source(here::here("scripts/setup.R"))
 * Identifying the most important variables
 * Univariate visualizations
 
-For the first part of the exploratory data analysis, we want to look at temporal trends in crime in San Francisco. Can we see patterns that recur at certain times of the day, at certain times of the year?
+## 3.1 Crime EDA
+
+
+For the first part of the exploratory data analysis, we are going to be interested in how crime is organized over time. Can we see patterns that recur at certain times of the day, at certain times of the year?
+
+### 3.1.1 Date/Time Crime Tendency
+
+#### 3.1.1.1 Hour Crime Tendency
 
 ```{r}
 sephour <- crime2003_2020 %>% separate(`Incident Time`, into = c("hour","min", "sec"), sep = "[:]+")
 #separate the time to have a column of hours, minutes and seconds. All this to have intervals by hours of the crimes.
 
 kable(head(sephour %>% count(hour, name = "hour of the day") %>% arrange(desc(`hour of the day`))), "simple")
-#show on the Rmardown a table with the first 5 rows
 ```
 
+This table shows the number of crimes falling within an interval of 1 hour. We can still see a certain trend with these numbers. It has more crimes in the time interval [3pm-8pm], at noon and midnight. It is interesting to note that the first 3 time intervals that have the most crimes are 6pm, 5pm and 12pm. These schedules are often when workers have breaks or have finished working.
+
+We can also show this global tendencies with a barplot.
+
 ```{r}
-kable(head(crime2003_2020 %>% count(`Incident Category`, name = "category") %>% arrange(desc(category))), "simple")
-#Count the number of crimes by category and show the first 5 lines on the markdown
+countsephour <- sephour %>% count(hour, name = "number of crime") %>% arrange(desc(`number of crime`))
+
+countsephour %>% ggplot(aes(x = hour, y = `number of crime` )) + labs(title = "Distribution of crime by hourday") + 
+  geom_bar(stat = "identity", fill = "#2b8cbe")
+#draw the discrete distribution of the tendendices of crime given the hour of the day.
+```
+
+We can see that as early as 8:00 a.m., crimes increase little by little. We see the peak at 12 o'clock. And the time of the day when there is the most crime (the interval [3pm-8pm]). What is interesting to note is that there is less crime at night. Whereas at first glance one would think that crimes take place more at night.
+
+#### 3.1.1.2 Day Crime Tendency
+
+We are now going to look at the distribution of crimes according to the days of the week. It seems logical that crimes increase on Fridays and Saturdays because that's when people go out the most. But is this really the case?
+
+```{r}
+countsepday <-
+  crime_2016 %>% count(`Incident Day of Week`, name = "number of crime")
+options(scipen = 999)
+countsepday %>% ggplot(aes(x = `Incident Day of Week`, y = `number of crime`)) + labs(title = "Distribution of crime by weekday") + geom_bar(stat = "identity", fill = "#2b8cbe") + geom_text(aes(label = `number of crime`), position = position_dodge(width = 0.9), vjust = -0.25)
+```
+
+
+## 3.1.3 Crime Category Tendency
+
+```{r}
+countcat <- head(crime2003_2020 %>% count(`Incident Category`, name = "category") %>% arrange(desc(category)))
+
+countcat %>% ggplot(aes(x = `Incident Category`, y = category )) + 
+  geom_bar(stat = "identity", fill = "#2b8cbe")
+#Count the number of crimes by category and draw the discrete distribution 
 ```
 
 ```{r}
@@ -30,9 +67,6 @@ heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = n)) +
   geom_tile()
 ```
 
-```{r}
-kable(head(crime2003_2020 %>% count(`Incident Day of Week`, name = "day") %>% arrange(desc(day))), "simple")
-```
 
 ```{r}
 crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft", "Other", "Non-Criminal", " Assault", "Motor Vehicle Theft", "Drugs/Narcotics", "Vandalism", "Warrant", "Burglary")) %>%  group_by(`Incident Day of Week`,`Incident Category`,) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
@@ -60,21 +94,43 @@ crime2003_2020 %>% filter(`Incident Category` %in% c("Burglary")) %>%  group_by(
 ```
 
 ```{r}
+blue <- colorNumeric("YlGnBu", crime_demostats_2016$`Total crimes`)
+
 leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
   setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  addPolygons(data = neigh$geometry) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
+  addPolygons(data = neigh$geometry, col = "black", weight = 1, fillColor = blue(crime_demostats_2016$`Total crimes`), fillOpacity = 0.7) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
   addMarkers(
     lng = crime_2016$lon,
     lat = crime_2016$lat,
     popup = crime_2016$`Incident Category`,
     clusterOptions = markerClusterOptions()
-  ) %>%
-  #add a marker for every point of the data set
-  addProviderTiles(providers$MtbMap) %>%
+  )  #add a marker for every point of the data set and cluster those points
+addProviderTiles(providers$MtbMap) %>%
   addProviderTiles(providers$Stamen.TonerLines,
                    options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map
+  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map. We can see now how the road and transport is construct.
 ```
+
+```{r}
+ crime_demostats_2016$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016$`Total crimes`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+geom_point(
+  aes(x = lon, y = lat)
+  ,
+  data = transport
+  ,
+  na.rm = T
+  ,
+  size = .07,
+  color = "yellow"
+)
+```
+
+```{r}
+numstops <- transport %>% count(`Analysis Neighborhoods`, name = "number of stops") %>% arrange(desc(`number of stops`))
+
+kable(head(numstops), "simple")
+```
+
 
 ```{r}
 piechartres <- head(crime2003_2020 %>% count(Resolution, name = "resolution") %>% arrange(desc(resolution)))
@@ -82,7 +138,6 @@ piechartres <- head(crime2003_2020 %>% count(Resolution, name = "resolution") %>
 ggplot(piechartres, aes(x = "", y = resolution, fill = Resolution)) +
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y", start = 0)
-
 ```
 
 ```{r}
@@ -98,11 +153,12 @@ crime_number_monhtly <- crime_number %>%
   select(`Month`, `Crime per Month`)
 #group the number of crime per month given the time period 2003 to 2017
 
-library(ggthemes)
-ggplot(crime_number_monhtly, aes(x = `Month`, y = `Crime per Month`)) +
-  theme_economist_white() +
-  scale_color_economist(name = "Seasons:") +
-  geom_smooth(se = F)
+library(hrbrthemes)
+ggplot(crime_number_monhtly, aes(x = `Month`, y = `Crime per Month`)) + 
+  geom_smooth(se = F) +
+  geom_line( color = "#69b3a2") + 
+  theme_ipsum() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
 * Multivariate visualizations
