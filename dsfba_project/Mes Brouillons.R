@@ -8,3 +8,5 @@ fit3 <- lm(crime_demostats_2016$`Total crimes`~crime_demostats_2016$`Non-Family 
 summary(fit2)
 
 summary(fit3)
+
+crime_demostats_2016 <- crime_demostats_2016[, c( -38, -39, -41)]
