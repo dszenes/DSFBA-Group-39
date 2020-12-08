@@ -1,12 +1,6 @@
-fit1 <- step(lm(`Total crimes`~ . -`Analysis Neighborhood` -`Violent crimes`, data = crime_demostats_2016), direction = "forward")
+data10 <- read_csv(file = here::here("data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv")) 
+data10 <- as_tibble(data10)
 
-fit2 <- lm(crime_demostats_2016$`Total crimes`~crime_demostats_2016$`Units of Housing` + crime_demostats_2016$`High School or Less`)
-
-fit3 <- lm(crime_demostats_2016$`Total crimes`~crime_demostats_2016$`Non-Family Households`+crime_demostats_2016$`Number of people Poverty`)
-
-
-summary(fit2)
-
-summary(fit3)
-
-crime_demostats_2016 <- crime_demostats_2016[, c( -38, -39, -41)]
+covid_neighborhoods <- data10 %>% 
+  filter(area_type == "Analysis Neighborhood") %>%
+  select(id, count, rate)
