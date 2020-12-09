@@ -390,3 +390,67 @@ crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demosta
   )
 ```
 
+```{r}
+
+data10 <- read_csv(file = here::here("data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv")) 
+data10 <- as_tibble(data10)
+
+covid_neighborhoods <- data10 %>% 
+  filter(area_type == "Analysis Neighborhood", !(is.na(`rate`))) %>%
+  select(id, count, rate) 
+
+data11 <- read_csv(file = here::here("data/COVID-19_Cases_Summarized_by_Date__Transmission_and_Case_Disposition.csv")) 
+data11 <- as_tibble(data11)
+
+covid_sf <- data11 %>% 
+  group_by(`Specimen Collection Date`) %>%
+  summarise(`Case Count` = sum(`Case Count`))
+
+ggplot(covid_sf, aes(`Specimen Collection Date`, `Case Count`)) +
+  geom_line()
+
+ggplot(covid_neighborhoods, aes( reorder(`id`, `rate`), `rate`)) +
+  geom_bar(stat = "identity") + 
+  coord_flip()
+
+biggest_neighborhoods <- demostats_2016 %>% 
+  arrange(desc(`Total Population`)) %>%
+  head() %>%
+  rename(Neighborhood = NEIGHBORHOOD)
+
+
+ggplot(biggest_neighborhoods, aes( `Neighborhood`,  `Total Population`)) +
+  geom_bar(stat = "identity")
+
+library(reshape2)
+biggest_neighborhoods_long <- melt(biggest_neighborhoods)
+
+biggest_neighborhoods_long_households <-  biggest_neighborhoods_long %>% 
+  filter( variable %in% c("Family Households", "Non-Family Households"))
+
+
+ggplot(biggest_neighborhoods_long_households, aes(`Neighborhood`, `value`, fill = `variable`)) +
+  geom_bar(stat="identity",position="dodge")
+
+biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>% 
+  filter( variable %in% c("Asian", "Black/African American", "White", "Native American Indian", "Native Hawaiian/Pacific Islander", "Other/Two or More Races"))
+
+ggplot(biggest_neighborhoods_long_race, aes(`Neighborhood`, `value`, fill = `variable`)) +
+  geom_bar(stat="identity") 
+
+biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>% 
+  filter( variable %in% c("60 and older", "35-59 years", "18-34 years", "5-17 years", "0-4 years"))
+
+ggplot(biggest_neighborhoods_long_age, aes(`Neighborhood`, `value`, fill = `variable`)) +
+  geom_bar(stat="identity", position =  position_stack(reverse = TRUE)) 
+
+biggest_neighborhoods_long_education <-  biggest_neighborhoods_long %>% 
+  filter( variable %in% c("High School or Less", "Some College/Associate Degree", "College Degree", "Graduate/Professional Degree"))
+
+ggplot(biggest_neighborhoods_long_education, aes(`Neighborhood`, `value`, fill = `variable`)) +
+  geom_bar(stat="identity", position =  position_stack(reverse = TRUE)) 
+
+
+
+```
+
