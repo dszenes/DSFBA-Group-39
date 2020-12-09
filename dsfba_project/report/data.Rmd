@@ -4,6 +4,8 @@
 source(here::here("scripts/setup.R"))
 ```
 
+## Raw Data Set
+
 ## 2.1 Crime Data
 
 First, we will load two data sets that record the incident reports that have been filed to the police.
@@ -212,8 +214,7 @@ Source of the data set: [https://data.sfgov.org/Geographic-Locations-and-Boundar
 This data set contains multi-polygons that are supposed to represent the segmentation of neighbourhoods according to the Analysis of Neighborhood. We will use this data set extensively for our geospatial analyses.
 
 
-
-* Wrangling/cleaning
+## 2.5 Clean Data Set
 
 ```{r}
 data2$`Analysis Neighborhood`[data2$`Analysis Neighborhood` == "Castro/UpperMarket"] <- "Castro/Upper Market"
@@ -515,7 +516,7 @@ kable(head(numstops), "simple")
 ```
 
 
-This data set highlights the number of crimes by neighborhood for the year 2016. We have combined the crime information with our socio-economic data. This dataset will be useful to build a linear regression as well as other geospatial analysis.
+This data set highlights the number of crimes by neighborhood for the years 2014 to 2016. We have combined the crime information with our socio-economic data. This dataset will be useful to build a linear regression as well as other geospatial analysis.
 
 ```{r}
 crime2003_2020_datesep <- crime2003_2020 %>%
@@ -575,51 +576,78 @@ crime_demostats_2016 <-
   select(everything(), -(`Time Horizon`),-(`Analysis Neighborhood...1`), -(`Analysis Neighborhood...3`), -(nhood), -(`Analysis Neighborhoods`)) %>% arrange(`Analysis Neighborhood`)
 
 crime_demostats_2016 <- crime_demostats_2016[, c(-38, -39, -41)]
-
-kable(crime_demostats_2016) %>% kable_styling() %>% scroll_box(width = "1000px", height = "800px")
 ```
 
 ```{r}
 # We will focus our deepest statistical analysis on the year 2016 because that is when we have the most recent socio-economic and demographic data
-crime_2014 <- crime2003_2020_datesep %>% 
+crime_2014 <- crime2003_2020_datesep %>%
   filter(year == 2014)
-crime_2014_neighborhood <- crime2003_2020_datesep %>% 
-  filter(year == 2014, !(is.na(`Analysis Neighborhood`))) %>%
+crime_2014_neighborhood <- crime2003_2020_datesep %>%
+  filter(year == 2014,!(is.na(`Analysis Neighborhood`))) %>%
   count(`Analysis Neighborhood`, name = "Total crimes")
 violent_crime_2014_neighborhood <- crime2003_2020_datesep %>%
-  filter(year == 2014,!(is.na(`Analysis Neighborhood`)),`Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") | `Analysis Neighborhood` == "Lincoln Park" ) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
-crime_2015 <- crime2003_2020_datesep %>% 
+  filter(
+    year == 2014,
+    !(is.na(`Analysis Neighborhood`)),
+    `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") |
+      `Analysis Neighborhood` == "Lincoln Park"
+  ) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+crime_2015 <- crime2003_2020_datesep %>%
   filter(year == 2015)
-crime_2015_neighborhood <- crime2003_2020_datesep %>% 
-  filter(year == 2015, !(is.na(`Analysis Neighborhood`))) %>%
+crime_2015_neighborhood <- crime2003_2020_datesep %>%
+  filter(year == 2015,!(is.na(`Analysis Neighborhood`))) %>%
   count(`Analysis Neighborhood`, name = "Total crimes")
 violent_crime_2015_neighborhood <- crime2003_2020_datesep %>%
-  filter(year == 2015,!(is.na(`Analysis Neighborhood`)),`Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") ) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
-crime_2016 <- crime2003_2020_datesep %>% 
+  filter(
+    year == 2015,
+    !(is.na(`Analysis Neighborhood`)),
+    `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault")
+  ) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+crime_2016 <- crime2003_2020_datesep %>%
   filter(year == 2016)
-crime_2016_neighborhood <- crime2003_2020_datesep %>% 
-  filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
+crime_2016_neighborhood <- crime2003_2020_datesep %>%
+  filter(year == 2016,!(is.na(`Analysis Neighborhood`))) %>%
   count(`Analysis Neighborhood`, name = "Total crimes")
 violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
-  filter(year == 2016,!(is.na(`Analysis Neighborhood`)),`Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") | `Analysis Neighborhood` == "Presidio" ) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
-crime_2014_2016_neighborhood <- bind_rows(crime_2014_neighborhood, crime_2015_neighborhood, crime_2016_neighborhood)
-violent_crime_2016_neighborhood$`Violent crimes`[violent_crime_2016_neighborhood$`Violent crimes` == "51"] <- 0
-violent_crime_2014_neighborhood$`Violent crimes`[violent_crime_2014_neighborhood$`Violent crimes` == "14"] <- 0
-violent_crime_2014_2016_neighborhood <- bind_rows(violent_crime_2014_neighborhood, violent_crime_2015_neighborhood, violent_crime_2016_neighborhood)
-violent_crime_2014_2016_neighborhood <- violent_crime_2014_2016_neighborhood[-1]
+  filter(
+    year == 2016,
+    !(is.na(`Analysis Neighborhood`)),
+    `Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") |
+      `Analysis Neighborhood` == "Presidio"
+  ) %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+crime_2014_2016_neighborhood <-
+  bind_rows(crime_2014_neighborhood,
+            crime_2015_neighborhood,
+            crime_2016_neighborhood)
+violent_crime_2016_neighborhood$`Violent crimes`[violent_crime_2016_neighborhood$`Violent crimes` == "51"] <-
+  0
+violent_crime_2014_neighborhood$`Violent crimes`[violent_crime_2014_neighborhood$`Violent crimes` == "14"] <-
+  0
+violent_crime_2014_2016_neighborhood <-
+  bind_rows(
+    violent_crime_2014_neighborhood,
+    violent_crime_2015_neighborhood,
+    violent_crime_2016_neighborhood
+  )
+violent_crime_2014_2016_neighborhood <-
+  violent_crime_2014_2016_neighborhood[-1]
 #We select the Assault, Homicide, Sexual Assault and Robbery  categories for a sub-category called Violent crimes
-demostats_2016 <- data3[-42, ]
-demostats_2015 <- data5[-42, ]
-demostats_2014 <- data4[-42, ]
-demostats_2014_2016 <- bind_rows(demostats_2014, demostats_2015, demostats_2016)
+demostats_2016 <- data3[-42,]
+demostats_2015 <- data5[-42,]
+demostats_2014 <- data4[-42,]
+demostats_2014_2016 <-
+  bind_rows(demostats_2014, demostats_2015, demostats_2016)
 demostats_2014_2016 <- demostats_2014_2016[-1]
-demostats_2014_2016 <- demostats_2014_2016[-c(124:129),]
+demostats_2014_2016 <- demostats_2014_2016[-c(124:129), ]
 numstops_2014_2016 <- bind_rows(numstops, numstops, numstops)
 numstops_2014_2016 <- numstops_2014_2016[-1]
 crime_demostats_2014_2016 <-
-  bind_cols(violent_crime_2014_2016_neighborhood,
-            crime_2014_2016_neighborhood,
-            demostats_2014_2016,  numstops_2014_2016) %>%
+  bind_cols(
+    violent_crime_2014_2016_neighborhood,
+    crime_2014_2016_neighborhood,
+    demostats_2014_2016,
+    numstops_2014_2016
+  ) %>%
   mutate(
     `Family Households` = `Family Households` * `Total Population`,
     `Non-Family Households` = `Non-Family Households` * `Total Population`,
@@ -648,8 +676,15 @@ crime_demostats_2014_2016 <-
     `Unemployed population` = `Unemployment Rate` * `Total Population`,
     `Graduate/Professional Degree` = `Graduate/Professional Degree` * `Total Population`
   ) %>%
-  select(everything(), -(`Analysis Neighborhood`), -(`Time Horizon`), -(`Median Year Structure Build`), -(`Population Density per Acre`))
-crime_demostats_2014_2016 <- crime_demostats_2014_2016[, c( -38, -39)]
+  select(
+    everything(),
+    -(`Analysis Neighborhood`),
+    -(`Time Horizon`),
+    -(`Median Year Structure Build`),
+    -(`Population Density per Acre`)
+  )
+crime_demostats_2014_2016 <-
+  crime_demostats_2014_2016[, c(-38,-39)]
 crime_demostats_2014_2016[is.na(crime_demostats_2014_2016)] <- 1
 crime_demostats_2014_2016[crime_demostats_2014_2016 == "0"] <- 1
 kable(crime_demostats_2014_2016) %>% kable_styling() %>% scroll_box(width = "1000px", height = "800px")

@@ -282,7 +282,9 @@ You can also see orange bubbles. These orange bubbles group together the crimes 
 
 ## 3.1.4 Crime Resolution
 
+
 While doing some research on the crime situation in San Francisco, we came across an article ([https://www.sfchronicle.com/bayarea/philmatier/article/SF-ranks-high-in-property-crime-while-it-ranks-14439369.php]) that explained that criminals can't be arrested. We wanted to see if this data had the same conclusions.
+
 
 ```{r}
 piechartres <-
@@ -297,14 +299,22 @@ ggplot(piechartres, aes(x = "", y = resolution, fill = Resolution)) +
     "#74a9cf",
     "#2b8cbe",
     "#045a8d"
-  )) + xlab(" ") + ylab(" ") + labs(title = "Proportion of the Resolution")
+  )) + xlab(" ") + ylab(" ") + labs(title = "Proportion of the Resolution") + theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid  = element_blank()
+  )
 ```
+
+
 We see very clearly that the majority of crimes have no follow-up. Less than a quarter are arrested. We want to analyze this further. Are certain categories more affected by having no follow-up?
 
+
 ```{r}
+
 k <-
   crime2003_2020 %>% group_by(Resolution, `Incident Category`) %>% count(Resolution, name = "resolution")
-
+options(scipen = 999)
 k %>% filter(
     `Incident Category` %in% c(
       "Larceny/Theft",
@@ -332,13 +342,42 @@ k %>% filter(
                      "#636363"
                    )
                  ) +
-  geom_bar(position = "stack", stat = "identity") + ylab("Crime Category") + xlab("Number of Crime ") + labs(title = "Crime Resolution Given the Crime Category")
+  geom_bar(position = "stack", stat = "identity") + ylab("Crime Category") + xlab("Number of Crime") + labs(title = "Crime Resolution Given the Crime Category")
 ```
+What marks with this graph is the bar that represents the number of theft. In fact, there is no continuation for the large majority of the thefts (normal or those of vehicles). In San Francisco, crime is mostly focused on theft. And the majority of thieves don't get caught.
+Now we understand why San Francisco is one of the cities with a crime rate above the national average and why San Francisco is one of the cities with the most violent crime in California. Because theft is considered a violent crime, San Francisco is infested with thieves
+
 
 ### 3.2 Transport Across Neighborhood
 
+We start from the premise that public transport is a vector that makes life easier for criminals. It's easy to steal in transportation because a lot of people are tight, it's also easy to steal in neighborhoods where there is transportation because you can run away very quickly. We wanted to see the importance and if there was any connection between the number of transport stops and the number of crimes.
+
+```{r}
+kable(cor(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops`
+), "simple")
+```
+We see a certain correlation. It would be interesting to push forward the analysis.
+
+```{r}
+numstops <-
+  crime_demostats_2016 %>% select(`Violent crimes`, `number of stops`, `Analysis Neighborhood`) %>% arrange(desc(`number of stops`))
+  
+kable(head(numstops), "simple")
+```
+
+Just with this table, it's hard to conclude anything. It would still seem that some neighbourhoods with a lot of crime are not at the top of the rankings when it comes to the number of public transport stops. We will use a visual representation to help us.
+
+```{r}
+crime_demostats_2016 %>% ggplot(aes(`number of stops`, `Violent crimes`)) + geom_point() + ylab("Number of Violent Crime") + xlab("Number of Transport Stops") + labs(title = "Violent Crime vs Number of Stops") +   geom_smooth(method = "lm", color = "#69b3a2") + geom_segment(aes(x = 10, y = 2200, xend = 20, yend = 2350),
+                  arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(x = 50, y = 1500, xend = 43, yend = 1800), arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(x = 70, y = 2200, xend = 80, yend = 2400), arrow = arrow(length = unit(0.5, "cm")))
+
+```
+We can see some small correlation between the number of crimes and the number of bus stops. What seems strange to us is the 3 neighborhoods with the most crimes, which we have highlighted with 3 arrows. The ones that don't have a lot of bus stops and seem to be outliers but are very important for the interpretation of the results.
+
+If we highlight San Francisco's transportation network by comparing it to the segmentation of neighborhoods according to the number of crimes, we can use this map to help us.
+
 ```{r, out.width = '100%'}
-crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Total crimes`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Total crimes`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + labs(title="San Francisco Map : Public Transport vs Crime", fill = "Number of Crime") +
   geom_point(
     aes(x = lon, y = lat)
     ,
@@ -351,11 +390,3 @@ crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demosta
   )
 ```
 
-```{r}
-numstops <-
-  transport %>%
-  count(`Analysis Neighborhoods`, name = "number of stops") %>%
-  arrange(desc(`number of stops`))
-
-kable(head(numstops))
-```
