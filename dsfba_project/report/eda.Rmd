@@ -254,7 +254,7 @@ The neighbourhoods with the most crime are Tenderloin, South of Market and Missi
 ```{r}
 blue <- colorNumeric("YlGnBu", crime_demostats_2016$`Total crimes`)
 
-leaflet() %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
+leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
   setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
   addPolygons(
     data = neigh$geometry,
@@ -321,7 +321,7 @@ k %>% filter(
       "Other",
       "Non-Criminal",
       "Assault",
-      "Motor Vehicle Theft"
+      "Motor Vehicle Theft" 
     )
 ) %>% ggplot(aes(x = resolution,
                  y = `Incident Category`,
@@ -353,104 +353,110 @@ Now we understand why San Francisco is one of the cities with a crime rate above
 We start from the premise that public transport is a vector that makes life easier for criminals. It's easy to steal in transportation because a lot of people are tight, it's also easy to steal in neighborhoods where there is transportation because you can run away very quickly. We wanted to see the importance and if there was any connection between the number of transport stops and the number of crimes.
 
 ```{r}
-kable(cor(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops`
-), "simple")
-```
-We see a certain correlation. It would be interesting to push forward the analysis.
-
-```{r}
 numstops <-
   crime_demostats_2016 %>% select(`Violent crimes`, `number of stops`, `Analysis Neighborhood`) %>% arrange(desc(`number of stops`))
   
 kable(head(numstops), "simple")
 ```
 
-Just with this table, it's hard to conclude anything. It would still seem that some neighbourhoods with a lot of crime are not at the top of the rankings when it comes to the number of public transport stops. We will use a visual representation to help us.
+Just with this table, it's hard to conclude anything. It would still seem that some neighbourhoods with a lot of crime are not at the top of the rankings when it comes to the number of public transport stops.
+
+### 3.3 COVID data
 
 ```{r}
-crime_demostats_2016 %>% ggplot(aes(`number of stops`, `Violent crimes`)) + geom_point() + ylab("Number of Violent Crime") + xlab("Number of Transport Stops") + labs(title = "Violent Crime vs Number of Stops") +   geom_smooth(method = "lm", color = "#69b3a2") + geom_segment(aes(x = 10, y = 2200, xend = 20, yend = 2350),
-                  arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(x = 50, y = 1500, xend = 43, yend = 1800), arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(x = 70, y = 2200, xend = 80, yend = 2400), arrow = arrow(length = unit(0.5, "cm")))
-
-```
-We can see some small correlation between the number of crimes and the number of bus stops. What seems strange to us is the 3 neighborhoods with the most crimes, which we have highlighted with 3 arrows. The ones that don't have a lot of bus stops and seem to be outliers but are very important for the interpretation of the results.
-
-If we highlight San Francisco's transportation network by comparing it to the segmentation of neighborhoods according to the number of crimes, we can use this map to help us.
-
-```{r, out.width = '100%'}
-crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Total crimes`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + labs(title="San Francisco Map : Public Transport vs Crime", fill = "Number of Crime") +
-  geom_point(
-    aes(x = lon, y = lat)
-    ,
-    data = transport
-    ,
-    na.rm = T
-    ,
-    size = .07,
-    color = "yellow"
-  )
-```
-
-```{r}
-
-data10 <- read_csv(file = here::here("data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv")) 
-data10 <- as_tibble(data10)
-
-covid_neighborhoods <- data10 %>% 
-  filter(area_type == "Analysis Neighborhood", !(is.na(`rate`))) %>%
-  select(id, count, rate) 
-
-data11 <- read_csv(file = here::here("data/COVID-19_Cases_Summarized_by_Date__Transmission_and_Case_Disposition.csv")) 
-data11 <- as_tibble(data11)
-
-covid_sf <- data11 %>% 
-  group_by(`Specimen Collection Date`) %>%
-  summarise(`Case Count` = sum(`Case Count`))
-
 ggplot(covid_sf, aes(`Specimen Collection Date`, `Case Count`)) +
   geom_line()
+```
 
-ggplot(covid_neighborhoods, aes( reorder(`id`, `rate`), `rate`)) +
-  geom_bar(stat = "identity") + 
+```{r}
+ggplot(covid_neighborhoods, aes(reorder(`id`, `rate`), `rate`)) +
+  geom_bar(stat = "identity") +
   coord_flip()
+```
 
-biggest_neighborhoods <- demostats_2016 %>% 
+### 3.4 Socio-Demographic data
+
+
+```{r}
+biggest_neighborhoods <- demostats_2016 %>%
   arrange(desc(`Total Population`)) %>%
   head() %>%
   rename(Neighborhood = NEIGHBORHOOD)
 
 
-ggplot(biggest_neighborhoods, aes( `Neighborhood`,  `Total Population`)) +
+ggplot(biggest_neighborhoods,
+       aes(`Neighborhood`,  `Total Population`)) +
   geom_bar(stat = "identity")
 
+```
+
+```{r}
 library(reshape2)
 biggest_neighborhoods_long <- melt(biggest_neighborhoods)
 
-biggest_neighborhoods_long_households <-  biggest_neighborhoods_long %>% 
-  filter( variable %in% c("Family Households", "Non-Family Households"))
+biggest_neighborhoods_long_households <-
+  biggest_neighborhoods_long %>%
+  filter(variable %in% c("Family Households", "Non-Family Households"))
 
 
-ggplot(biggest_neighborhoods_long_households, aes(`Neighborhood`, `value`, fill = `variable`)) +
-  geom_bar(stat="identity",position="dodge")
+ggplot(
+  biggest_neighborhoods_long_households,
+  aes(`Neighborhood`, `value`, fill = `variable`)
+) +
+  geom_bar(stat = "identity", position = "dodge")
 
-biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>% 
-  filter( variable %in% c("Asian", "Black/African American", "White", "Native American Indian", "Native Hawaiian/Pacific Islander", "Other/Two or More Races"))
+```
 
-ggplot(biggest_neighborhoods_long_race, aes(`Neighborhood`, `value`, fill = `variable`)) +
-  geom_bar(stat="identity") 
+```{r}
+biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>%
+  filter(
+    variable %in% c(
+      "Asian",
+      "Black/African American",
+      "White",
+      "Native American Indian",
+      "Native Hawaiian/Pacific Islander",
+      "Other/Two or More Races"
+    )
+  )
 
-biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>% 
-  filter( variable %in% c("60 and older", "35-59 years", "18-34 years", "5-17 years", "0-4 years"))
+ggplot(biggest_neighborhoods_long_race,
+       aes(`Neighborhood`, `value`, fill = `variable`)) +
+  geom_bar(stat = "identity") 
+```
 
-ggplot(biggest_neighborhoods_long_age, aes(`Neighborhood`, `value`, fill = `variable`)) +
-  geom_bar(stat="identity", position =  position_stack(reverse = TRUE)) 
+```{r}
+biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>%
+  filter(variable %in% c(
+    "60 and older",
+    "35-59 years",
+    "18-34 years",
+    "5-17 years",
+    "0-4 years"
+  ))
 
-biggest_neighborhoods_long_education <-  biggest_neighborhoods_long %>% 
-  filter( variable %in% c("High School or Less", "Some College/Associate Degree", "College Degree", "Graduate/Professional Degree"))
+ggplot(biggest_neighborhoods_long_age,
+       aes(`Neighborhood`, `value`, fill = `variable`)) +
+  geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) 
+```
 
-ggplot(biggest_neighborhoods_long_education, aes(`Neighborhood`, `value`, fill = `variable`)) +
-  geom_bar(stat="identity", position =  position_stack(reverse = TRUE)) 
+```{r}
+biggest_neighborhoods_long_education <-
+  biggest_neighborhoods_long %>%
+  filter(
+    variable %in% c(
+      "High School or Less",
+      "Some College/Associate Degree",
+      "College Degree",
+      "Graduate/Professional Degree"
+    )
+  )
 
-
+ggplot(
+  biggest_neighborhoods_long_education,
+  aes(`Neighborhood`, `value`, fill = `variable`)
+) +
+  geom_bar(stat = "identity", position =  position_stack(reverse = TRUE))
 
 ```
 

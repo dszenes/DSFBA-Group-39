@@ -14,7 +14,6 @@ First, we will load two data sets that record the incident reports that have bee
 ```{r}
 data2 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__2018_to_Present.csv"))
 data2 <- as_tibble(data2)
-kable(str(data2))
 ```
 Source of the data set: [https://data.sfgov.org/Public-Safety/Police-Department-Incident-Reports-2018-to-Present/wg3w-h783]
 
@@ -59,8 +58,6 @@ This information will be useful to us in order to look at the evolution of crime
 ```{r}
 data1 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__Historical_2003_to_May_2018.csv")) 
 data1 <- as_tibble(data1)
-
-kable(str(data1))
 ```
 Source of the data set: [https://data.sfgov.org/Public-Safety/Police-Department-Incident-Reports-Historical-2003/tmnf-yvry]
 
@@ -96,7 +93,6 @@ Then, we will load four data sets that record the evolution of some socio-econom
 ```{r}
 data3 <- read_csv(file = here::here("data/American_Community_Survey_2012-2016.csv"))
 data3 <- as_tibble(data3)
-kable(str(data3))
 
 ```
 Source of the data set: [https://default.sfplanning.org/publications_reports/SF_NGBD_SocioEconomic_Profiles/2012-2016_ACS_Profile_Neighborhoods_Final.pdf]
@@ -106,8 +102,6 @@ Source of the data set: [https://default.sfplanning.org/publications_reports/SF_
 ```{r}
 data4 <- read_csv(file = here::here("data/American_Community_Survey_2010-2014.csv"))
 data4 <- as_tibble(data4)
-kable(str(data4))
-
 ```
 Source of the data set: [https://default.sfplanning.org/publications_reports/SF_NGBD_SocioEconomic_Profiles/2011-2015_ACS_Profile_Neighborhoods_Final.pdf]
 
@@ -117,8 +111,6 @@ Source of the data set: [https://default.sfplanning.org/publications_reports/SF_
 ```{r}
 data5 <- read_csv(file = here::here("data/American_Community_Survey_2011-2015.csv"))
 data5 <- as_tibble(data5)
-kable(str(data5))
-
 ```
 Source of the data set: [https://default.sfplanning.org/publications_reports/SF_NGBD_SocioEconomic_Profiles/2010-2014_ACS_Profile_Neighborhoods_v3AH.pdf]
 
@@ -127,7 +119,6 @@ Source of the data set: [https://default.sfplanning.org/publications_reports/SF_
 ```{r}
 data6 <- read_csv(file = here::here("data/American_Community_Survey_2005-2009.csv"))
 data6 <- as_tibble(data6)
-kable(str(data6))
 ```
 Source of the data set: [https://sf-planning.org/sites/default/files/FileCenter/Documents/8501-SFProfilesByNeighborhoodForWeb.pdf]
 
@@ -174,8 +165,8 @@ Those data sets contains 41 rows (each rows is one neighborhood of San Francisco
   + `Population Density per Acre` this column highlights the number of people per Acre for each neighborhood.
   
   
-  
-  With all these variables, we can see each neighborhood in terms of the number and density of the population, household composition, race, age distribution, education, languages spoken, and the economy of the neighborhood. This will be very helpful in answering some of our research questions.
+
+With all these variables, we can see each neighborhood in terms of the number and density of the population, household composition, race, age distribution, education, languages spoken, and the economy of the neighborhood. This will be very helpful in answering some of our research questions.
   
   
 ## 2.3 Transport Data
@@ -186,7 +177,6 @@ Next, we will upload a dataset that counts the number of transit stops in SFMTA 
 ```{r}
 data8 <- read_csv(file = here::here("data/Muni_Stops.csv"))
 kable(str(data8))
-
 ```
 Source of the data set: [https://catalog.data.gov/dataset/muni-stops].
 
@@ -203,17 +193,35 @@ This data set will also be useful to analyze the density of the public transport
 ### 2.4.1 Neighborhood
 
 ```{r}
-data9 <- st_read(dsn = here::here("data/Analysis Neighborhoods.geojson"))
+data9 <-
+  st_read(dsn = here::here("data/Analysis Neighborhoods.geojson"))
 data9 %>% arrange(nhood)
 st_crs(data9 %>% arrange(nhood))
 data9bis <- st_transform(data9 %>% arrange(nhood), crs = 2227)
-neigh <- st_transform(data9bis,crs = "+proj=longlat +datum=WGS84")
+neigh <- st_transform(data9bis, crs = "+proj=longlat +datum=WGS84")
 ```
 Source of the data set: [https://data.sfgov.org/Geographic-Locations-and-Boundaries/Analysis-Neighborhoods/p5b7-5n3h]
 
 This data set contains multi-polygons that are supposed to represent the segmentation of neighbourhoods according to the Analysis of Neighborhood. We will use this data set extensively for our geospatial analyses.
+```{r}
+data10 <-
+  read_csv(file = here::here(
+    "data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv"
+  ))
+data10 <- as_tibble(data10)
+covid_neighborhoods <- data10 %>%
+  filter(area_type == "Analysis Neighborhood") %>%
+  select(id, count, rate)
+```
 
+```{r}
+data11 <- read_csv(file = here::here("data/COVID-19_Cases_Summarized_by_Date__Transmission_and_Case_Disposition.csv")) 
+data11 <- as_tibble(data11)
 
+covid_sf <- data11 %>% 
+  group_by(`Specimen Collection Date`) %>%
+  summarise(`Case Count` = sum(`Case Count`))
+```
 ## 2.5 Clean Data Set
 
 ```{r}
@@ -687,7 +695,14 @@ crime_demostats_2014_2016 <-
   crime_demostats_2014_2016[, c(-38,-39)]
 crime_demostats_2014_2016[is.na(crime_demostats_2014_2016)] <- 1
 crime_demostats_2014_2016[crime_demostats_2014_2016 == "0"] <- 1
-kable(crime_demostats_2014_2016) %>% kable_styling() %>% scroll_box(width = "1000px", height = "800px")
+
+library(DT)
+datatable(
+  crime_demostats_2014_2016,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 5, scrollX = T)
+)
 ```
 
 ```{r}
