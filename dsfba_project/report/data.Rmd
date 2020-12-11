@@ -3,93 +3,116 @@
 ```{r, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
+<br>
 
 ## Raw Data Set
 
-## 2.1 Crime Data
+<br><br>
 
+## 2.1 Crime Data
+<br><br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 First, we will load two data sets that record the incident reports that have been filed to the police.
+</div>
+
+<br><br>
 
 ### 2.1.1 2018 To Present
 ```{r}
 data2 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__2018_to_Present.csv"))
 data2 <- as_tibble(data2)
+kable(str(data2[]))
 ```
 Source of the data set: [https://data.sfgov.org/Public-Safety/Police-Department-Incident-Reports-2018-to-Present/wg3w-h783]
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
 This dataset covers the period from the 1st January 2018 to the day in 2020 where we've downloaded the data and contains about 408K observations.
 
-* Column of the data set:
+</div>
+
+* We will focus on these variables:`Incident Date`, `Incident Time`, `Incident Day of Week`, `Incident Category`, `Resolution`, `Analysis Neighborhood`, `point`.
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
   + `Incident Datetime` The date and time when the incident occurred
   + `Incident Date` The date the incident occurred
   + `Incident Time` The date the incident occurred
   + `Incident Year` The year the incident occurred, provided as a convenience for filtering
   + `Incident Day of Week`The day of week the incident occurred
   + `Report Datetime` Distinct from Incident Datetime, Report Datetime is when the report was filed.
-  + `Row ID`
-  + `Incident ID`
-  + `Incident Number`
-  + `CAD Number`
-  + `Report Type Code`
-  + `Report Type Description`
-  + `Filed Online`
-  + `Incident Code`
   + `Incident Category` A category mapped on to the Incident Code used in statistics and reporting.
   + `Incident Subcategory` A subcategory mapped to the Incident Code that is used for statistics and reporting.
   + `Incident Description` The description of the incident that corresponds with the Incident Code.
   + `Resolution` The resolution of the incident at the time of the report.
-  + `Intersection`
-  + `CNN`
-  + `Police District`
   + `Analysis Neighborhood` This field is used to identify the neighborhood where each incident occurs. Neighborhoods and boundaries are defined by the Department of Public Health and the Mayor's Office of Housing and Community Development. Please reference the link below for additional info: [https://data.sfgov.org/d/p5b7-5n3h].
-  + `Supervisor District`
   + `Latitude` The latitude coordinate
   + `Longitude` The longitude coordinate
   + `point` The point geometry used for mapping features in the open data portal platform. Latitude and Longitude are provided separately as well as a convenience.
+  
+</div>
 
+<br>
 In order to be able to join the two datasets that have a different temporality and thus focus on variables to answer the chosen research questions, we have removed a few columns. 
-
-* We will focus on these variables:`Incident Date`, `Incident Time`, `Incident Day of Week`, `Incident Category`, `Resolution`, `Analysis Neighborhood`, `point`.
-
+<br>
 This information will be useful to us in order to look at the evolution of crime over time and also to analyze crime by neighborhood and thus be able to analyze whether this variation in crime across neighborhoods can be explained by socio-economic variables.
+<br><br>
 
 ### 2.1.2 2003 To 2018
 
 ```{r}
 data1 <- read_csv(file = here::here("data/Police_Department_Incident_Reports__Historical_2003_to_May_2018.csv")) 
 data1 <- as_tibble(data1)
+kable(str(data1[]))
 ```
 Source of the data set: [https://data.sfgov.org/Public-Safety/Police-Department-Incident-Reports-Historical-2003/tmnf-yvry]
-
+<br>
 This dataset covers the period from the 1st January 2003 to the 15th May 2018 and contains about 2.16M observations.
-
-* Column of the data set:
-  + `PdId`
-  + `IncidntNum`
-  + `Incident Code`
+<br><br>
+* As for the 3.1.1 data set, we will focus on these variables:`Incident Category`, `DayOfWeek`, `DayOfWeek`, `Date`, `Time`, `Resolution`, `Y`, `X`, `location`,`Analysis Neighborhoods 2 2`.
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
   + `Incident Category` A category mapped on to the Incident Code used in statistics and reporting.
   + `Descript` The description of the incident that corresponds with the Incident Code.
   + `DayOfWeek` The day of week the incident occurred
   + `Date` The date the incident occurred
   + `Time` The date the incident occurred
-  + `PdDistrict`
   + `Resolution` The resolution of the incident at the time of the report.
-  + `Address`
   + `Y` The latitude coordinate
   + `X` The longitude coordinate
   + `location` The point geometry used for mapping features in the open data portal platform. Latitude and Longitude are provided separately as well as a convenience.
   + `Analysis Neighborhoods 2 2` This field is used to identify the neighborhood where each incident occurs. Neighborhoods and boundaries are defined by the Department of Public Health and the Mayor's Office of Housing and Community Development. Please reference the link below for additional info: [https://data.sfgov.org/d/p5b7-5n3h].
+</div>
 
-* As for the 3.1.1 data set, we will focus on these variables:`Incident Category`, `DayOfWeek`, `DayOfWeek`, `Date`, `Time`, `Resolution`, `Y`, `X`, `location`,`Analysis Neighborhoods 2 2`.
-
+<br><br>
 For the `Analysis Neighborhoods 2 2`, we had to see if the neighbourhood numbers corresponded to an alphabetical ranking of the neighbourhoods. It was absolutely not the case and we had to look for each number, which was the corresponding neighborhood. All this in order to join the two data sets.
+
+<br><br><br>
 
 ## 2.2 Socio-Economic Data
 
+<br><br>
+
 ### 2.2.1 2012 To 2016
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 Then, we will load four data sets that record the evolution of some socio-economic variables for each neighborhood of San Francisco. As these reports - built with census data - were only exported in pdf format, we decided to create our own data set in csv in order to use the information from these reports for different periods.
-
+</div>
 ```{r}
 data3 <- read_csv(file = here::here("data/American_Community_Survey_2012-2016.csv"))
 data3 <- as_tibble(data3)
@@ -176,7 +199,7 @@ Next, we will upload a dataset that counts the number of transit stops in SFMTA 
 
 ```{r}
 data8 <- read_csv(file = here::here("data/Muni_Stops.csv"))
-kable(str(data8))
+kable(str(data8[]))
 ```
 Source of the data set: [https://catalog.data.gov/dataset/muni-stops].
 

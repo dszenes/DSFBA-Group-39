@@ -3,8 +3,11 @@
 ```{r, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
+<br><br>
 
 ## Overview and Motivation
+
+<br>
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
@@ -14,15 +17,18 @@ The objective of this project is to overview  the crime situation in a city. We 
 One member of the group took a criminology course during his bachelor's degree and was deeply interested in explaining the crime. Seeking to understand the why of crime is really research that could be useful for other studies and there is still a lot to be discovered. We also wanted to follow how the criminal world reacted to the current event affecting the world.
 
 </div>
+<br>
 
 ## Related Work
 
+<br>
 We were very interested in the presentation of the assistant Ilia Azizi during the course. Working with geo-spatial visualization was a deep passion for us and we took working with geo-spatial data as a challenge.
 
 <br><br>
 
 #### The research questions we will attempt to answer with this project are:
-<br><br>
+
+<br>
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>

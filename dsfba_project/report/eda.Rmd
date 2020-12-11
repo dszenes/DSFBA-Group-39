@@ -196,12 +196,12 @@ heatmap_cat_hour <-
     )
   ) %>% separate(`Incident Time`,
                  into = c("hour", "min", "sec"),
-                 sep = "[:]+") %>% select(hour, `Incident Category`) %>% group_by(hour, `Incident Category`) %>% count(`Incident Category`)
+                 sep = "[:]+") %>% select(hour, `Incident Category`) %>% group_by(hour, `Incident Category`) %>% count(`Incident Category`, name = "Number of Crime")
 
-heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = n)) +
-  geom_tile()
+heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = `Number of Crime`)) +
+  geom_tile() + labs(title = "Number of Crime given the hour of the day - Category analysis") + xlab("Hour of the Day") + ylab("Crime Category")
 ```
-
+With this visualization we do not manage extremely well to see precisely the distribution according to the time of day changes according to the categories of crimes. We can analyze the fact that, for the robberies, there is a crime peak at noon and between 5 and 9 pm.
 ```{r}
 crime2003_2020 %>% filter(
     `Incident Category` %in% c(
@@ -235,6 +235,7 @@ p5 <-
 p1 + p2 + p3 + p4 + p5
 
 ```
+With these representations of crimes according to days, by category, we see that for the majority of crimes are concentrated on Fridays and Saturdays. For assaults, this changes a little. We have more crime on Saturday and Sunday. But all in all, the majority of crimes take place during the weekend.
 
 ## 3.1.3 Crime Across Neighborhood
 

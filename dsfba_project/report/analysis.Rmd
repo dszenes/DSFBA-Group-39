@@ -228,10 +228,19 @@ plot(fit2.3)
 Consistency of errors seem to be respected. However, the extreme values still deviate a little from the theoretical values. The distribution of errors does not totally follow a normal law but we can say that it is OK.
 <br><br><br>
 
-```{r}
-blue2 <- colorNumeric("YlGnBu", crime_demostats_2016$`Number of people Poverty`)
+What can we conclude from this model?
+Since this kind of model is just an explanation of correlation, we cannot establish a causal link between the independent variables and the dependent variable. Moreover, like all social studies, there are a lot of noises that make it difficult to explain the phenomenon
+But we will nevertheless propose various hypotheses that can explain our results.
+<br>
+First, crime seems to be influenced by poverty and by the fact that the inhabitants are not in a stable situation. If the dependent variable can be explained by the victim's choice, then the victim must be in a precarious and unstable situation. We are thinking directly about the students. Neighbourhoods with a lot of students would then be neighbourhoods that move a lot, with a lot of social interaction. The criminals would therefore choose the neighbourhoods that move the most to steal. It is much easier for criminals to steal where there are people, where people are attentive to the social interactions they have and at the moment. To confirm this hypothesis, it would have been interesting to add a database of entertainment locations in San Francisco, to have the description of the victims and information on the density of social interaction by neighborhood.
 
-leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
+<br><br>
+#### Poverty?
+```{r, fig.align='center'}
+blue2 <-
+  colorNumeric("YlGnBu", crime_demostats_2016$`Number of people Poverty`)
+
+leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
   setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
   addPolygons(
     data = neigh$geometry,
@@ -251,11 +260,14 @@ leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on 
                    options = providerTileOptions(opacity = 1)) %>%
   addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
 ```
+<br><br>
 
-```{r}
-blue3 <- colorNumeric("YlGnBu", crime_demostats_2016$`Non-Family Households`)
+#### Unstable situation?
+```{r,fig.align='center'}
+blue3 <-
+  colorNumeric("YlGnBu", crime_demostats_2016$`Non-Family Households`)
 
-leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
+leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
   setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
   addPolygons(
     data = neigh$geometry,
@@ -275,4 +287,63 @@ leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on 
                    options = providerTileOptions(opacity = 1)) %>%
   addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
 ```
+
+#### Young people?
+```{r, fig.align='center'}
+blue4 <- colorNumeric("YlGnBu", (crime_demostats_2016$`18-34 years`))
+
+leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
+  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
+  addPolygons(
+    data = neigh$geometry,
+    col = "black",
+    weight = 1,
+    fillColor = blue4(crime_demostats_2016$`18-34 years`),
+    fillOpacity = 0.7
+  ) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
+  addMarkers(
+    lng = crime_2016$lon,
+    lat = crime_2016$lat,
+    popup = crime_2016$`Incident Category`,
+    clusterOptions = markerClusterOptions()
+  ) %>% #add a marker for every point of the data set and cluster those points
+  addProviderTiles(providers$MtbMap) %>%
+  addProviderTiles(providers$Stamen.TonerLines,
+                   options = providerTileOptions(opacity = 1)) %>%
+  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
+```
+#### Low Salary?
+```{r, fig.align='center'}
+blue5 <- colorNumeric("YlGnBu", crime_demostats_2016$`Median Rent`)
+
+leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
+  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
+  addPolygons(
+    data = neigh$geometry,
+    col = "black",
+    weight = 1,
+    fillColor = blue5(crime_demostats_2016$`Median Rent`),
+    fillOpacity = 0.7
+  ) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
+  addMarkers(
+    lng = crime_2016$lon,
+    lat = crime_2016$lat,
+    popup = crime_2016$`Incident Category`,
+    clusterOptions = markerClusterOptions()
+  ) %>% #add a marker for every point of the data set and cluster those points
+  addProviderTiles(providers$MtbMap) %>%
+  addProviderTiles(providers$Stamen.TonerLines,
+                   options = providerTileOptions(opacity = 1)) %>%
+  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
+```
+
+
+In an attempt to add weight to our hypothesis, we wanted to make a geographical representation of factors that seemed to us to represent characteristics of the "young": poverty, unstable situation, an age range between 18 and 35 years old and a low salary.
+We can see that with these 4 variables, the neighbourhoods with the most crime (please look at the clustering of crime observations in front of the colourings) are often linked to these characteristics.
+It seems that our hypothesis could be verified.
+It would be interesting to carry out further research !
+
+The second proposal of interpretation that we had thought of is more in the sense of an analysis of an explanation of the crime.
+Let's take the case of static crime (the one that stays in one's neighborhood), we could explain the fact that people steal with the fact that they are poor and that they are in an unstable situation. Theft would be a solution that would alleviate their worries.
+
 
