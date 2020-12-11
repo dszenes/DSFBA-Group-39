@@ -346,4 +346,91 @@ It would be interesting to carry out further research !
 The second proposal of interpretation that we had thought of is more in the sense of an analysis of an explanation of the crime.
 Let's take the case of static crime (the one that stays in one's neighborhood), we could explain the fact that people steal with the fact that they are poor and that they are in an unstable situation. Theft would be a solution that would alleviate their worries.
 
+```{r}
+library(highcharter) # à mettre dans setup.R
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 
+data10 <- read_csv(file = here::here("data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv")) 
+data10 <- as_tibble(data10) # à mettre dans data
+
+
+
+data11 <- read_csv(file = here::here("data/COVID-19_Cases_Summarized_by_Date__Transmission_and_Case_Disposition.csv")) 
+data11 <- as_tibble(data11) # à mettre dans data
+
+covid_neighborhoods <- data10 %>% 
+  filter(area_type == "Analysis Neighborhood", !(is.na(`rate`))) %>%
+  select(id, count, rate)  # we are interested in the count ans the rate of COVID-19 cases for the neighborhoods
+
+covid_sf <- data11 %>% 
+  group_by(`Specimen Collection Date`) %>%
+  summarise(`Case Count` = sum(`Case Count`)) %>%
+  filter(  `Specimen Collection Date` <= as.Date("2020-11-13") &
+           `Specimen Collection Date` >= as.Date("2020-03-10") ) %>%
+  rename(date = `Specimen Collection Date`)
+  
+
+covid_sf %>% hchart("line", hcaes(`date`, `Case Count`))
+
+ggplot(covid_neighborhoods, aes( reorder(`id`, `rate`), `rate`)) +
+  geom_bar(stat = "identity") + 
+  coord_flip()
+
+crimes_2018_day <- crime2003_2020 %>%
+  filter(  `Incident Date` <= as.Date("2018-11-13") &
+             `Incident Date` >= as.Date("2018-03-10") ) %>%
+  group_by(`Incident Date`) %>%
+  count( name = "Total crimes")
+
+
+crimes_2019_day <- crime2003_2020 %>%
+  filter(  `Incident Date` <= as.Date("2019-11-13") &
+             `Incident Date` >= as.Date("2019-03-10") ) %>%
+  group_by(`Incident Date`) %>%
+  count( name = "Total crimes")
+
+
+crime_2020_day <- crime2003_2020 %>% 
+  filter(`Incident Date` >= as.Date("2020-03-10")) %>%
+  group_by(`Incident Date`) %>%
+  count( name = "Total crimes")
+
+crime_2018_2020_date <- crime2003_2020 %>%
+  filter(  `Incident Date` <= as.Date("2020-11-13") &
+             `Incident Date` >= as.Date("2018-01-01") ) %>%
+  group_by(`Incident Date`) %>%
+  count( name = "Total crimes") %>%
+  rename(`date` = `Incident Date`)
+
+
+
+ crime_covid_long_2020 <- cbind(crime_2020_day, covid_sf) %>%
+   select( `Incident Date`, `Total crimes`, `Case Count`) %>%
+   rename( date = `Incident Date`) %>%
+   pivot_longer(c(`Total crimes`, `Case Count`),
+                names_to = "variable",
+                values_to = "value")
+ 
+ crime_covid_long_2018_2020 <- merge(crime_2018_2020_date, covid_sf, by="date", all = T) %>%
+   pivot_longer(c(`Total crimes`, `Case Count`),
+                names_to = "variable",
+                values_to = "value")
+ 
+
+ crime_covid_long_2018_2020_noyears <- crime_covid_long_2018_2020 %>%
+   mutate( date = as.Date(month(date)-day(date)) )
+ 
+ 
+ ymd
+ 
+ crime_covid_long_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
+
+ crime_covid_long_2018_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
+ 
+ crimes_2018_day %>% hchart("line", hcaes(`Incident Date`, `Total crimes`))
+ 
+ crime_2020_day %>% hchart("line", hcaes(`Incident Date`, `Total crimes`))
+ 
+
+ crimes_2019_day %>% hchart("line", hcaes(`Incident Date`, `Total crimes`))
+```
