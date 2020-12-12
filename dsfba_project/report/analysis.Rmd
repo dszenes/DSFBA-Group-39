@@ -423,7 +423,8 @@ crime_2018_2020_date <- crime2003_2020 %>%
    mutate( year = as.character(format(`date`, "%Y")),
            date = (format(`date`, "%m-%d")),
            variable = paste(variable, year)) %>%
-   select(date, variable, value)
+   select(date, variable, value) %>%
+   filter(!(date == "02-29"))
    
  crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
  
