@@ -6,7 +6,7 @@
 packages <- c(
   "here", # for the project's organization
   "tidyverse", "lubridate", # for wrangling
-  "ggrepel", "gghighlight", "patchwork", "maps", "scales", "leaflet", "sf", "sp", "spData", # for plotting
+  "ggrepel", "gghighlight", "patchwork", "maps", "scales", "leaflet", "sf", "sp", "spData", "highcharter" # for plotting
   "knitr", "kableExtra", "bookdown", "rmarkdown" # for the report
 )
 purrr::walk(packages, library, character.only = TRUE)
