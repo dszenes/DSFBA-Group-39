@@ -6,27 +6,46 @@ source(here::here("scripts/setup.R"))
 
 ## 3.1 Crime EDA
 
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 For the first part of the exploratory data analysis, we are going to be interested in how crime is organized over time. Can we see patterns that recur at certain times of the day, at certain times of the year?
+</div>
+
+<br>
 
 ### 3.1.1 Date/Time Crime Tendency
 
 #### 3.1.1.1 Hour Crime Tendency
 
-```{r}
+```{r, fig.align='center'}
 sephour <-
   crime2003_2020 %>% separate(`Incident Time`,
                               into = c("hour", "min", "sec"),
                               sep = "[:]+")
 #separate the time to have a column of hours, minutes and seconds. All this to have intervals by hours of the crimes.
 
-kable(head(sephour %>% count(hour, name = "hour of the day") %>% arrange(desc(`hour of the day`))), "simple")
+kable(head(sephour %>% count(hour, name = "Number of Crime") %>% arrange(desc(`Number of Crime`))), "simple")
 ```
+<br>
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 This table shows the number of crimes falling within an interval of 1 hour. We can still see a certain trend with these numbers. It has more crimes in the time interval [3pm-8pm], at noon and midnight. It is interesting to note that the first 3 time intervals that have the most crimes are 6pm, 5pm and 12pm. These schedules are often when workers have breaks or have finished working.
+</div>
+
+<br>
 
 We can also show this global tendencies with a barplot.
 
-```{r}
+<br>
+
+```{r, fig.width=12.5, fig.align='center'}
 countsephour <-
   sephour %>% count(hour, name = "number of crime") %>% arrange(desc(`number of crime`))
 
@@ -34,12 +53,21 @@ countsephour %>% ggplot(aes(x = hour, y = `number of crime`)) + labs(title = "Di
   geom_bar(stat = "identity", fill = "#2b8cbe")
 #draw the discrete distribution of the tendendices of crime given the hour of the day.
 ```
+<br>
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 We can see that as early as 8:00 a.m., crimes increase little by little. We see the peak at 12 o'clock. And the time of the day when there is the most crime (the interval [3pm-8pm]). What is interesting to note is that there is less crime at night. Whereas at first glance one would think that crimes take place more at night.
+</div>
 
-We also wanted to see if the trend in the number of crimes was different on different days of the week.
+<br>
 
-```{r}
+###### We also wanted to see if the trend in the **number of crimes was different on different days of the week.**
+
+<br><br>
+```{r, fig.width=12.5, fig.align='center'}
 g <-
   sephour %>% group_by(hour, `Incident Day of Week`) %>% count(`Incident Day of Week`, name = "number of crime")
 
@@ -68,14 +96,22 @@ g %>% ggplot(aes(hour, `number of crime`)) +
     "#2b8cbe"
   ))
 ```
+<br>
 
-For the days of the week (Monday, Tuesday, Wednesday, Thursday), we see the same trend: a gradual increase until 6pm, with a sudden peak at noon and a gradual decrease after 6pm. On the other hand, for Friday, Saturday and Sunday the increase lasts until later in the evening. We can certainly explain this by the fact that thanks to the night life.
+For the days of the week (Monday, Tuesday, Wednesday, Thursday), we see the same trend: a gradual increase until 6pm, with a sudden peak at noon and a gradual decrease after 6pm. On the other hand, for **Friday, Saturday and Sunday** the increase lasts until later in the evening. We can certainly explain this by the fact that thanks to the night life.
+
+<br><br>
 
 #### 3.1.1.2 Day Crime Tendency
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 We are now going to look at the distribution of crimes according to the days of the week. It seems logical that crimes increase on Fridays and Saturdays because that's when people go out the most. But is this really the case?
-
-```{r, out.width = '100%'}
+</div>
+<br>
+```{r, fig.width=12.5, fig.align='center'}
 countsepday <-
   crime_2016 %>% count(`Incident Day of Week`, name = "number of crime")
 
@@ -87,13 +123,21 @@ countsepday %>%
   geom_bar(stat = "identity", fill = "#2b8cbe") +
   geom_text(aes(label = `number of crime`), position = position_dodge(width = 0.9), vjust = -0.25)
 ```
+<br>
 
 There is definitely more crime on Fridays than on any other day of the week. However, the variation between days is not obvious.
+<br><br>
 
 #### 3.1.1.3 Month Crime Tendency (2016 Focus)
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 We found it interesting to look at the distribution of the number of crimes per month, to see if there was an increase or decrease in some months. As we will refine our analysis later on in 2016, we will choose to analyze the variation in the number of crimes per month over the year 2016.
-```{r}
+</div>
+
+```{r, fig.width=12.5, fig.align='center'}
 countsepmonth <-
   crime_2016 %>% count(month, name = "number of crime")
 options(scipen = 999)
@@ -102,10 +146,13 @@ countsepmonth %>% ggplot(aes(x = month, y = `number of crime`)) + labs(title = "
                                                                                                                                                                                vjust = -0.25)
 ```
 
+<br>
+
 We don't see any particular pattern. There is some variation but no clear distinction. One would have thought that the months with warm weather might have influenced the increase in crime because people are going out more and have more positive energy. But the variation between the months is small, we can't conclude anything with that.
 
+<br>
 
-```{r}
+```{r, fig.width=12.5, fig.align='center'}
 og <-
   crime_2016 %>% group_by(day, month) %>% count(month, name = "number of crime")
 
@@ -120,7 +167,7 @@ og %>% ggplot(aes(day, `number of crime`)) +
     color = "lightgray",
     size = 1.5,
     position = position_dodge(0.3)
-  ) +
+  ) + labs(title = "No pattern in the distribution of crime by month") +
   geom_point(aes(color = month),
              position = position_dodge(0.3), size = .1) + facet_wrap( ~ month, scales =
                                                                         'free') +
@@ -141,13 +188,31 @@ og %>% ggplot(aes(day, `number of crime`)) +
     )
   )
 ```
-If we look at how the number of crimes evolves every day by comparing each month, we still don't see any clear pattern. The variation seems to be constant.
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+If we look at how the number of crimes evolves every day by comparing each month, we still *don't see any clear pattern.* The variation seems to be *constant.*
+</div>
+
+<br>
 
 #### 3.1.1.4 Year [2003-2020] Crime Tendency
 
-We will look at the evolution of the number of crimes per month over a period of 13 years. We will then draw a time graph over the period [2003-2020].
+<br>
 
-```{r}
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+We will look at the evolution of the number of crimes per month over a period of 13 years. We will then draw a time graph over the period [2003-2020].
+</div>
+
+<br>
+
+```{r, fig.width=12.5, fig.align='center'}
 crime_number <-
   crime2003_2020  %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
   add_column(crime = 1) %>% select(crime, `Incident Date`)
@@ -166,14 +231,34 @@ ggplot(crime_number_monhtly, aes(x = `Month`, y = `Crime per Month`)) +
   geom_smooth(se = F) +
   geom_line(color = "#69b3a2") + labs(title = "Evolution of the crime number per month : Year = [2003-2020]") + xlab("Year") + ylab("Number of Crime")
 ```
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 
 There is minor variation (with greater or lesser intensity) between months over time. We have chosen to smooth these temporal data, using the function that is part of R base loess. With this smoothing, we can see a certain sinusoidal variation with a decrease in the smoothed line when we get to the crisis years of 2008, followed by an increase until 2016, when we reach a maximum. Then a descent. Note the clear and precise fall when we get to 2020: we'll come back to this later. 
 
+</div>
+
+<br>
+
 ## 3.1.2 Crime Category Tendency
 
-We will now turn our attention to the categories of crime. What is San Francisco most affected by?
+<br>
 
-```{r}
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+We will now turn our attention to the categories of crime. What is San Francisco most affected by?
+</div>
+
+<br>
+
+```{r, fig.width=12.5, fig.align='center'}
 countcat <-
   head(crime2003_2020 %>% count(`Incident Category`, name = "category") %>% arrange(desc(category))) #Show the first 6 categories with the most crime
 
@@ -181,10 +266,19 @@ countcat %>% ggplot(aes(x = `Incident Category`, y = category)) +
   geom_bar(stat = "identity", fill = "#2b8cbe") + labs(title = "Number of Crime per Category") + xlab("Crime Category") + ylab("Number of Crime")
 #Count the number of crimes by category and draw the discrete distribution 
 ```
-The trends are clear! The vast majority of crime in San Francisco is theft. The `Theft` bar of the barplot clearly dominates the others. If we also consider column `Motor Vehicle Theft`, which can be considered theft, we can conclude that crime in San Francisco is mainly focused on property crimes.
 
+<br>
 
-```{r}
+The trends are clear! The vast majority of crime in San Francisco is **theft.** The `Theft` bar of the barplot clearly dominates the others. If we also consider column `Motor Vehicle Theft`, which can be considered theft, we can conclude that crime in San Francisco is mainly focused on property crimes.
+</div>
+
+<br>
+
+###### We also wanted to see if the trend in the **number of crimes was different on different hour of the day, given the crime category.**
+
+<br>
+
+```{r, fig.width=12.5, fig.align='center'}
 heatmap_cat_hour <-
   crime2003_2020 %>% filter(
     `Incident Category` %in% c(
@@ -201,8 +295,12 @@ heatmap_cat_hour <-
 heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = `Number of Crime`)) +
   geom_tile() + labs(title = "Number of Crime given the hour of the day - Category analysis") + xlab("Hour of the Day") + ylab("Crime Category")
 ```
+<br>
+
 With this visualization we do not manage extremely well to see precisely the distribution according to the time of day changes according to the categories of crimes. We can analyze the fact that, for the robberies, there is a crime peak at noon and between 5 and 9 pm.
-```{r}
+<br>
+
+```{r, fig.width=12.5, fig.align='center'}
 crime2003_2020 %>% filter(
     `Incident Category` %in% c(
       "Larceny/Theft",
@@ -213,8 +311,13 @@ crime2003_2020 %>% filter(
     )
 ) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
 ```
+<br><br>
 
-```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE, out.width = '100%'}
+<div align="center">
+###### **The Number of crimes was different on different day of the week, given the crime category.**
+</div>
+<br>
+```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
 
 p1 <-
   crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
@@ -235,24 +338,43 @@ p5 <-
 p1 + p2 + p3 + p4 + p5
 
 ```
+<br>
 With these representations of crimes according to days, by category, we see that for the majority of crimes are concentrated on Fridays and Saturdays. For assaults, this changes a little. We have more crime on Saturday and Sunday. But all in all, the majority of crimes take place during the weekend.
 
 ## 3.1.3 Crime Across Neighborhood
 
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
 We will now represent geographic visualizations to better understand where the places with the most crime in San Francisco are. The objective is to draw conclusions with the socio-economic characteristics of the neighborhoods.
 
-```{r}
+</div>
+```{r, fig.width=12.5, fig.align='center'}
 crime2003_2020 %>%
   count(`Analysis Neighborhood`, name = "number of crime") %>%
   arrange(desc(`number of crime`)) %>%
-  ggplot(aes(x = `Analysis Neighborhood`, y = `number of crime`)) +
+  ggplot(aes(x = (reorder( `Analysis Neighborhood`, -`number of crime`)), y = `number of crime`)) +
   geom_bar(stat = "identity", fill = "#2b8cbe", alpha = .7) +
   labs(title = "Number of Crime per Category") + xlab("SF Neighborhood") + ylab("Number of Crime") + coord_flip()
 
 ```
-The neighbourhoods with the most crime are Tenderloin, South of Market and Mission. There is also the Financial District and Bayview Hunters Point, which are quite a bit affected by crime.
+<br>
 
-```{r}
+The neighbourhoods with the most crime are **Tenderloin, South of Market and Mission**. There is also the **Financial District and Bayview Hunters Point**, which are quite a bit affected by crime.
+
+<br>
+
+<style>
+.leaflet {
+    margin: auto;
+}
+</style>
+
+```{r, fig.align='center'}
 blue <- colorNumeric("YlGnBu", crime_demostats_2016$`Total crimes`)
 
 leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
@@ -276,18 +398,28 @@ leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on 
   addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
 ```
 
+<br>
+
 We built an interactive map of San Francisco highlighting the transportation infrastructure. You can walk around the map by zooming in on the city's neighborhoods. By segmenting the city by neighborhood, we have highlighted the neighborhoods where there is the most crime. The darker the blue, the more crime. We can see that the neighborhoods with the most crime are those with the most black roads. We'll look later, but it would be interesting to see if the transportation infrastructure has a statistical relationship with the number of crimes
 The three dark blue neighbourhoods are the ones previously mentioned: Tenderloin, South of Market, Mission. The 3 three light blue neighbourhoods are: Financial District and Bayview Hunters Point
 You can also see orange bubbles. These orange bubbles group together the crimes that took place in San Francisco in 2016. They coordinate well with the overall crime trends that are analyzed with the blue gradients.
 
+<br><br>
 
 ## 3.1.4 Crime Resolution
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 
 While doing some research on the crime situation in San Francisco, we came across an article ([https://www.sfchronicle.com/bayarea/philmatier/article/SF-ranks-high-in-property-crime-while-it-ranks-14439369.php]) that explained that criminals can't be arrested. We wanted to see if this data had the same conclusions.
 
+</div>
 
-```{r}
+<br>
+
+```{r, fig.align='center'}
 piechartres <-
   head(crime2003_2020 %>% count(Resolution, name = "resolution") %>% arrange(desc(resolution)))
 
@@ -311,7 +443,7 @@ ggplot(piechartres, aes(x = "", y = resolution, fill = Resolution)) +
 We see very clearly that the majority of crimes have no follow-up. Less than a quarter are arrested. We want to analyze this further. Are certain categories more affected by having no follow-up?
 
 
-```{r}
+```{r, fig.width=12.5, fig.align='center'}
 
 k <-
   crime2003_2020 %>% group_by(Resolution, `Incident Category`) %>% count(Resolution, name = "resolution")
@@ -345,31 +477,37 @@ k %>% filter(
                  ) +
   geom_bar(position = "stack", stat = "identity") + ylab("Crime Category") + xlab("Number of Crime") + labs(title = "Crime Resolution Given the Crime Category")
 ```
-What marks with this graph is the bar that represents the number of theft. In fact, there is no continuation for the large majority of the thefts (normal or those of vehicles). In San Francisco, crime is mostly focused on theft. And the majority of thieves don't get caught.
+<br>
+There is no continuation for the large majority of the thefts (normal or those of vehicles). In San Francisco, crime is mostly focused on theft. And the majority of thieves don't get caught.
 Now we understand why San Francisco is one of the cities with a crime rate above the national average and why San Francisco is one of the cities with the most violent crime in California. Because theft is considered a violent crime, San Francisco is infested with thieves
-
+<br><br>
 
 ### 3.2 Transport Across Neighborhood
 
-We start from the premise that public transport is a vector that makes life easier for criminals. It's easy to steal in transportation because a lot of people are tight, it's also easy to steal in neighborhoods where there is transportation because you can run away very quickly. We wanted to see the importance and if there was any connection between the number of transport stops and the number of crimes.
+<br>
 
-```{r}
+We start from the premise that public transport is a vector that makes life easier for criminals. It's easy to steal in transportation because a lot of people are tight, it's also easy to steal in neighborhoods where there is transportation because you can run away very quickly. We wanted to see the importance and if there was any connection between the number of transport stops and the number of crimes.
+<br>
+
+```{r, fig.align='center'}
 numstops <-
   crime_demostats_2016 %>% select(`Violent crimes`, `number of stops`, `Analysis Neighborhood`) %>% arrange(desc(`number of stops`))
   
 kable(head(numstops), "simple")
 ```
+<br>
 
 Just with this table, it's hard to conclude anything. It would still seem that some neighbourhoods with a lot of crime are not at the top of the rankings when it comes to the number of public transport stops.
+<br>
 
 ### 3.3 COVID data
 
-```{r}
-ggplot(covid_sf, aes(`Specimen Collection Date`, `Case Count`)) +
+```{r, fig.align='center'}
+ggplot(covid_sf, aes(date, `Case Count`)) +
   geom_line()
 ```
 
-```{r}
+```{r, fig.align='center'}
 ggplot(covid_neighborhoods, aes(reorder(`id`, `rate`), `rate`)) +
   geom_bar(stat = "identity") +
   coord_flip()
@@ -378,7 +516,7 @@ ggplot(covid_neighborhoods, aes(reorder(`id`, `rate`), `rate`)) +
 ### 3.4 Socio-Demographic data
 
 
-```{r}
+```{r, fig.align='center'}
 biggest_neighborhoods <- demostats_2016 %>%
   arrange(desc(`Total Population`)) %>%
   head() %>%
@@ -391,7 +529,7 @@ ggplot(biggest_neighborhoods,
 
 ```
 
-```{r}
+```{r, fig.align='center'}
 library(reshape2)
 biggest_neighborhoods_long <- melt(biggest_neighborhoods)
 
@@ -408,7 +546,7 @@ ggplot(
 
 ```
 
-```{r}
+```{r, fig.align='center'}
 biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>%
   filter(
     variable %in% c(
@@ -426,7 +564,7 @@ ggplot(biggest_neighborhoods_long_race,
   geom_bar(stat = "identity") 
 ```
 
-```{r}
+```{r, fig.align='center'}
 biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>%
   filter(variable %in% c(
     "60 and older",
@@ -441,7 +579,7 @@ ggplot(biggest_neighborhoods_long_age,
   geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) 
 ```
 
-```{r}
+```{r, fig.align='center'}
 biggest_neighborhoods_long_education <-
   biggest_neighborhoods_long %>%
   filter(
