@@ -415,13 +415,17 @@ crime_2018_2020_date <- crime2003_2020 %>%
    pivot_longer(c(`Total crimes`, `Case Count`),
                 names_to = "variable",
                 values_to = "value")
+                
+         
  
 
  crime_covid_long_2018_2020_noyears <- crime_covid_long_2018_2020 %>%
-   mutate( date = as.Date(month(date)-day(date)) )
- 
- 
- ymd
+   mutate( year = as.character(format(`date`, "%Y")),
+           date = (format(`date`, "%m-%d")),
+           variable = paste(variable, year)) %>%
+   select(date, variable, value)
+   
+ crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
  
  crime_covid_long_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
 
