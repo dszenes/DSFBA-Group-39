@@ -502,51 +502,50 @@ Just with this table, it's hard to conclude anything. It would still seem that s
 
 ### 3.3 COVID data
 
-```{r, fig.align='center'}
-ggplot(covid_sf, aes(date, `Case Count`)) +
-  geom_line()
+```{r}
+covid_sf %>% hchart("line", hcaes(`date`, `Case Count`))
 ```
+The zig-zagging nature of this time series probably reflects lower levels of data collection on weekends. We can still clearly observe relative highs in April, July and November for COVID-19 cases in San Francisco.
 
-```{r, fig.align='center'}
+```{r}
 ggplot(covid_neighborhoods, aes(reorder(`id`, `rate`), `rate`)) +
   geom_bar(stat = "identity") +
   coord_flip()
 ```
+Even after controlling for  population and displaying the rate of infections per neighborhood, we can see that the virus has affected different areas unequally, with a more than fivefold difference between the least and most affected
 
 ### 3.4 Socio-Demographic data
 
 
-```{r, fig.align='center'}
+```{r}
 biggest_neighborhoods <- demostats_2016 %>%
   arrange(desc(`Total Population`)) %>%
   head() %>%
   rename(Neighborhood = NEIGHBORHOOD)
-
-
 ggplot(biggest_neighborhoods,
        aes(`Neighborhood`,  `Total Population`)) +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity") 
 
 ```
+Since we have 41 neighborhoods, we have decided to limit our EDa for the socio-economic data to the 6 biggest neighborhoods in terms of population.
 
-```{r, fig.align='center'}
-library(reshape2)
+```{r}
+
 biggest_neighborhoods_long <- melt(biggest_neighborhoods)
-
 biggest_neighborhoods_long_households <-
   biggest_neighborhoods_long %>%
   filter(variable %in% c("Family Households", "Non-Family Households"))
-
-
 ggplot(
   biggest_neighborhoods_long_households,
   aes(`Neighborhood`, `value`, fill = `variable`)
 ) +
-  geom_bar(stat = "identity", position = "dodge")
+  geom_bar(stat = "identity", position = "dodge") +
+scale_fill_brewer(palette = "Blues")
 
 ```
+We can see here that while in most of the neighborhood, family households are the majority, there are exceptions to this. This may be an indication of whether the neighborhood is a relatively lively area filled with students, young professionals and service workers or a quieter area where people with families live.
 
-```{r, fig.align='center'}
+```{r}
 biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>%
   filter(
     variable %in% c(
@@ -558,13 +557,16 @@ biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>%
       "Other/Two or More Races"
     )
   )
-
 ggplot(biggest_neighborhoods_long_race,
        aes(`Neighborhood`, `value`, fill = `variable`)) +
-  geom_bar(stat = "identity") 
-```
+  geom_bar(stat = "identity")  +
+scale_fill_brewer(palette = "Blues")
 
-```{r, fig.align='center'}
+
+```
+San Francisco is a very ethnically diverse city, and as in much of California, Asians constitute a much higher percentage of the population as in the rest of the United States. We can still see here that certain populations are concentrated in certain areas. For instance, among the six neighborhoods, only Bayview Hunters Point has a significant black population,
+
+```{r}
 biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>%
   filter(variable %in% c(
     "60 and older",
@@ -573,13 +575,15 @@ biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>%
     "5-17 years",
     "0-4 years"
   ))
-
 ggplot(biggest_neighborhoods_long_age,
        aes(`Neighborhood`, `value`, fill = `variable`)) +
-  geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) 
-```
+  geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) +
+scale_fill_brewer(palette = "Blues")
 
-```{r, fig.align='center'}
+```
+Age structure can also tell us things about the nature of a neighborhood. Mission, which was the only one where non-family households outnumber ones with families, unsurprisingly has the highest percentage of people in prime working age (18 to 59 years old). Among the other ones we can see that some (Bayview Hunters Point in particular), have a lot of children and teenagers, while others have many people who are at retirement age or close to it.
+
+```{r}
 biggest_neighborhoods_long_education <-
   biggest_neighborhoods_long %>%
   filter(
@@ -590,12 +594,12 @@ biggest_neighborhoods_long_education <-
       "Graduate/Professional Degree"
     )
   )
-
 ggplot(
   biggest_neighborhoods_long_education,
   aes(`Neighborhood`, `value`, fill = `variable`)
 ) +
-  geom_bar(stat = "identity", position =  position_stack(reverse = TRUE))
+  geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) +
+scale_fill_brewer(palette = "Blues")
 
 ```
-
+College-educated people are often concentrated in big cities such as San Francisco, so it is interesting to see the areas where there are relatively few of them. Two neighborhoods stand out here. Based on the previous age structure data, we can infer that in one of these (Bayview Hunters Point), this might partly reflect that a higher part of the population is too young to have gone to/finished college, while in the other (Excelsior), this indicates a relative concentration of adults with lower levels of educational attainment than in other parts of the city.
