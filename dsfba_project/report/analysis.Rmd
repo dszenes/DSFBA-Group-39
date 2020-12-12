@@ -113,7 +113,66 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 </div>
 
+```{r}
 
+
+
+crime_2015_2020_year <- crime2003_2020_datesep %>% 
+  mutate(month_day = as.numeric(format(`Incident Date`, "%m%d"))) %>%
+  filter(year %in% c(2015,2016,2017,2018,2019,2020),  
+           month_day > 310 &
+           month_day < 1113) %>%
+  count(`year`, name = "Total crimes")
+
+kable(crime_2015_2020_year)
+
+```
+There seems to be a clear drop in crime in 2020 ove the COVID_19 period relative to previous years.
+
+```{r}
+
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+
+
+
+crime_2018_2020_date <- crime2003_2020 %>%
+  filter(  `Incident Date` <= as.Date("2020-11-13") &
+             `Incident Date` >= as.Date("2018-01-01") ) %>%
+  group_by(`Incident Date`) %>%
+  count( name = "Total crimes") %>%
+  rename(`date` = `Incident Date`)
+
+
+
+
+ 
+
+
+ 
+ crime_covid_long_2018_2020 <- merge(crime_2018_2020_date, covid_sf, by="date", all = T) %>%
+   pivot_longer(c(`Total crimes`, `Case Count`),
+                names_to = "variable",
+                values_to = "value")
+ 
+
+ crime_covid_long_2018_2020_noyears <- crime_covid_long_2018_2020 %>%
+   mutate( year = as.character(format(`date`, "%Y")),
+           date = (format(`date`, "%m-%d")),
+           variable = paste(variable, year)) %>%
+   select(date, variable, value) %>%
+   filter(!(date == "02-29") & !(variable %in% c("Case Count 2018", "Case Count 2019"))) 
+
+ 
+ 
+
+ 
+ 
+
+ crime_covid_long_2018_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable")) 
+ 
+ crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
+
+```
 
 
 <br><br><br>
