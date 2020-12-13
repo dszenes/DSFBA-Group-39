@@ -43,7 +43,7 @@ This dataset covers the period from the 1st January 2018 to the day in 2020 wher
 
   + `Incident Datetime` The date and time when the incident occurred
   + `Incident Date` The date the incident occurred
-  + `Incident Time` The date the incident occurred
+  + `Incident Time` The time the incident occurred
   + `Incident Year` The year the incident occurred, provided as a convenience for filtering
   + `Incident Day of Week`The day of week the incident occurred
   + `Report Datetime` Distinct from Incident Datetime, Report Datetime is when the report was filed.
@@ -85,7 +85,7 @@ As for the 3.1.1 data set, we will focus on these variables:`Incident Category`,
   + `Descript` The description of the incident that corresponds with the Incident Code.
   + `DayOfWeek` The day of week the incident occurred
   + `Date` The date the incident occurred
-  + `Time` The date the incident occurred
+  + `Time` The time the incident occurred
   + `Resolution` The resolution of the incident at the time of the report.
   + `Y` The latitude coordinate
   + `X` The longitude coordinate
@@ -94,7 +94,7 @@ As for the 3.1.1 data set, we will focus on these variables:`Incident Category`,
 
 <br><br>
 
-For the `Analysis Neighborhoods 2 2`, we had to see if the neighbourhood numbers corresponded to an alphabetical ranking of the neighbourhoods. It was absolutely not the case and we had to look for each number, which was the corresponding neighborhood. All this in order to join the two data sets.
+For the `Analysis Neighborhoods 2 2`, we had to harmonize the numbers found in this column with the neighborhood names and make sure that we had the correct ones.
 
 <br>
 
@@ -192,13 +192,13 @@ _Source of the data set:_ [https://sf-planning.org/sites/default/files/FileCente
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-With all these variables, we can see each neighborhood in terms of the number and density of the population, household composition, race, age distribution, education, languages spoken, and the economy of the neighborhood. This will be very helpful in answering some of our research questions.
+With all these variables, we can see each neighborhood in terms of the number and density of the population, household composition, race, age distribution, education, languages spoken, and the economy of the neighborhood. This will be very helpful for answering some of our research questions.
 </div>
   
   <br>
   
-## 2.3 Transport Data
-### 2.3.1 Public transport
+## 2.3 Transportio  Data
+### 2.3.1 Public transportion
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -215,20 +215,20 @@ _Source of the data set:_ [https://catalog.data.gov/dataset/muni-stops].
 <br>
   
 * Here are the columns we are going to focus on::
-  + `STOPNAME` Give all the name of all the transit stop
+  + `STOPNAME` The names of all the transit stops
   + `shape` The point geometry used for mapping features
-  + `Analysis Neighborhoods` This column gives in which neighborhood of San Franciso the transit stops is.
+  + `Analysis Neighborhoods` This column indicates in which neighborhood of San Franciso the transit stops is.
   
 <br>
     
-_We don't even bother to show you the other columns of this data set because we haven't found any information about its meaning. We will only use this data set to see if the density of the number of public transports coincides with the neighborhoods with the most crime.
+_The other columns of this data set are not relevant for our reasearch project. We will only use this data set to see if the density of the number of public transport stops coincides with the neighborhoods with the most crime.
 This data set will also be useful to analyze the density of the public transport network and find a comparison with the neighbourhoods with the most crime._
 
 <br>
     
-## 2.4 Geospacialisation Data
+## 2.4 Geospacial Data
 
-### 2.4.1 Neighborhood
+### 2.4.1 Neighborhoods
 
 ```{r}
 data9 <-
@@ -244,7 +244,7 @@ _Source of the data set:_ [https://data.sfgov.org/Geographic-Locations-and-Bound
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-This data set contains multi-polygons that are supposed to represent the segmentation of neighbourhoods according to the Analysis of Neighborhood. We will use this data set extensively for our geospatial analyses.
+This data set contains multi-polygons that are supposed to represent the segmentation of neighbourhoods corresponding to the Analysis Neighborhood variable. We will use this data set extensively for our geospatial analyses.
 </div>
 
 ```{r}
@@ -270,7 +270,7 @@ covid_sf <- data11 %>%
 ```
 <br><br>
 
-## 2.5 Clean Data Set
+## 2.5 Data Set Cleaning
 ##### 2.5.1 2003-2020 Crime
 ```{r}
 data2$`Analysis Neighborhood`[data2$`Analysis Neighborhood` == "Castro/UpperMarket"] <- "Castro/Upper Market"
@@ -314,7 +314,7 @@ crime2018_2020$lon <- sapply(crime2018_2020$lon, as.numeric)
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-Here is our cleaned data set which takes into account all crimes from 2003 to 2020. We highlight the first 5 observations of this data set. We will use this data set to look at the crime trends.
+Here is our cleaned data set which takes into account all crimes from 2003 to 2020. We highlight the first 5 observations. We will use it to look at the trends for crime.
 </div>
 
 <br>
@@ -512,20 +512,20 @@ kable(head(crime2003_2020))
 
 ```
 
-_As you can see here, they're few NA values for the latitude and longitude. If we want to make a time-series with this data, its actually stupid to remove NA values just because the we don't have the location information  For now, we keep those NA values. But if we've to make some of geospacialization, we're going to remove those NA values._
+_As you can see here, there are a few NA values for the latitude and longitude variables. For the purpose of creating a time series graph, this is not a problem, and thus we can keep them. However, for  geospacial visualization, we're going create a table where these NA values are removed._
 
 
 
 <br><br>
 
-##### 2.5.2 Transport
+##### 2.5.2 Transportation
 <br>
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-Here is our cleaned data set that counts the number of public transportation stops in San Francisco. We took the time to modify the numbers associated to each neighborhood by changing them with their own names. We will use this data set to see if there is a correlation between crime and public transport density.
+Here is our cleaned data set that counts the number of public transportation stops in San Francisco. We took the time to modify the numbers associated to each neighborhood by changing them with their associated names. We will use this data set to see if there is a correlation between crime and public transportion density.
 </div>
 
 <br>
@@ -591,14 +591,14 @@ kable(head(numstops), "simple")
 ```
 <br><br>
 
-##### 2.5.3 Socio-Economic & Crime
+##### 2.5.3 Socio-Economic & Crime Data Combined
 <br>
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-This data set highlights the number of crimes by neighborhood for the years 2014 to 2016. We have combined the crime information with our socio-economic data. This dataset will be useful to build a linear regression as well as other geospatial analysis.
+This data set highlights the number of crimes by neighborhood for the years 2014 to 2016. We have combined the crime information with our socio-economic data. This dataset will be useful to build a linear regression as well as for the geospatial analysis.
 </div>
 
 <br>
@@ -795,6 +795,6 @@ crime_demostats_2016geo <- crime_demostats_2016geo[, c(-38, -39, -41)]
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-Now that our data has been cleaned up, we can move on to the descriptions of these databases and then move on to the analysis.
+Now that our data has been cleaned up, we can move on to the anaytical parts of our project.
 </div>
 <br>
