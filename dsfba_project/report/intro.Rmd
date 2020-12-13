@@ -12,15 +12,17 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-The objective of this project is to overview  the crime situation in a city. We will focus our attention on San Francisco, which is a city known for its cultural richness as well as its economic strength.  Starting from the media observation that our society is only increasing its violence, we will begin by determining if the dangerousness of crime has increased over time, in a period of 20 years. To explain these changes, we will focus on the evolution of certain demographic variables (population density, income, poverty, unemployment rate, ethnicity of the population and education) specific to the different neighborhoods of San Francisco. Considering that criminals travel, we will also determine whether public transportation density is correlated with crime. Finally, we will focus on the societal change created by the lockdown of COVID19 that might be transferred to crime.
-One member of the group took a criminology course during his bachelor's degree and was deeply interested in explaining the crime. Seeking to understand the why of crime is really research that could be useful for other studies and there is still a lot to be discovered. We also wanted to follow how the criminal world reacted to the current event affecting the world.
+The objective of this project is to analyse the crime situation in the city  of San Francisco, which is known for its cultural richness as well as its economic strength.  A lot of our current media landscape seems to be filled with stories of violence in inner cities, so we will start off by looking at the trends  of crime over time, with data from the last 20 years. Our analysis will focus on the interactions of crime with three different phenomena: socio-demographic characteristics, transportation and the COVID-19 crisis. We have an intuition that interconnectedness and density play a significant role for all of these different elements, and we will see where the empirical data leads us.  
+Having collected data on the different socio-economic characteristics of the city’s 41 neighborhoods (age, income, educational attainment etc.), we will attempt to predict the neighborhoods with the highest crime rates based these variables. We will also look at possible correlations between public transportation density and crime. Finally, we will focus on whether the current pandemic and the associated lockdowns had any effect on crime rates.
+One of us took a criminology course during his bachelor's degree and was deeply interested in finding explanations for crime. Seeking to understand the why of crime is research that could be really useful for other studies and there is still a lot to be discovered. 
+
 
 </div>
 
 ## Related Work
 
 <br>
-We were very interested in the presentation of the assistant Ilia Azizi during the course. Working with geo-spatial visualization was a deep passion for us and we took working with geo-spatial data as a challenge.
+We were very interested in the presentation of the assistant Ilia Azizi during the course, particularly the idea of working with geo-spatial visualization, which we took as an interesting challenge in addition the the basic data science parts of the project.
 
 <br>
 
@@ -32,11 +34,11 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-1. **Given the organization of public transport in the city, can we say that the places with the most crime are those that are the most connected by transport?**
+1. **Given the organization of public transportation in the city, can we say that the places with the most crime are those that are the most connected to averywhere else?**
 
-2. **Does the COVID change tendencies concerning criminality in San Francisco?**
+2. **Has the COVID-19 crisis changed any tendencies concerning crime in San Francisco?**
 
-3. **Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate, population density can explain this change?**
+3. **Has the rate of crime increased/decreased over the last 20 year? Can socio-economic factors such as education, income, ethnicity of the population, poverty, unemployment rate, population density explain intra-city differences between San Francisco's neighborhoods?**
 
 </div>
 
