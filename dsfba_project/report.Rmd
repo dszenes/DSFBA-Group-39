@@ -1,9 +1,0 @@
----
-title: "Crime in San Francisco : a neighbourhood level geospatial and demographic analysis"
-author: "Szenes, Daniel and del Perugia, Louis"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
----
-
-```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd')}
-```
