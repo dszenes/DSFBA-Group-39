@@ -1,9 +1,9 @@
 # 4 Analysis
 
+
 ```{r, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
-
 
 ## 4.1 Research question 1
 
@@ -28,6 +28,7 @@ As we have seen in the EDA of the data set on crime in San Francisco, most crime
 cor(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops`
 )
 ```
+
 <br>
 
 We see a very small correlation. It would be interesting to push forward the analysis.
@@ -38,7 +39,7 @@ If we highlight San Francisco's transportation network by comparing it to the se
 
 <br>
 
-```{r, out.width = '100%'}
+```{r, fig.width=12.5, fig.align='center'}
 crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Total crimes`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + labs(title = "San Francisco Map : Public Transport vs Crime", fill = "Number of Crime") + xlab("Longitude") + ylab("Latitude") + geom_point(
     aes(x = lon, y = lat)
     ,
@@ -58,8 +59,8 @@ The network is quite dense and no neighborhood is overlooked. But it seems that 
 
 <br><br><br>
 
-```{r}
-crime_demostats_2016 %>% ggplot(aes(`number of stops`, `Violent crimes`)) + geom_point(color = "white") + ylab("Number of Violent Crime") + xlab("Number of Transport Stops") + labs(title = "Violent Crime vs Number of Stops") +   geom_smooth(method = "lm", color = "#69b3a2", fill = "black" ) + geom_segment(aes(
+```{r, fig.width=12.5, fig.align='center'}
+crime_demostats_2016 %>% ggplot(aes(`number of stops`, `Violent crimes`)) + geom_point(color = "white") + ylab("Number of Violent Crime") + xlab("Number of Transport Stops") + labs(title = "Violent Crime vs Number of Stops") + geom_smooth(method = "lm", color = "#69b3a2", fill = "black" ) + geom_segment(aes(
   x = 10,
   y = 2200,
   xend = 20,
@@ -86,7 +87,6 @@ We can see some small correlation between the number of crimes and the number of
 
 ```{r}
 cor.test(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops`)
-
 ```
 
 ```{r}
@@ -109,69 +109,51 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-**Does the COVID change tendencies concerning criminality in San Francisco?**
+Does the COVID change tendencies concerning criminality in San Francisco?
 
 </div>
 
 ```{r}
-
-
-
 crime_2015_2020_year <- crime2003_2020_datesep %>% 
   mutate(month_day = as.numeric(format(`Incident Date`, "%m%d"))) %>%
   filter(year %in% c(2015,2016,2017,2018,2019,2020),  
            month_day > 310 &
            month_day < 1113) %>%
   count(`year`, name = "Total crimes")
-
-kable(crime_2015_2020_year)
-
+kable(crime_2015_2020_year, "simple")
 ```
+
+<br>
+
 There seems to be a clear drop in crime in 2020 ove the COVID_19 period relative to previous years.
 
 ```{r}
-
 options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
-
-
-
 crime_2018_2020_date <- crime2003_2020 %>%
   filter(  `Incident Date` <= as.Date("2020-11-13") &
              `Incident Date` >= as.Date("2018-01-01") ) %>%
   group_by(`Incident Date`) %>%
   count( name = "Total crimes") %>%
   rename(`date` = `Incident Date`)
-
-
-
-
  
-
-
  
  crime_covid_long_2018_2020 <- merge(crime_2018_2020_date, covid_sf, by="date", all = T) %>%
    pivot_longer(c(`Total crimes`, `Case Count`),
                 names_to = "variable",
                 values_to = "value")
- 
-
- crime_covid_long_2018_2020_noyears <- crime_covid_long_2018_2020 %>%
-   mutate( year = as.character(format(`date`, "%Y")),
-           date = (format(`date`, "%m-%d")),
-           variable = paste(variable, year)) %>%
-   select(date, variable, value) %>%
-   filter(!(date == "02-29") & !(variable %in% c("Case Count 2018", "Case Count 2019"))) 
-
- 
- 
-
- 
- 
-
- crime_covid_long_2018_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable")) 
- 
- crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes( `date`, `value`, group = "variable"))
-
+  crime_covid_long_2018_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable")) 
+```
+  
+```{r}
+  crime_covid_long_2018_2020_noyears <-
+    crime_covid_long_2018_2020 %>% mutate(
+      year = as.character(format(`date`, "%Y")),
+      date = (format(`date`, "%m-%d")),
+      variable = paste(variable, year)
+    ) %>% select(date, variable, value) %>% filter(!(date == "02-29") &
+                                                     !(variable %in% c("Case Count 2018", "Case Count 2019")))
+  
+  crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes(`date`, `value`, group = "variable"))
 ```
 
 
@@ -187,22 +169,23 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 <div class = "blue">
 
 **Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate, population density can explain this change?**
+We will try to explain the number of crimes in a neighbourhood with socio-economic characteristics. Do criminals choose neighbourhoods based on these characteristics? We will try to see if there is any linear relationship.
 </div>
 
 <br><br><br>
 
-We will try to explain the number of crimes in a neighbourhood with socio-economic characteristics. Do criminals choose neighbourhoods based on these characteristics? We will try to see if there is any linear relationship.
-
-<br><br>
 
 To begin with, the data set we're going to use has a lot of variables. Instead of making a step-wise selection on the total number of variables, we will first analyze which independent variable is most correlated with our dependent variable.
 
 <br>
 
+#### Variable Selection
+
 ```{r}
 par(mfrow = c(1, 1))
 corrplot::corrplot(cor(crime_demostats_2014_2016), method = "shade",tl.pos = 'n')
 ```
+
 <br>
 
 To begin with, the data set we're going to use has a lot of variables. Instead of making a step-wise selection on the total number of variables, we will first analyze which independent variable is most correlated with our dependent variable. Using the first line of this correlation matrix, we selected the 6th, 13th, 27th, 34th and 38th columns of our data set. We will try to explain the total number of crimes with the variables `Non-Family Households`, `Other/Two or More Races`, `Units of Housing`, `Median Household Income` and `Number of people Poverty`.
@@ -214,11 +197,13 @@ To begin with, the data set we're going to use has a lot of variables. Instead o
 <br>
 
 Let's start by making a starting model:
+
 $$
 \begin{align}
     Total Crimes = Non-Family Households + Poverty + Other/Two More Races + Housing+ Income
 \end{align}
 $$
+
 ```{r}
 fit2.1 <- lm(
   `Total crimes` ~`Number of people Poverty` + `Other/Two or More Races` + `Units of Housing` + `Non-Family Households`+ `Median Household Income`, data = crime_demostats_2014_2016
@@ -241,6 +226,7 @@ $$
     Total Crimes = Non-Family Households + Poverty + Housing+ Income
 \end{align}
 $$
+
 ```{r}
 fit2.1_2 <- lm(
   `Total crimes` ~`Number of people Poverty` + `Units of Housing` + `Non-Family Households`+ `Median Household Income`, data = crime_demostats_2014_2016
@@ -263,6 +249,7 @@ $$
     Total Crimes = Non-Family Households + Poverty + Housing
 \end{align}
 $$
+
 ```{r}
 fit2.1_3 <- lm(
   `Total crimes` ~`Number of people Poverty` + `Units of Housing` + `Non-Family Households`, data = crime_demostats_2014_2016
@@ -273,7 +260,6 @@ summary(fit2.1_3)
 <br>
 
 We have chosen to select a significance level of 5%. As the variable `Units of Housing' has a significance greater than 5%, we will also remove it. We conclude this fact: the number of dwellings does not affect the choice of thieves to commit crimes. We are going to remove this variable.
-
 <br><br>
 
 #### Model 1.4
@@ -285,6 +271,7 @@ $$
     log(Total Crimes) = log(Non-Family Households) + Poverty^2
 \end{align}
 $$
+
 ```{r}
 fit2.2 <- lm(
   log(crime_demostats_2014_2016$`Total crimes`) ~ log(`Non-Family Households`) + I(`Number of people Poverty`^2), data = crime_demostats_2014_2016)
@@ -301,7 +288,7 @@ We also see that the correlation between the variables is not high at all. For t
 <br>
 
 We only need to check the error distribution to see if our conclusions can be used.
-```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE, out.width = '100%'}
+```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
 plot(fit2.2)
 ```
 <br>
@@ -313,11 +300,11 @@ As can be seen on the normal QQ graph, our errors are not so normally distribute
 ```{r}
 crime_demostats_2014_2016_2 <-
   crime_demostats_2014_2016[c(-8,-49, -90), ] #remove the outliers
-
 fit2.3 <- lm(
   log(`Total crimes`) ~ log(`Non-Family Households`) + I(`Number of people Poverty`^2), data = crime_demostats_2014_2016_2)
 summary(fit2.3)
 ```
+
 ```{r}
 car::vif(fit2.2)
 ```
@@ -329,7 +316,7 @@ Very little change in the significance and explanation of the variation of the d
 <br>
 
 Let's take a close look now to see if the assumptions of normality on errors seem better:
-```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE, out.width = '100%'}
+```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
 plot(fit2.3)
 ```
 Consistency of errors seem to be respected. However, the extreme values still deviate a little from the theoretical values. The distribution of errors does not totally follow a normal law but we can say that it is OK.
@@ -344,111 +331,18 @@ But we will nevertheless propose various hypotheses that can explain our results
 
 First, crime seems to be influenced by poverty and by the fact that the inhabitants are not in a stable situation. If the dependent variable can be explained by the victim's choice, then the victim must be in a precarious and unstable situation. We are thinking directly about the students. Neighbourhoods with a lot of students would then be neighbourhoods that move a lot, with a lot of social interaction. The criminals would therefore choose the neighbourhoods that move the most to steal. It is much easier for criminals to steal where there are people, where people are attentive to the social interactions they have and at the moment. To confirm this hypothesis, it would have been interesting to add a database of entertainment locations in San Francisco, to have the description of the victims and information on the density of social interaction by neighborhood.
 
-<br><br>
+```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
+c1 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Non-Family Households`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Unstable situation neighborhood", fill = "Number Non-Family Households") 
 
-#### Poverty?
-```{r, fig.align='center'}
-blue2 <-
-  colorNumeric("YlGnBu", crime_demostats_2016$`Number of people Poverty`)
+c2 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`18-34 years`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Young Neighborhood", fill = "Number of 18-34 years people") 
 
-leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  addPolygons(
-    data = neigh$geometry,
-    col = "black",
-    weight = 1,
-    fillColor = blue2(crime_demostats_2016$`Number of people Poverty`),
-    fillOpacity = 0.7
-  ) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
-  addMarkers(
-    lng = crime_2016$lon,
-    lat = crime_2016$lat,
-    popup = crime_2016$`Incident Category`,
-    clusterOptions = markerClusterOptions()
-  ) %>% #add a marker for every point of the data set and cluster those points
-  addProviderTiles(providers$MtbMap) %>%
-  addProviderTiles(providers$Stamen.TonerLines,
-                   options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
+c3 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Number of people Poverty`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Poverty", fill = "Number of Poor in the neighborhood")
+
+c4 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Median Household Income`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Income: Look the lowest average income neighborhood ", fill = "Average Income")
+
+c1 + c2 + c3 + c4
+
 ```
-
-<br><br>
-
-#### Unstable situation?
-```{r,fig.align='center'}
-blue3 <-
-  colorNumeric("YlGnBu", crime_demostats_2016$`Non-Family Households`)
-
-leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  addPolygons(
-    data = neigh$geometry,
-    col = "black",
-    weight = 1,
-    fillColor = blue3(crime_demostats_2016$`Non-Family Households`),
-    fillOpacity = 0.7
-  ) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
-  addMarkers(
-    lng = crime_2016$lon,
-    lat = crime_2016$lat,
-    popup = crime_2016$`Incident Category`,
-    clusterOptions = markerClusterOptions()
-  ) %>% #add a marker for every point of the data set and cluster those points
-  addProviderTiles(providers$MtbMap) %>%
-  addProviderTiles(providers$Stamen.TonerLines,
-                   options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
-```
-
-#### Young people?
-```{r, fig.align='center'}
-blue4 <- colorNumeric("YlGnBu", (crime_demostats_2016$`18-34 years`))
-
-leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  addPolygons(
-    data = neigh$geometry,
-    col = "black",
-    weight = 1,
-    fillColor = blue4(crime_demostats_2016$`18-34 years`),
-    fillOpacity = 0.7
-  ) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
-  addMarkers(
-    lng = crime_2016$lon,
-    lat = crime_2016$lat,
-    popup = crime_2016$`Incident Category`,
-    clusterOptions = markerClusterOptions()
-  ) %>% #add a marker for every point of the data set and cluster those points
-  addProviderTiles(providers$MtbMap) %>%
-  addProviderTiles(providers$Stamen.TonerLines,
-                   options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
-```
-#### Low Salary?
-```{r, fig.align='center'}
-blue5 <- colorNumeric("YlGnBu", crime_demostats_2016$`Median Rent`)
-
-leaflet(height = 500, width = 500) %>% addTiles() %>% #create a variable leaflet on which we add the map Tiles
-  setView(-122.42, 37.78, zoom = 11) %>% # Precise the map target on San Francisco
-  addPolygons(
-    data = neigh$geometry,
-    col = "black",
-    weight = 1,
-    fillColor = blue5(crime_demostats_2016$`Median Rent`),
-    fillOpacity = 0.7
-  ) %>% # Add the multipolygon data set in order to show the neighborhood segmentation
-  addMarkers(
-    lng = crime_2016$lon,
-    lat = crime_2016$lat,
-    popup = crime_2016$`Incident Category`,
-    clusterOptions = markerClusterOptions()
-  ) %>% #add a marker for every point of the data set and cluster those points
-  addProviderTiles(providers$MtbMap) %>%
-  addProviderTiles(providers$Stamen.TonerLines,
-                   options = providerTileOptions(opacity = 1)) %>%
-  addProviderTiles(providers$Stamen.TonerLabels) #change the design of the map #change the design of the map. We can see now how the road and transport is construct.
-```
-
 
 In an attempt to add weight to our hypothesis, we wanted to make a geographical representation of factors that seemed to us to represent characteristics of the "young": poverty, unstable situation, an age range between 18 and 35 years old and a low salary.
 We can see that with these 4 variables, the neighbourhoods with the most crime (please look at the clustering of crime observations in front of the colourings) are often linked to these characteristics.
@@ -457,5 +351,3 @@ It would be interesting to carry out further research !
 
 The second proposal of interpretation that we had thought of is more in the sense of an analysis of an explanation of the crime.
 Let's take the case of static crime (the one that stays in one's neighborhood), we could explain the fact that people steal with the fact that they are poor and that they are in an unstable situation. Theft would be a solution that would alleviate their worries.
-
-

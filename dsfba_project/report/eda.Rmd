@@ -45,7 +45,7 @@ We can also show this global tendencies with a barplot.
 
 <br>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 countsephour <-
   sephour %>% count(hour, name = "number of crime") %>% arrange(desc(`number of crime`))
 
@@ -67,7 +67,7 @@ We can see that as early as 8:00 a.m., crimes increase little by little. We see 
 ###### We also wanted to see if the trend in the **number of crimes was different on different days of the week.**
 
 <br><br>
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 g <-
   sephour %>% group_by(hour, `Incident Day of Week`) %>% count(`Incident Day of Week`, name = "number of crime")
 
@@ -85,7 +85,7 @@ g %>% ggplot(aes(hour, `number of crime`)) +
   ) +
   geom_point(aes(color = `Incident Day of Week`),
              position = position_dodge(0.3),
-             size = 1) + facet_wrap( ~ `Incident Day of Week`, scales = 'free') +
+             size = 1) + facet_wrap( ~ `Incident Day of Week`) +
   scale_color_manual(values = c(
     "#2b8cbe",
     "#2b8cbe",
@@ -111,7 +111,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 We are now going to look at the distribution of crimes according to the days of the week. It seems logical that crimes increase on Fridays and Saturdays because that's when people go out the most. But is this really the case?
 </div>
 <br>
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 countsepday <-
   crime_2016 %>% count(`Incident Day of Week`, name = "number of crime")
 
@@ -121,7 +121,7 @@ countsepday %>%
   ggplot(aes(x = `Incident Day of Week`, y = `number of crime`)) +
   labs(title = "Distribution of crime by weekday") +
   geom_bar(stat = "identity", fill = "#2b8cbe") +
-  geom_text(aes(label = `number of crime`), position = position_dodge(width = 0.9), vjust = -0.25)
+  geom_text(aes(label = `number of crime`), position = position_dodge(width = 0.9), vjust = -0.25) + ylim (c(0, 30000))
 ```
 <br>
 
@@ -137,7 +137,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 We found it interesting to look at the distribution of the number of crimes per month, to see if there was an increase or decrease in some months. As we will refine our analysis later on in 2016, we will choose to analyze the variation in the number of crimes per month over the year 2016.
 </div>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 countsepmonth <-
   crime_2016 %>% count(month, name = "number of crime")
 options(scipen = 999)
@@ -152,7 +152,7 @@ We don't see any particular pattern. There is some variation but no clear distin
 
 <br>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 og <-
   crime_2016 %>% group_by(day, month) %>% count(month, name = "number of crime")
 
@@ -212,7 +212,7 @@ We will look at the evolution of the number of crimes per month over a period of
 
 <br>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 crime_number <-
   crime2003_2020  %>% arrange(`Incident Time`) %>%  arrange(`Incident Date`) %>%
   add_column(crime = 1) %>% select(crime, `Incident Date`)
@@ -258,7 +258,7 @@ We will now turn our attention to the categories of crime. What is San Francisco
 
 <br>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 countcat <-
   head(crime2003_2020 %>% count(`Incident Category`, name = "category") %>% arrange(desc(category))) #Show the first 6 categories with the most crime
 
@@ -270,7 +270,6 @@ countcat %>% ggplot(aes(x = `Incident Category`, y = category)) +
 <br>
 
 The trends are clear! The vast majority of crime in San Francisco is **theft.** The `Theft` bar of the barplot clearly dominates the others. If we also consider column `Motor Vehicle Theft`, which can be considered theft, we can conclude that crime in San Francisco is mainly focused on property crimes.
-</div>
 
 <br>
 
@@ -278,7 +277,7 @@ The trends are clear! The vast majority of crime in San Francisco is **theft.** 
 
 <br>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 heatmap_cat_hour <-
   crime2003_2020 %>% filter(
     `Incident Category` %in% c(
@@ -300,7 +299,7 @@ heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = `Number of Cri
 With this visualization we do not manage extremely well to see precisely the distribution according to the time of day changes according to the categories of crimes. We can analyze the fact that, for the robberies, there is a crime peak at noon and between 5 and 9 pm.
 <br>
 
-```{r, fig.width=12.5, fig.align='center'}
+```{r, fig.align='center'}
 crime2003_2020 %>% filter(
     `Incident Category` %in% c(
       "Larceny/Theft",
@@ -316,23 +315,25 @@ crime2003_2020 %>% filter(
 <div align="center">
 ###### **The Number of crimes was different on different day of the week, given the crime category.**
 </div>
+
 <br>
+
 ```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
 
 p1 <-
-  crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+  crime2003_2020 %>% filter(`Incident Category` %in% c("Larceny/Theft")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 p2 <-
-  crime2003_2020 %>% filter(`Incident Category` %in% c("Other")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+  crime2003_2020 %>% filter(`Incident Category` %in% c("Other")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 p3 <-
-  crime2003_2020 %>% filter(`Incident Category` %in% c("Non-Criminal")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+  crime2003_2020 %>% filter(`Incident Category` %in% c("Non-Criminal")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 p4 <-
-  crime2003_2020 %>% filter(`Incident Category` %in% c("Assault")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+  crime2003_2020 %>% filter(`Incident Category` %in% c("Assault")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 p5 <-
-  crime2003_2020 %>% filter(`Incident Category` %in% c("Motor Vehicle Theft")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile()
+  crime2003_2020 %>% filter(`Incident Category` %in% c("Motor Vehicle Theft")) %>%  group_by(`Incident Day of Week`, `Incident Category`, ) %>% count(`Incident Category`) %>% ggplot(aes(`Incident Day of Week`, `Incident Category`, fill = n)) + geom_tile() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 
 p1 + p2 + p3 + p4 + p5
@@ -353,10 +354,10 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 We will now represent geographic visualizations to better understand where the places with the most crime in San Francisco are. The objective is to draw conclusions with the socio-economic characteristics of the neighborhoods.
 
 </div>
-```{r, fig.width=12.5, fig.align='center'}
-crime2003_2020 %>%
+```{r, fig.align='center'}
+head(crime2003_2020 %>%
   count(`Analysis Neighborhood`, name = "number of crime") %>%
-  arrange(desc(`number of crime`)) %>%
+  arrange(desc(`number of crime`))) %>%
   ggplot(aes(x = (reorder( `Analysis Neighborhood`, -`number of crime`)), y = `number of crime`)) +
   geom_bar(stat = "identity", fill = "#2b8cbe", alpha = .7) +
   labs(title = "Number of Crime per Category") + xlab("SF Neighborhood") + ylab("Number of Crime") + coord_flip()
@@ -508,9 +509,9 @@ covid_sf %>% hchart("line", hcaes(`date`, `Case Count`))
 The zig-zagging nature of this time series probably reflects lower levels of data collection on weekends. We can still clearly observe relative highs in April, July and November for COVID-19 cases in San Francisco.
 
 ```{r}
-ggplot(covid_neighborhoods, aes(reorder(`id`, `rate`), `rate`)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
+ggplot(head(covid_neighborhoods), aes(reorder(`id`, `rate`), `rate`)) +
+  geom_bar(stat = "identity", fill = "#2b8cbe") +
+  coord_flip() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 ```
 Even after controlling for  population and displaying the rate of infections per neighborhood, we can see that the virus has affected different areas unequally, with a more than fivefold difference between the least and most affected
 
@@ -524,7 +525,7 @@ biggest_neighborhoods <- demostats_2016 %>%
   rename(Neighborhood = NEIGHBORHOOD)
 ggplot(biggest_neighborhoods,
        aes(`Neighborhood`,  `Total Population`)) +
-  geom_bar(stat = "identity") 
+  geom_bar(stat = "identity", fill = "#2b8cbe") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
 Since we have 41 neighborhoods, we have decided to limit our EDa for the socio-economic data to the 6 biggest neighborhoods in terms of population.
@@ -540,7 +541,7 @@ ggplot(
   aes(`Neighborhood`, `value`, fill = `variable`)
 ) +
   geom_bar(stat = "identity", position = "dodge") +
-scale_fill_brewer(palette = "Blues")
+scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
 We can see here that while in most of the neighborhood, family households are the majority, there are exceptions to this. This may be an indication of whether the neighborhood is a relatively lively area filled with students, young professionals and service workers or a quieter area where people with families live.
@@ -560,7 +561,7 @@ biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>%
 ggplot(biggest_neighborhoods_long_race,
        aes(`Neighborhood`, `value`, fill = `variable`)) +
   geom_bar(stat = "identity")  +
-scale_fill_brewer(palette = "Blues")
+scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 
 ```
@@ -578,7 +579,7 @@ biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>%
 ggplot(biggest_neighborhoods_long_age,
        aes(`Neighborhood`, `value`, fill = `variable`)) +
   geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) +
-scale_fill_brewer(palette = "Blues")
+scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
 Age structure can also tell us things about the nature of a neighborhood. Mission, which was the only one where non-family households outnumber ones with families, unsurprisingly has the highest percentage of people in prime working age (18 to 59 years old). Among the other ones we can see that some (Bayview Hunters Point in particular), have a lot of children and teenagers, while others have many people who are at retirement age or close to it.
@@ -599,7 +600,7 @@ ggplot(
   aes(`Neighborhood`, `value`, fill = `variable`)
 ) +
   geom_bar(stat = "identity", position =  position_stack(reverse = TRUE)) +
-scale_fill_brewer(palette = "Blues")
+scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
 College-educated people are often concentrated in big cities such as San Francisco, so it is interesting to see the areas where there are relatively few of them. Two neighborhoods stand out here. Based on the previous age structure data, we can infer that in one of these (Bayview Hunters Point), this might partly reflect that a higher part of the population is too young to have gone to/finished college, while in the other (Excelsior), this indicates a relative concentration of adults with lower levels of educational attainment than in other parts of the city.
