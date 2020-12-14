@@ -12,14 +12,14 @@ source(here::here("scripts/setup.R"))
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-For the first part of the exploratory data analysis, we are going to be interested in how crime is organized over time. Can we see patterns that recur at certain times of the day, at certain times of the year?
+For the first part of the exploratory data analysis, we are going look at the evolution of crime over time. Can we see patterns that recur at certain times of the day, at certain times of the year?
 </div>
 
 <br>
 
-### 3.1.1 Date/Time Crime Tendency
+### 3.1.1 Crime by Date/Time 
 
-#### 3.1.1.1 Hour Crime Tendency
+#### 3.1.1.1 Crime by Hour 
 
 ```{r, fig.align='center'}
 sephour <-
@@ -36,12 +36,12 @@ kable(head(sephour %>% count(hour, name = "Number of Crime") %>% arrange(desc(`N
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-This table shows the number of crimes falling within an interval of 1 hour. We can still see a certain trend with these numbers. It has more crimes in the time interval [3pm-8pm], at noon and midnight. It is interesting to note that the first 3 time intervals that have the most crimes are 6pm, 5pm and 12pm. These schedules are often when workers have breaks or have finished working.
+This table shows the number of crimes falling within 1 hour intervals. There are peaks in recorded crime rates in the [3pm-8pm] time interval, at noon and midnight. It is interesting to note that the 3 time intervals that have the highest rates of crime are 6pm, 5pm and 12pm. For instance, this corresponds to moments of the day when workers have breaks or have finished working.
 </div>
 
 <br>
 
-We can also show this global tendencies with a barplot.
+We can also show this same data with a barplot.
 
 <br>
 
@@ -59,12 +59,12 @@ countsephour %>% ggplot(aes(x = hour, y = `number of crime`)) + labs(title = "Di
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-We can see that as early as 8:00 a.m., crimes increase little by little. We see the peak at 12 o'clock. And the time of the day when there is the most crime (the interval [3pm-8pm]). What is interesting to note is that there is less crime at night. Whereas at first glance one would think that crimes take place more at night.
+We can see that starting from 8:00 a.m., crimes start increasing. We see a peak at 12 o'clock, and then another one during [3pm-8pm] interval . What is interesting to note is that there is less crime at night, since one might think that more crime happens at night because of the dark and nightlife activities.
 </div>
 
 <br>
 
-###### We also wanted to see if the trend in the **number of crimes was different on different days of the week.**
+###### We also wanted to see if the **number of crimes was different on different days of the week.**
 
 <br><br>
 ```{r, fig.align='center'}
@@ -98,17 +98,17 @@ g %>% ggplot(aes(hour, `number of crime`)) +
 ```
 <br>
 
-For the days of the week (Monday, Tuesday, Wednesday, Thursday), we see the same trend: a gradual increase until 6pm, with a sudden peak at noon and a gradual decrease after 6pm. On the other hand, for **Friday, Saturday and Sunday** the increase lasts until later in the evening. We can certainly explain this by the fact that thanks to the night life.
+For the days of the week (Monday, Tuesday, Wednesday, Thursday), we see the same trend: a gradual increase until 6pm, with a sudden peak at noon and a gradual decrease after 6pm. On the other hand, for **Friday, Saturday and Sunday** the increase lasts until later in the evening, which is preumably because of the more active nightlife.
 
 <br><br>
 
-#### 3.1.1.2 Day Crime Tendency
+#### 3.1.1.2 Crime by Day 
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-We are now going to look at the distribution of crimes according to the days of the week. It seems logical that crimes increase on Fridays and Saturdays because that's when people go out the most. But is this really the case?
+We are now going to look at the distribution of crimes according to the days of the week. One might think that crimes increase on Fridays and Saturdays because that's when people go out the most. But is this really the case?
 </div>
 <br>
 ```{r, fig.align='center'}
@@ -128,13 +128,13 @@ countsepday %>%
 There is definitely more crime on Fridays than on any other day of the week. However, the variation between days is not obvious.
 <br><br>
 
-#### 3.1.1.3 Month Crime Tendency (2016 Focus)
+#### 3.1.1.3 Crime by Month (2016 Focus)
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-We found it interesting to look at the distribution of the number of crimes per month, to see if there was an increase or decrease in some months. As we will refine our analysis later on in 2016, we will choose to analyze the variation in the number of crimes per month over the year 2016.
+We will now look at the distribution of the number of crimes per month, to see if there was an increase or decrease in some months. As we will refine our analysis later on for 2016, we will analyze the variation in the number of crimes per month for this xear.
 </div>
 
 ```{r, fig.align='center'}
@@ -148,7 +148,7 @@ countsepmonth %>% ggplot(aes(x = month, y = `number of crime`)) + labs(title = "
 
 <br>
 
-We don't see any particular pattern. There is some variation but no clear distinction. One would have thought that the months with warm weather might have influenced the increase in crime because people are going out more and have more positive energy. But the variation between the months is small, we can't conclude anything with that.
+We don't see any particular pattern. There is some variation but it deems to be mostly noise. One would have thought that in months with warm weather we might see an increase in crime because people are going out more and are more active. But the variation between the months is small and inconclusive.
 
 <br>
 
@@ -194,12 +194,12 @@ og %>% ggplot(aes(day, `number of crime`)) +
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-If we look at how the number of crimes evolves every day by comparing each month, we still *don't see any clear pattern.* The variation seems to be *constant.*
+If we look at how the number of crimes by day and by month, we still *don't see any clear pattern* and the variation seems to be *constant.*
 </div>
 
 <br>
 
-#### 3.1.1.4 Year [2003-2020] Crime Tendency
+#### 3.1.1.4 Crime by Year [2003-2020]
 
 <br>
 
@@ -238,13 +238,13 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-There is minor variation (with greater or lesser intensity) between months over time. We have chosen to smooth these temporal data, using the function that is part of R base loess. With this smoothing, we can see a certain sinusoidal variation with a decrease in the smoothed line when we get to the crisis years of 2008, followed by an increase until 2016, when we reach a maximum. Then a descent. Note the clear and precise fall when we get to 2020: we'll come back to this later. 
+There is minor variation (with greater or lesser intensity) between months over time, and we have added a smoothing line to these temporal data. With this smoothing, we can see a certain sinusoidal variation with a decrease in the smoothed line when we get to the crisis years of 2008, followed by an increase until 2016, when we reach a maximum, then a descent. Note the clear and precise fall when we get to 2020: we'll come back to this later. 
 
 </div>
 
 <br>
 
-## 3.1.2 Crime Category Tendency
+## 3.1.2 Crime by Category 
 
 <br>
 
@@ -253,7 +253,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-We will now turn our attention to the categories of crime. What is San Francisco most affected by?
+We will now turn our attention to the categories of crime. What type of crime is San Francisco most affected by?
 </div>
 
 <br>
@@ -269,11 +269,11 @@ countcat %>% ggplot(aes(x = `Incident Category`, y = category)) +
 
 <br>
 
-The trends are clear! The vast majority of crime in San Francisco is **theft.** The `Theft` bar of the barplot clearly dominates the others. If we also consider column `Motor Vehicle Theft`, which can be considered theft, we can conclude that crime in San Francisco is mainly focused on property crimes.
+The trends are clear! The vast majority of crime in San Francisco is **theft.** The `Theft` bar of the barplot clearly dominates the others. If we also take into account the  `Motor Vehicle Theft` column, which can be considered theft, we can conclude that property crimes constitute the largest percentage of crimes in San Francisco.
 
 <br>
 
-###### We also wanted to see if the trend in the **number of crimes was different on different hour of the day, given the crime category.**
+###### We also wanted to see if the trend in the **number of crimes was different on a different hour of the day, given the crime category.**
 
 <br>
 
@@ -296,7 +296,7 @@ heatmap_cat_hour %>% ggplot(aes(hour, `Incident Category`, fill = `Number of Cri
 ```
 <br>
 
-With this visualization we do not manage extremely well to see precisely the distribution according to the time of day changes according to the categories of crimes. We can analyze the fact that, for the robberies, there is a crime peak at noon and between 5 and 9 pm.
+This visualization does not show clear trends for all categories, but we can see that, for Larceny/Theft, there is a peak at noon and between 5 and 9 pm.
 <br>
 
 ```{r, fig.align='center'}
@@ -313,7 +313,7 @@ crime2003_2020 %>% filter(
 <br><br>
 
 <div align="center">
-###### **The Number of crimes was different on different day of the week, given the crime category.**
+###### **The number of crimes was different on different day of the week, given the crime category.**
 </div>
 
 <br>
@@ -340,9 +340,9 @@ p1 + p2 + p3 + p4 + p5
 
 ```
 <br>
-With these representations of crimes according to days, by category, we see that for the majority of crimes are concentrated on Fridays and Saturdays. For assaults, this changes a little. We have more crime on Saturday and Sunday. But all in all, the majority of crimes take place during the weekend.
+With these representations of crimes according by days and by category, we see that most crimes are concentrated on Fridays and Saturdays. For assaults, this changes a little, we see more of them on Saturdays and Sundays. But all in all, the majority of crimes take place during the weekend.
 
-## 3.1.3 Crime Across Neighborhood
+## 3.1.3 Crime by Neighborhood
 
 <br>
 
@@ -351,9 +351,8 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-We will now represent geographic visualizations to better understand where the places with the most crime in San Francisco are. The objective is to draw conclusions with the socio-economic characteristics of the neighborhoods.
+Now we will do some geographic visualizations that will allow us to better understand where the places with the most crime in San Francisco are.
 
-</div>
 ```{r, fig.align='center'}
 head(crime2003_2020 %>%
   count(`Analysis Neighborhood`, name = "number of crime") %>%
@@ -365,7 +364,7 @@ head(crime2003_2020 %>%
 ```
 <br>
 
-The neighbourhoods with the most crime are **Tenderloin, South of Market and Mission**. There is also the **Financial District and Bayview Hunters Point**, which are quite a bit affected by crime.
+The neighbourhoods with the most crime are **Tenderloin, South of Market and Mission**, along with **Financial District and Bayview Hunters Point**.
 
 <br>
 
@@ -401,9 +400,8 @@ leaflet(height=500, width=500) %>% addTiles() %>% #create a variable leaflet on 
 
 <br>
 
-We built an interactive map of San Francisco highlighting the transportation infrastructure. You can walk around the map by zooming in on the city's neighborhoods. By segmenting the city by neighborhood, we have highlighted the neighborhoods where there is the most crime. The darker the blue, the more crime. We can see that the neighborhoods with the most crime are those with the most black roads. We'll look later, but it would be interesting to see if the transportation infrastructure has a statistical relationship with the number of crimes
-The three dark blue neighbourhoods are the ones previously mentioned: Tenderloin, South of Market, Mission. The 3 three light blue neighbourhoods are: Financial District and Bayview Hunters Point
-You can also see orange bubbles. These orange bubbles group together the crimes that took place in San Francisco in 2016. They coordinate well with the overall crime trends that are analyzed with the blue gradients.
+We built an interactive map of San Francisco highlighting the transportation infrastructure. You can walk around the map by zooming in on the city's neighborhoods. By segmenting the city by neighborhood, we have highlighted the neighborhoods where there is the most crime, with darker shades of blue indicating more crime. We can see that the neighborhoods with the most crime are those with the most black (large and highly active) roads. We willl take a deeper look into the relationship between the organizationof public transportation and crime later.
+The three dark blue neighbourhoods are the ones previously mentioned: Tenderloin, South of Market, Mission. You can also see orange bubbles, that group together the crimes that took place in San Francisco in 2016. This is another way of displaying the data that we show with the blue gradients, but with a more precise geospatial display.
 
 <br><br>
 
@@ -414,7 +412,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-While doing some research on the crime situation in San Francisco, we came across an article ([https://www.sfchronicle.com/bayarea/philmatier/article/SF-ranks-high-in-property-crime-while-it-ranks-14439369.php]) that explained that criminals can't be arrested. We wanted to see if this data had the same conclusions.
+While doing some research on the crime situation in San Francisco, we came across an article ([https://www.sfchronicle.com/bayarea/philmatier/article/SF-ranks-high-in-property-crime-while-it-ranks-14439369.php]) that explained that criminals often are not arrested. We wanted to see if this data had the same conclusions.
 
 </div>
 
@@ -441,7 +439,7 @@ ggplot(piechartres, aes(x = "", y = resolution, fill = Resolution)) +
 ```
 
 
-We see very clearly that the majority of crimes have no follow-up. Less than a quarter are arrested. We want to analyze this further. Are certain categories more affected by having no follow-up?
+We see very clearly that the majority of crimes have no follow-up, with less than a quarter leading to arrests. We want to analyze this further, are certain categories more affected by the lack of follow-up after reported crimes?
 
 
 ```{r, fig.width=12.5, fig.align='center'}
@@ -479,15 +477,14 @@ k %>% filter(
   geom_bar(position = "stack", stat = "identity") + ylab("Crime Category") + xlab("Number of Crime") + labs(title = "Crime Resolution Given the Crime Category")
 ```
 <br>
-There is no continuation for the large majority of the thefts (normal or those of vehicles). In San Francisco, crime is mostly focused on theft. And the majority of thieves don't get caught.
-Now we understand why San Francisco is one of the cities with a crime rate above the national average and why San Francisco is one of the cities with the most violent crime in California. Because theft is considered a violent crime, San Francisco is infested with thieves
+There is no follow-up for the large majority of the thefts (normal or those of vehicles), the most common crime, and the majority of thieves don't get caught. It would be interesting for further research to see if clearance rates for theft is similarly low in other american cities.
 <br><br>
 
 ### 3.2 Transport Across Neighborhood
 
 <br>
 
-We start from the premise that public transport is a vector that makes life easier for criminals. It's easy to steal in transportation because a lot of people are tight, it's also easy to steal in neighborhoods where there is transportation because you can run away very quickly. We wanted to see the importance and if there was any connection between the number of transport stops and the number of crimes.
+We start from the premise that public transport is a factor that makes certain actvities easier for criminals. It's easier to steal in transportation because a lot of people are packed in tight spaces. It's also easier to steal in neighborhoods where there is public transportation because you can run away very quickly. We wanted to see if there was any connection between the number of transport stops and the number of crimes.
 <br>
 
 ```{r, fig.align='center'}
@@ -498,24 +495,40 @@ kable(head(numstops), "simple")
 ```
 <br>
 
-Just with this table, it's hard to conclude anything. It would still seem that some neighbourhoods with a lot of crime are not at the top of the rankings when it comes to the number of public transport stops.
+With only this table, it's hard to conclude anything. It would still seem that some neighbourhoods with a lot of crime are not at the top of the rankings when it comes to the number of public transport stops.
 <br>
 
 ### 3.3 COVID data
 
+<br>
+
+We first look at city level COVID-19 cases over time.
+
 ```{r}
 covid_sf %>% hchart("line", hcaes(`date`, `Case Count`))
 ```
+
+<br>
+
 The zig-zagging nature of this time series probably reflects lower levels of data collection on weekends. We can still clearly observe relative highs in April, July and November for COVID-19 cases in San Francisco.
+
+Then, we look at neighborhood-level cumulative COVID-19 cases since the beginning of the pandemic, relative to those neighborhoods populations.
 
 ```{r}
 ggplot(head(covid_neighborhoods), aes(reorder(`id`, `rate`), `rate`)) +
   geom_bar(stat = "identity", fill = "#2b8cbe") +
   coord_flip() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 ```
-Even after controlling for  population and displaying the rate of infections per neighborhood, we can see that the virus has affected different areas unequally, with a more than fivefold difference between the least and most affected
+
+<br>
+
+Even after controlling for the population and displaying the rate of infections per neighborhood, we can see that the virus has affected San Franciscounequally, with a difference of more than five between the most and least affected neighborhoods.
 
 ### 3.4 Socio-Demographic data
+
+<br>
+
+Since we have 41 neighborhoods, we have decided to limit our EDA for the socio-economic data to the 6 biggest neighborhoods in terms of population.
 
 
 ```{r}
@@ -528,7 +541,8 @@ ggplot(biggest_neighborhoods,
   geom_bar(stat = "identity", fill = "#2b8cbe") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
-Since we have 41 neighborhoods, we have decided to limit our EDa for the socio-economic data to the 6 biggest neighborhoods in terms of population.
+
+## 3.4.1 Household Family Structure
 
 ```{r}
 
@@ -544,7 +558,12 @@ ggplot(
 scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
-We can see here that while in most of the neighborhood, family households are the majority, there are exceptions to this. This may be an indication of whether the neighborhood is a relatively lively area filled with students, young professionals and service workers or a quieter area where people with families live.
+
+<br>
+
+We can see here that while in most of the neighborhoods, family households are the majority, there are exceptions to this. This may be an indication of whether the neighborhood is a relatively lively area filled with students, young professionals and service workers or a quieter area where people with families live.
+
+## 3.4.2 Race/Ethnicity
 
 ```{r}
 biggest_neighborhoods_long_race <-  biggest_neighborhoods_long %>%
@@ -565,7 +584,12 @@ scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 
 
 
 ```
-San Francisco is a very ethnically diverse city, and as in much of California, Asians constitute a much higher percentage of the population as in the rest of the United States. We can still see here that certain populations are concentrated in certain areas. For instance, among the six neighborhoods, only Bayview Hunters Point has a significant black population,
+<br>
+
+
+San Francisco is a very ethnically diverse city, and as in much of California, Asians constitute a much higher percentage of the population than in the rest of the United States. We can still see here that certain populations are concentrated in certain areas. For instance, among the six neighborhoods, only Bayview Hunters Point has a significant black population.
+
+## 3.4.3 Age Structure
 
 ```{r}
 biggest_neighborhoods_long_age <-  biggest_neighborhoods_long %>%
@@ -582,7 +606,14 @@ ggplot(biggest_neighborhoods_long_age,
 scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
+
+<br>
+
+
 Age structure can also tell us things about the nature of a neighborhood. Mission, which was the only one where non-family households outnumber ones with families, unsurprisingly has the highest percentage of people in prime working age (18 to 59 years old). Among the other ones we can see that some (Bayview Hunters Point in particular), have a lot of children and teenagers, while others have many people who are at retirement age or close to it.
+
+## 3.4.4 Educational Attainment
+
 
 ```{r}
 biggest_neighborhoods_long_education <-
@@ -603,4 +634,30 @@ ggplot(
 scale_fill_brewer(palette = "Blues") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
 
 ```
+
+<br>
+
 College-educated people are often concentrated in big cities such as San Francisco, so it is interesting to see the areas where there are relatively few of them. Two neighborhoods stand out here. Based on the previous age structure data, we can infer that in one of these (Bayview Hunters Point), this might partly reflect that a higher part of the population is too young to have gone to/finished college, while in the other (Excelsior), this indicates a relative concentration of adults with lower levels of educational attainment than in other parts of the city.
+
+## 3.4.5 Household Income
+
+
+```{r}
+biggest_neighborhoods_long_income <-
+  biggest_neighborhoods_long %>%
+  filter(
+    variable %in% c(
+      "Median Household Income"
+    )
+  )
+
+ggplot(
+  biggest_neighborhoods_long_income,
+  aes(`Neighborhood`, `value`, fill = `variable`)
+) +
+  geom_bar(stat = "identity") +
+scale_fill_brewer(palette = "Blues")
+
+```
+
+Unsurprisngly, considering the fact that people with college educations usually have higher-paying jobs, the neighborhood with highest college-educated share (West of Twin Peaks) of the population is the wealthiest and the two aforementioned neighborhoods with lowest share of college-educated people have the lowest median household incomes. It is important to note that this being household income, you would expect neighborhoods wiith smaller (non-family) households to seem poorer by this measure. And this is indeed what we see with Mission and Outer Richmond: high rates of non-family households and educational attainment, middling household incomes.
