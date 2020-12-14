@@ -1,0 +1,353 @@
+# 4 Analysis
+
+
+```{r, echo = FALSE, message = FALSE}
+source(here::here("scripts/setup.R"))
+```
+
+## 4.1 Research question 1
+
+- Let's put ourselves in context. Our first research question is as follows:
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+Given the organization of public transport in the city, can we say that the places with the most crime are those that are the most connected by transport?
+
+</div>
+
+<br><br><br>
+
+As we have seen in the EDA of the data set on crime in San Francisco, most crimes are thefts. We wanted to see if, as in some European cities such as Barcelona or Paris, public transportation was a place where criminals easily come to an end. Since the majority of crimes have very little resolution, we also thought that criminals do not remain static. Public transportation was therefore a vector that could influence the choice of target neighborhoods to rob. The more transportation in a neighborhood, the easier it is to escape, which is interesting for thieves.
+
+<br>
+
+```{r}
+cor(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops`
+)
+```
+
+<br>
+
+We see a very small correlation. It would be interesting to push forward the analysis.
+
+<br><br><br>
+
+If we highlight San Francisco's transportation network by comparing it to the segmentation of neighborhoods according to the number of crimes, we can use this map to help us.
+
+<br>
+
+```{r, fig.width=12.5, fig.align='center'}
+crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Total crimes`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + labs(title = "San Francisco Map : Public Transport vs Crime", fill = "Number of Crime") + xlab("Longitude") + ylab("Latitude") + geom_point(
+    aes(x = lon, y = lat)
+    ,
+    data = transport
+    ,
+    na.rm = T
+    ,
+    size = .07,
+    color = "yellow"
+  ) + theme_dark()
+```
+
+<br>
+
+We represented San Francisco on a map. The blue coloration shows the number of crimes in each neighborhood. The darker the blue, the more crime in that neighborhood. The yellow dots represent the public transportation stops in San Francisco.
+The network is quite dense and no neighborhood is overlooked. But it seems that the neighborhoods with the most crime are not the ones with the most crime. It does have a number of stops in Tenderloin, South of Market and Mission (the dark blue neighborhoods) but the areas with the most stops (the 37.8°N/37.78°N and 122.45°N/122.4°N square) are not the ones with the most crime.
+
+<br><br><br>
+
+```{r, fig.width=12.5, fig.align='center'}
+crime_demostats_2016 %>% ggplot(aes(`number of stops`, `Violent crimes`)) + geom_point(color = "white") + ylab("Number of Violent Crime") + xlab("Number of Transport Stops") + labs(title = "Violent Crime vs Number of Stops") + geom_smooth(method = "lm", color = "#69b3a2", fill = "black" ) + geom_segment(aes(
+  x = 10,
+  y = 2200,
+  xend = 20,
+  yend = 2350
+),
+arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(
+  x = 50,
+  y = 1500,
+  xend = 43,
+  yend = 1800
+), arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(
+  x = 70,
+  y = 2200,
+  xend = 80,
+  yend = 2400
+), arrow = arrow(length = unit(0.5, "cm")))  + theme_dark()
+```
+
+<br>
+
+We can see some small correlation between the number of crimes and the number of bus stops. What seems strange to us is the 3 neighborhoods with the most crimes, which we have highlighted with 3 arrows. The ones that don't have a lot of bus stops and seem to be outliers but are very important for the interpretation of the results. We are also afraid that this very small correlation is not statistically significant given the variability of the observations. We can see that the black, which represents the standard error, is enormously large.
+
+<br><br>
+
+```{r}
+cor.test(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops`)
+```
+
+```{r}
+busmod <- lm(`Total crimes`~ `number of stops` , data = crime_demostats_2016)
+summary(busmod)
+```
+
+<br><br>
+
+As expected, this small correlation is not absolutely significant (p-value = 0.7995 and 0 is in the 95% confidence interval). In addition, the variation in the number of crimes explained by the variation in the number of stops between neighbourhoods is extremely small. (Multiple R-squared = 0.00167). We can therefore conclude that there is no linear relationship between the number of crimes and the number of public transit stops. We can therefore think that the majority of flights do not take place that much when travelling by public transport.
+
+<br><br><br>
+
+## 4.2 Research question 2
+
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+Does the COVID change tendencies concerning criminality in San Francisco?
+
+</div>
+
+```{r}
+crime_2015_2020_year <- crime2003_2020_datesep %>% 
+  mutate(month_day = as.numeric(format(`Incident Date`, "%m%d"))) %>%
+  filter(year %in% c(2015,2016,2017,2018,2019,2020),  
+           month_day > 310 &
+           month_day < 1113) %>%
+  count(`year`, name = "Total crimes")
+kable(crime_2015_2020_year, "simple")
+```
+
+<br>
+
+There seems to be a clear drop in crime in 2020 ove the COVID_19 period relative to previous years.
+
+```{r}
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+crime_2018_2020_date <- crime2003_2020 %>%
+  filter(  `Incident Date` <= as.Date("2020-11-13") &
+             `Incident Date` >= as.Date("2018-01-01") ) %>%
+  group_by(`Incident Date`) %>%
+  count( name = "Total crimes") %>%
+  rename(`date` = `Incident Date`)
+ 
+ 
+ crime_covid_long_2018_2020 <- merge(crime_2018_2020_date, covid_sf, by="date", all = T) %>%
+   pivot_longer(c(`Total crimes`, `Case Count`),
+                names_to = "variable",
+                values_to = "value")
+  crime_covid_long_2018_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable")) 
+```
+  
+```{r}
+  crime_covid_long_2018_2020_noyears <-
+    crime_covid_long_2018_2020 %>% mutate(
+      year = as.character(format(`date`, "%Y")),
+      date = (format(`date`, "%m-%d")),
+      variable = paste(variable, year)
+    ) %>% select(date, variable, value) %>% filter(!(date == "02-29") &
+                                                     !(variable %in% c("Case Count 2018", "Case Count 2019")))
+  
+  crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes(`date`, `value`, group = "variable"))
+```
+
+
+<br><br><br>
+
+## 4.3 Research question 3
+
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+**Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate, population density can explain this change?**
+We will try to explain the number of crimes in a neighbourhood with socio-economic characteristics. Do criminals choose neighbourhoods based on these characteristics? We will try to see if there is any linear relationship.
+</div>
+
+<br><br><br>
+
+
+To begin with, the data set we're going to use has a lot of variables. Instead of making a step-wise selection on the total number of variables, we will first analyze which independent variable is most correlated with our dependent variable.
+
+<br>
+
+#### Variable Selection
+
+```{r}
+par(mfrow = c(1, 1))
+corrplot::corrplot(cor(crime_demostats_2014_2016), method = "shade",tl.pos = 'n')
+```
+
+<br>
+
+To begin with, the data set we're going to use has a lot of variables. Instead of making a step-wise selection on the total number of variables, we will first analyze which independent variable is most correlated with our dependent variable. Using the first line of this correlation matrix, we selected the 6th, 13th, 27th, 34th and 38th columns of our data set. We will try to explain the total number of crimes with the variables `Non-Family Households`, `Other/Two or More Races`, `Units of Housing`, `Median Household Income` and `Number of people Poverty`.
+
+<br><br><br>
+
+#### Model 1
+
+<br>
+
+Let's start by making a starting model:
+
+$$
+\begin{align}
+    Total Crimes = Non-Family Households + Poverty + Other/Two More Races + Housing+ Income
+\end{align}
+$$
+
+```{r}
+fit2.1 <- lm(
+  `Total crimes` ~`Number of people Poverty` + `Other/Two or More Races` + `Units of Housing` + `Non-Family Households`+ `Median Household Income`, data = crime_demostats_2014_2016
+)
+summary(fit2.1)
+```
+
+<br><br>
+
+Not all our variables are significant. To have a better model, we will use a backward stepwise selection so that all our independent variables are statistically significant. The least significant variable is that related to the ethnicity of the population. This leads to the conclusion that thieves do not choose where they commit their crime based on a certain type of race. To simplify our model, we will remove this variable.
+
+<br><br>
+
+#### Model 1.2
+
+<br>
+
+$$
+\begin{align}
+    Total Crimes = Non-Family Households + Poverty + Housing+ Income
+\end{align}
+$$
+
+```{r}
+fit2.1_2 <- lm(
+  `Total crimes` ~`Number of people Poverty` + `Units of Housing` + `Non-Family Households`+ `Median Household Income`, data = crime_demostats_2014_2016
+)
+summary(fit2.1_2)
+```
+
+<br>
+
+This time, the least significant variable is the wage variable. This leads to the conclusion that thieves do not choose where they commit their crime according to the wealth of the population living in the neighbourhood. To simplify our model, we will remove this variable.
+
+<br><br>
+
+#### Model 1.3
+
+<br>
+
+$$
+\begin{align}
+    Total Crimes = Non-Family Households + Poverty + Housing
+\end{align}
+$$
+
+```{r}
+fit2.1_3 <- lm(
+  `Total crimes` ~`Number of people Poverty` + `Units of Housing` + `Non-Family Households`, data = crime_demostats_2014_2016
+)
+summary(fit2.1_3)
+```
+
+<br>
+
+We have chosen to select a significance level of 5%. As the variable `Units of Housing' has a significance greater than 5%, we will also remove it. We conclude this fact: the number of dwellings does not affect the choice of thieves to commit crimes. We are going to remove this variable.
+<br><br>
+
+#### Model 1.4
+
+<br>
+
+$$
+\begin{align}
+    log(Total Crimes) = log(Non-Family Households) + Poverty^2
+\end{align}
+$$
+
+```{r}
+fit2.2 <- lm(
+  log(crime_demostats_2014_2016$`Total crimes`) ~ log(`Non-Family Households`) + I(`Number of people Poverty`^2), data = crime_demostats_2014_2016)
+summary(fit2.2)
+```
+<br>
+
+To reduce the effects of non-normality of the distribution, we chose to make some transformations of variables. All our variables are also statistically significant. Moreover, the Multiple R-squared is not so bad. It seems to be a good model. 
+```{r}
+car::vif(fit2.2)
+```
+We also see that the correlation between the variables is not high at all. For the moment, all the conditions of linear regression seem to be met.
+
+<br>
+
+We only need to check the error distribution to see if our conclusions can be used.
+```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
+plot(fit2.2)
+```
+<br>
+
+As can be seen on the normal QQ graph, our errors are not so normally distributed at the extremes. On the Residuals vs Fitted graph, we see a certain pattern, which would mean that our errors are not constant. With this graph, we also see outliers: these are observations 8, 49 and 90. These three observations represent a neighborhood of San Francisco at three different time intervals. However, in this neighborhood there are so few inhabitants that we think that we should not use this information. We have chosen to delete these three observations.
+
+<br><br><br>
+
+```{r}
+crime_demostats_2014_2016_2 <-
+  crime_demostats_2014_2016[c(-8,-49, -90), ] #remove the outliers
+fit2.3 <- lm(
+  log(`Total crimes`) ~ log(`Non-Family Households`) + I(`Number of people Poverty`^2), data = crime_demostats_2014_2016_2)
+summary(fit2.3)
+```
+
+```{r}
+car::vif(fit2.2)
+```
+
+<br>
+
+Very little change in the significance and explanation of the variation of the dependent variable by the independent variables by removing the three observations considered as outliers.
+
+<br>
+
+Let's take a close look now to see if the assumptions of normality on errors seem better:
+```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
+plot(fit2.3)
+```
+Consistency of errors seem to be respected. However, the extreme values still deviate a little from the theoretical values. The distribution of errors does not totally follow a normal law but we can say that it is OK.
+
+<br><br><br>
+
+What can we conclude from this model?
+Since this kind of model is just an explanation of correlation, we cannot establish a causal link between the independent variables and the dependent variable. Moreover, like all social studies, there are a lot of noises that make it difficult to explain the phenomenon
+But we will nevertheless propose various hypotheses that can explain our results.
+
+<br>
+
+First, crime seems to be influenced by poverty and by the fact that the inhabitants are not in a stable situation. If the dependent variable can be explained by the victim's choice, then the victim must be in a precarious and unstable situation. We are thinking directly about the students. Neighbourhoods with a lot of students would then be neighbourhoods that move a lot, with a lot of social interaction. The criminals would therefore choose the neighbourhoods that move the most to steal. It is much easier for criminals to steal where there are people, where people are attentive to the social interactions they have and at the moment. To confirm this hypothesis, it would have been interesting to add a database of entertainment locations in San Francisco, to have the description of the victims and information on the density of social interaction by neighborhood.
+
+```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
+c1 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Non-Family Households`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Unstable situation neighborhood", fill = "Number Non-Family Households") 
+
+c2 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`18-34 years`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Young Neighborhood", fill = "Number of 18-34 years people") 
+
+c3 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Number of people Poverty`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Poverty", fill = "Number of Poor in the neighborhood")
+
+c4 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Median Household Income`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Income: Look the lowest average income neighborhood ", fill = "Average Income")
+
+c1 + c2 + c3 + c4
+
+```
+
+In an attempt to add weight to our hypothesis, we wanted to make a geographical representation of factors that seemed to us to represent characteristics of the "young": poverty, unstable situation, an age range between 18 and 35 years old and a low salary.
+We can see that with these 4 variables, the neighbourhoods with the most crime (please look at the clustering of crime observations in front of the colourings) are often linked to these characteristics.
+It seems that our hypothesis could be verified.
+It would be interesting to carry out further research !
+
+The second proposal of interpretation that we had thought of is more in the sense of an analysis of an explanation of the crime.
+Let's take the case of static crime (the one that stays in one's neighborhood), we could explain the fact that people steal with the fact that they are poor and that they are in an unstable situation. Theft would be a solution that would alleviate their worries.
