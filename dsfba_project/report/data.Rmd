@@ -308,9 +308,6 @@ crime2018_2020 <-
   separate(point, into = c("lon", "lat"), sep = "[,]+")
 #select the variable that we're interested in (time horizon 2018-2020)
 
-crime2018_2020$`Analysis Neighborhood`[crime2018_2020$`Analysis Neighborhood` == "Mission"] <- "Mission Bay"
-#rename the rows in the column Analysis Neighborhood, in order have the same neighboorhood in the two data set
-
 crime2018_2020$lat = substr(crime2018_2020$lat, 2 , nchar(crime2018_2020$lat) - 1)
 crime2018_2020$lon = substr(crime2018_2020$lon, 2 , nchar(crime2018_2020$lon))
 options(digits = 13)
