@@ -183,16 +183,13 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-**Has the seriousness of crimes increased/decreased over the last 20 year? Does the change in education, income, ethnicity of the population, poverty, unemployment rate, population density can explain this change?**
-We will try to explain the number of crimes in a neighbourhood with socio-economic characteristics. Do criminals choose neighbourhoods based on these characteristics? We will try to see if there is any linear relationship.
+**Does the crime rate vary significantly by neighborhood? Do factors such as education, income, ethnicity of the population, poverty, unemployment rate, population density explain this variation?**
+We will try to predict the number of crimes in a neighbourhood with it's socio-economic characteristics. Do these factors tell us something about the perpetrators of crimes and their victims ? We will try to see if there is any linear relationship.
 </div>
 
 <br><br><br>
 
 
-To begin with, the data set we're going to use has a lot of variables. Instead of making a step-wise selection on the total number of variables, we will first analyze which independent variable is most correlated with our dependent variable.
-
-<br>
 
 #### Variable Selection
 
@@ -211,7 +208,7 @@ To begin with, the data set we're going to use has a lot of variables. Instead o
 
 <br>
 
-Let's start by making a starting model:
+We make our first linear model:
 
 $$
 \begin{align}
@@ -228,7 +225,7 @@ summary(fit2.1)
 
 <br><br>
 
-Not all our variables are significant. To have a better model, we will use a backward stepwise selection so that all our independent variables are statistically significant. The least significant variable is that related to the ethnicity of the population. This leads to the conclusion that thieves do not choose where they commit their crime based on a certain type of race. To simplify our model, we will remove this variable.
+Not all of our variables are significant. To have a better model, we will use a backward stepwise selection so that all our independent variables are statistically significant. The least significant variable is the one related to the ethnicity of the population. To simplify our model, we will remove this variable.
 
 <br><br>
 
@@ -251,7 +248,7 @@ summary(fit2.1_2)
 
 <br>
 
-This time, the least significant variable is the wage variable. This leads to the conclusion that thieves do not choose where they commit their crime according to the wealth of the population living in the neighbourhood. To simplify our model, we will remove this variable.
+This time, the least significant variable is the wage variable. We remove this variable.
 
 <br><br>
 
@@ -274,7 +271,7 @@ summary(fit2.1_3)
 
 <br>
 
-We have chosen to select a significance level of 5%. As the variable `Units of Housing' has a significance greater than 5%, we will also remove it. We conclude this fact: the number of dwellings does not affect the choice of thieves to commit crimes. We are going to remove this variable.
+We have chosen to select a significance level of 5%. As the variable `Units of Housing' has a p-value that is greater than 5%, we will also remove it. We remove this variable.
 <br><br>
 
 #### Model 1.4
@@ -294,22 +291,21 @@ summary(fit2.2)
 ```
 <br>
 
-To reduce the effects of non-normality of the distribution, we chose to make some transformations of variables. All our variables are also statistically significant. Moreover, the Multiple R-squared is not so bad. It seems to be a good model. 
+To reduce the effects of non-normality of the distribution, we chose to perform some transformations on the variables. All of our variables are statistically significant. Moreover, the Multiple R-squared is not so bad. It seems to be a good model. 
 ```{r}
 car::vif(fit2.2)
 ```
-We also see that the correlation between the variables is not high at all. For the moment, all the conditions of linear regression seem to be met.
+We also see that the correlation between the variables is not high at all. For the moment, all the conditions for a linear regression seem to be met.
 
 <br>
 
-We only need to check the error distribution to see if our conclusions can be used.
+We still need to check the error distribution to see if our conclusions can be used.
 ```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
 plot(fit2.2)
 ```
 <br>
 
-As can be seen on the normal QQ graph, our errors are not so normally distributed at the extremes. On the Residuals vs Fitted graph, we see a certain pattern, which would mean that our errors are not constant. With this graph, we also see outliers: these are observations 8, 49 and 90. These three observations represent a neighborhood of San Francisco at three different time intervals. However, in this neighborhood there are so few inhabitants that we think that we should not use this information. We have chosen to delete these three observations.
-
+As can be seen on the normal QQ graph, our errors are not normally distributed at the extremes. On the Residuals vs Fitted graph, we see a certain pattern, which would mean that our errors are not constant. With this graph, we also see outliers: observations 8, 49 and 90. These three observations represent the same neighborhood of San Francisco at three different time intervals. However, this neighborhood is a park with very few inhabitants, making the demogrpahic data on this place not very relevant. We have chosen to delete these three observations.
 <br><br><br>
 
 ```{r}
@@ -334,12 +330,12 @@ Let's take a close look now to see if the assumptions of normality on errors see
 ```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
 plot(fit2.3)
 ```
-Consistency of errors seem to be respected. However, the extreme values still deviate a little from the theoretical values. The distribution of errors does not totally follow a normal law but we can say that it is OK.
+Consistency of errors seem to be respected. However, the extreme values still deviate a little from the values we should have. The distribution of errors does not totally follow a normal law but it is close enough for our model be relevant.
 
 <br><br><br>
 
 What can we conclude from this model?
-Since this kind of model is just an explanation of correlation, we cannot establish a causal link between the independent variables and the dependent variable. Moreover, like all social studies, there are a lot of noises that make it difficult to explain the phenomenon
+Since this kind of model is just an explanation of correlation, we cannot establish a causal link between the independent variables and the dependent variable. Moreover, like all social studies, there is a lot noise that make it difficult to explain the phenomenon that we are studying.
 But we will nevertheless propose various hypotheses that can explain our results.
 
 <br>
