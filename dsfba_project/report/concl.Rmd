@@ -4,11 +4,7 @@
 source(here::here("scripts/setup.R"))
 ```
 
-* Take home message
 
 In this project we explored different relationships were we put crime as a dependent variable and demographics, coronavirus infections and transportation networks as dependent variables. We had a lot of variables for the socio-economic data for which there were significant risks of colinearity, which is why we spent some time on variable selection and modelling for this dataset. We performed some transformations on the variables in order to normalise the distribution of errors and in the end found a rather compelling, if not perfect, model for predicting crime based on these variables. 
-We performed simpler analyses based on descriptive stastics for the COVID-19 and public transportation, finding a somewhat stronger relationship in the first case than in the second one. In particular, we found a strong citywide effect of the pandemic. However when looking at particularly
+We performed simpler analyses based on descriptive stastics for the COVID-19 and public transportation, finding a somewhat stronger relationship in the first case than in the second one. In particular, we found a strong citywide effect of the pandemic. However when looking at particularly affected neighborhoods, we did not find that the pandemic hsd sn effect on the relative geographic distribution of crimes. This all indicates that doing data-analyses on trends in citywide data is probably easier than finding compelling differences on smaller geographic units, neighborhoods in this case. We believe this why we found more compelling relationships in our modelling for neighborhood data on the 3rd research question than our other neighborhood level analyses. It would probably be interesting for future projects to find more detailed on the neighborhood of residence for criminals and victims to understand how local crime is, what form of transporation is used by the perpetrators, and what the relationships we find in our demographic model mean exactly. But as it is we believe we have found some compelling insights for crime rates in San Francisco over the past 20 years on which future projects can be built.
 
-
-* Limitations
-* Future work?
