@@ -347,10 +347,6 @@ With these representations of crimes according by days and by category, we see t
 
 <br>
 
-```{r, fig.align='center'}
-include_graphics(here::here("data/Screenshot 2020-12-13 at 14.44.57.png"))
-```
-
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
@@ -372,6 +368,12 @@ head(crime2003_2020 %>%
 <br>
 
 The neighbourhoods with the most crime are **Tenderloin, South of Market and Mission**, along with **Financial District and Bayview Hunters Point**.
+
+<br>
+
+```{r, fig.align='center'}
+include_graphics(here::here("data/Screenshot 2020-12-13 at 14.44.57.png"))
+```
 
 <br>
 
