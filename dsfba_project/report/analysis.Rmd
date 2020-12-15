@@ -340,10 +340,11 @@ But we will nevertheless propose various hypotheses that can explain our results
 
 <br>
 
-First, crime seems to be influenced by poverty and by the fact that the inhabitants are not in a stable situation. If the dependent variable can be explained by the victim's choice, then the victim must be in a precarious and unstable situation. We are thinking directly about the students. Neighbourhoods with a lot of students would then be neighbourhoods that move a lot, with a lot of social interaction. The criminals would therefore choose the neighbourhoods that move the most to steal. It is much easier for criminals to steal where there are people, where people are attentive to the social interactions they have and at the moment. To confirm this hypothesis, it would have been interesting to add a database of entertainment locations in San Francisco, to have the description of the victims and information on the density of social interaction by neighborhood.
+First, the two most predictive variables for crime by neighborhood are poverty and the presence of non-family households. This could be reflective of the nature of the nature of the perpetrators, victims or just the neighborhood in itself. These neighbourhoods probably have a lot of students and young professionals, indicating above average rates of social activity and nightlife.  Criminals might choose such neighborhoods to commit crimes such as theft  because it is easier to pass unnoticed in active spaces. To confirm this hypothesis, it would have been interesting to add a database of entertainment locations in San Francisco, to have the description of the victims and information on the density of social interaction by neighborhood. 
+It is also possible that this indicates the demographic categories who are more likely to commit crimes. Risky behaviour such as criminal activity might be more common among people who are poorer and do not have families.
 
 ```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
-c1 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Non-Family Households`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Unstable situation neighborhood", fill = "Number Non-Family Households") 
+c1 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Non-Family Households`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Non-Family households in neighborhood", fill = "Number Non-Family Households") 
 
 c2 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`18-34 years`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Young Neighborhood", fill = "Number of 18-34 years people") 
 
@@ -355,10 +356,8 @@ c1 + c2 + c3 + c4
 
 ```
 
-In an attempt to add weight to our hypothesis, we wanted to make a geographical representation of factors that seemed to us to represent characteristics of the "young": poverty, unstable situation, an age range between 18 and 35 years old and a low salary.
-We can see that with these 4 variables, the neighbourhoods with the most crime (please look at the clustering of crime observations in front of the colourings) are often linked to these characteristics.
-It seems that our hypothesis could be verified.
+In an attempt to add weight to our hypothesis, we wanted to make a geographical representation of factors that represent characteristics of young people: poverty, presence of non-family households situation, an age range between 18 and 35 years old and a low salary.
+Looking at that these 4 variables, the neighbourhoods with the most crime are often linked to these characteristics, but not always in the same way. To take an example, Mission stands out as
 It would be interesting to carry out further research !
 
-The second proposal of interpretation that we had thought of is more in the sense of an analysis of an explanation of the crime.
-Let's take the case of static crime (the one that stays in one's neighborhood), we could explain the fact that people steal with the fact that they are poor and that they are in an unstable situation. Theft would be a solution that would alleviate their worries.
+
