@@ -5,7 +5,7 @@
 source(here::here("scripts/setup.R"))
 ```
 
-## 4.1 Research question 1
+## 4.1 Research question 1 : Public Transportation
 
 - Let's put ourselves in context. Our first research question is as follows:
 
@@ -100,7 +100,7 @@ As expected, this small correlation is not statistically significant (p-value = 
 
 <br><br><br>
 
-## 4.2 Research question 2
+## 4.2 Research question 2: COVID-19
 
 <br>
 
@@ -109,9 +109,12 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-Does the COVID change tendencies concerning criminality in San Francisco?
+Here we will explore whether the COVID-19 pandemic had any effect on crime rates.
 
 </div>
+
+
+We will first compare the total number of crimes citywide in the past 5 years, limiting the time period to the period between March 10th and November 13th so that all numbers are comparable to the start of the pandemic in the United States and the last date of our 2020 crime dataset.
 
 ```{r}
 crime_2015_2020_year <- crime2003_2020_datesep %>% 
@@ -125,7 +128,11 @@ kable(crime_2015_2020_year, "simple")
 
 <br>
 
-There seems to be a clear drop in crime in 2020 ove the COVID_19 period relative to previous years.
+There seems to be a clear drop in crime in 2020 ove the COVID-19 period relative to previous years. The numbers for this approximately 8-month period in the previous years has always been cloe to 10'000 total crimes, while in 2020 we have have less than 7'500, a more than 25% drop.
+
+In this time series graph, where we compare crimes since the beginning of 2018 and COVID-19 case counts, we can clearly see that once the infections line appears on the graph the crime rate line seems to sustainably drop into a lower zone. While both sets of data have some level of short-term cyclical variation (on weekends, we see more crimes , but fewer recorded coronavirus cases), taking this long view of time we can clearly see that something has changed with crime rates in a more durable way since the start of the pandemic.
+
+
 
 ```{r}
 options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
@@ -143,6 +150,10 @@ crime_2018_2020_date <- crime2003_2020 %>%
                 values_to = "value")
   crime_covid_long_2018_2020 %>% hchart("line", hcaes( `date`, `value`, group = "variable")) 
 ```
+
+<br>
+
+This graph shows the timeline of crime rates for 2018, 2019 an 2020 and case counts for 2020 over the course of their respective years. We can see clearly that 2020 was following the same trend in crime rates as in the two previous years in January eand February, there is no real distinction between the three lines. Once the pandemic comes into play, the 2020 crime line becomes clearly distinct, at a lower rate than the two lines representing previous years.
   
 ```{r}
   crime_covid_long_2018_2020_noyears <-
@@ -155,6 +166,10 @@ crime_2018_2020_date <- crime2003_2020 %>%
   
   crime_covid_long_2018_2020_noyears %>% hchart("line", hcaes(`date`, `value`, group = "variable"))
 ```
+
+<br>
+
+While it would be important to look into the exact timeline of lockdown measures, it would seem that the decrease in interactions since the beginning of the pandemic, through government measures and individual choices, has led to a decrease in reported crime rates.
 
 
 <br><br><br>
