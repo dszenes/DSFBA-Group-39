@@ -14,13 +14,13 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-Given the organization of public transport in the city, can we say that the places with the most crime are those that are the most connected by transport?
+Given the organization of public transportion in the city, can we say that the places with the most crime are those that are the most connected by the transportion network?
 
 </div>
 
 <br><br><br>
 
-As we have seen in the EDA of the data set on crime in San Francisco, most crimes are thefts. We wanted to see if, as in some European cities such as Barcelona or Paris, public transportation was a place where criminals easily come to an end. Since the majority of crimes have very little resolution, we also thought that criminals do not remain static. Public transportation was therefore a vector that could influence the choice of target neighborhoods to rob. The more transportation in a neighborhood, the easier it is to escape, which is interesting for thieves.
+As we have seen in the EDA of the data set on crime in San Francisco, most crimes are thefts. We wanted to see if, as in some European cities such as Barcelona or Paris, public transportation was a place which facilitated theft. Since the majority of crimes have very little follow-up, we also presumed that criminal activity is not static. Public transportation might therefore be a vector that could influence the choice of target neighborhoods to rob, while also providing a better means of leavinf the scene of the crime quickly.
 
 <br>
 
@@ -31,11 +31,11 @@ cor(crime_demostats_2016$`Violent crimes`, crime_demostats_2016$`number of stops
 
 <br>
 
-We see a very small correlation. It would be interesting to push forward the analysis.
+We see a very small correlation. It would be interesting to push the analysis a bit further.
 
 <br><br><br>
 
-If we highlight San Francisco's transportation network by comparing it to the segmentation of neighborhoods according to the number of crimes, we can use this map to help us.
+If we highlight San Francisco's transportation network by comparing it to the segmentation of neighborhoods according to the number of crimes, we can create this map.
 
 <br>
 
@@ -54,8 +54,8 @@ crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demosta
 
 <br>
 
-We represented San Francisco on a map. The blue coloration shows the number of crimes in each neighborhood. The darker the blue, the more crime in that neighborhood. The yellow dots represent the public transportation stops in San Francisco.
-The network is quite dense and no neighborhood is overlooked. But it seems that the neighborhoods with the most crime are not the ones with the most crime. It does have a number of stops in Tenderloin, South of Market and Mission (the dark blue neighborhoods) but the areas with the most stops (the 37.8°N/37.78°N and 122.45°N/122.4°N square) are not the ones with the most crime.
+This is the same blue gradient that we have used earlier on to highlight crimes in a neighborhood. The yellow dots represent the public transportation stops in San Francisco.
+The network is quite dense and no neighborhood is overlooked. But it seems that the neighborhoods with the most stops are not the ones with the most crime. There are a certain number of stops in Tenderloin, South of Market and Mission (the dark blue neighborhoods) but the areas with the most stops (the 37.8°N/37.78°N and 122.45°N/122.4°N square) are not the ones with the most crime.
 
 <br><br><br>
 
@@ -81,7 +81,7 @@ arrow = arrow(length = unit(0.5, "cm"))) + geom_segment(aes(
 
 <br>
 
-We can see some small correlation between the number of crimes and the number of bus stops. What seems strange to us is the 3 neighborhoods with the most crimes, which we have highlighted with 3 arrows. The ones that don't have a lot of bus stops and seem to be outliers but are very important for the interpretation of the results. We are also afraid that this very small correlation is not statistically significant given the variability of the observations. We can see that the black, which represents the standard error, is enormously large.
+We can see some small correlation between the number of crimes and the number of bus stops. On the other hand, the 3 neighborhoods with the most crimes, which we have highlighted with 3 arrows, seem to be outliers that are very important for the interpretation of the results. This very small correlation is not very statistically significant given the variability of the observations. We can see that the black area, which represents the standard error, is very large.
 
 <br><br>
 
@@ -96,7 +96,7 @@ summary(busmod)
 
 <br><br>
 
-As expected, this small correlation is not absolutely significant (p-value = 0.7995 and 0 is in the 95% confidence interval). In addition, the variation in the number of crimes explained by the variation in the number of stops between neighbourhoods is extremely small. (Multiple R-squared = 0.00167). We can therefore conclude that there is no linear relationship between the number of crimes and the number of public transit stops. We can therefore think that the majority of flights do not take place that much when travelling by public transport.
+As expected, this small correlation is not statistically significant (p-value = 0.7995 and 0 is in the 95% confidence interval). In addition, the variation in the number of crimes explained by the variation in the number of stops between neighbourhoods is extremely small. (Multiple R-squared = 0.00167). We can therefore conclude that there is no linear relationship between the number of crimes and the number of public transit stops. We cannot conclude that the majority of flights frome crime scenes do not take place that much when travelling by public transport, which was one of our theories.
 
 <br><br><br>
 
