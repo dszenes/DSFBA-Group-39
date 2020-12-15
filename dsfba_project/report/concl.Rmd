@@ -5,5 +5,10 @@ source(here::here("scripts/setup.R"))
 ```
 
 * Take home message
+
+In this project we explored different relationships were we put crime as a dependent variable and demographics, coronavirus infections and transportation networks as dependent variables. We had a lot of variables for the socio-economic data for which there were significant risks of colinearity, which is why we spent some time on variable selection and modelling for this dataset. We performed some transformations on the variables in order to normalise the distribution of errors and in the end found a rather compelling, if not perfect, model for predicting crime based on these variables. 
+We performed simpler analyses based on descriptive stastics for the COVID-19 and public transportation, finding a somewhat stronger relationship in the first case than in the second one. 
+
+
 * Limitations
 * Future work?
