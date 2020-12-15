@@ -173,6 +173,8 @@ This graph shows the timeline of crime rates for 2018, 2019 an 2020 and case cou
 
 While it would be important to look into the exact timeline of lockdown measures, it would seem that the decrease in interactions since the beginning of the pandemic, through government measures and individual choices, has led to a decrease in reported crime rates.
 
+We will now take a look at the neighborhoods level data and will try to see if the pandemic had any particular effect on the relative crime rates in neighborhoods.
+
 ```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
 
 crime_2015_2019_neighborhood <- crime2003_2020_datesep %>%
