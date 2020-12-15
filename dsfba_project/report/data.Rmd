@@ -92,7 +92,7 @@ As for the 3.1.1 data set, we will focus on these variables:`Incident Category`,
   + `location` The point geometry used for mapping features in the open data portal platform. Latitude and Longitude are provided separately as well as a convenience.
   + `Analysis Neighborhoods 2 2` This field is used to identify the neighborhood where each incident occurs. Neighborhoods and boundaries are defined by the Department of Public Health and the Mayor's Office of Housing and Community Development. Please reference the link below for additional info: [https://data.sfgov.org/d/p5b7-5n3h].
 
-<br><br>
+<br>
 
 For the `Analysis Neighborhoods 2 2`, we had to harmonize the numbers found in this column with the neighborhood names and make sure that we had the correct ones.
 
@@ -197,7 +197,37 @@ With all these variables, we can see each neighborhood in terms of the number an
   
   <br>
   
-## 2.3 Transportio  Data
+  
+### 2.2.5 COVID
+
+<br>
+
+```{r}
+data10 <-
+  read_csv(file = here::here(
+    "data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv"
+  ))
+```
+_Source of the data set:_ [https://catalog-next.data.gov/dataset/covid-19-cases-and-deaths-summarized-by-geography]
+
+* Column of the data sets:
+
+  + `count` number of cases
+  + `acs_population` Population
+  + `multypoligon` geo-spacial Information
+
+
+```{r}
+data11 <- read_csv(file = here::here("data/COVID-19_Cases_Summarized_by_Date__Transmission_and_Case_Disposition.csv")) 
+data11 <- as_tibble(data11) 
+```
+_Source of the data set:_ [https://data.sfgov.org/COVID-19/COVID-19-Cases-Summarized-by-Date-Transmission-and/tvq9-ec9w]
+
+* we'll use this data set to compare crime and covid cases.
+
+<br>
+
+## 2.3 Transportion  Data
 ### 2.3.1 Public transportion
 
 <style>
@@ -225,7 +255,8 @@ _The other columns of this data set are not relevant for our reasearch project. 
 This data set will also be useful to analyze the density of the public transport network and find a comparison with the neighbourhoods with the most crime._
 
 <br>
-    
+
+
 ## 2.4 Geospacial Data
 
 ### 2.4.1 Neighborhoods
@@ -247,27 +278,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 This data set contains multi-polygons that are supposed to represent the segmentation of neighbourhoods corresponding to the Analysis Neighborhood variable. We will use this data set extensively for our geospatial analyses.
 </div>
 
-```{r}
-data10 <-
-  read_csv(file = here::here(
-    "data/COVID-19_Cases_and_Deaths_Summarized_by_Geography.csv"
-  ))
-covid_neighborhoods <- data10 %>% 
-  filter(area_type == "Analysis Neighborhood", !(is.na(`rate`))) %>%
-  select(id, count, rate)
-```
 
-```{r}
-data11 <- read_csv(file = here::here("data/COVID-19_Cases_Summarized_by_Date__Transmission_and_Case_Disposition.csv")) 
-data11 <- as_tibble(data11) 
-
-covid_sf <- data11 %>% 
-  group_by(`Specimen Collection Date`) %>%
-  summarise(`Case Count` = sum(`Case Count`)) %>%
-  filter(  `Specimen Collection Date` <= as.Date("2020-11-13") &
-           `Specimen Collection Date` >= as.Date("2020-03-10") ) %>%
-  rename(date = `Specimen Collection Date`)
-```
 <br><br>
 
 ## 2.5 Data Set Cleaning
@@ -508,7 +519,7 @@ crime2003_2020$Resolution[crime2003_2020$Resolution ==
 #harmonize the resolutions in the regrouped dataset
 
 
-kable(head(crime2003_2020))
+kable(head(crime2003_2020), "simple")
 
 ```
 
@@ -606,7 +617,7 @@ This data set highlights the number of crimes by neighborhood for the years 2014
 ```{r}
 crime2003_2020_datesep <- crime2003_2020 %>%
   mutate(day  = day(`Incident Date`), month = month(`Incident Date`, label = TRUE),
-         year  = year(`Incident Date`)) %>% select(-`Incident Date`)
+         year  = year(`Incident Date`))
 ```
 
 ```{r}
@@ -781,12 +792,81 @@ datatable(
 )
 ```
 
+
 ```{r}
 crime_demostats_2016geo <-
   bind_cols(crime_demostats_2016, neigh) %>%
   select(everything()) %>% arrange(`Analysis Neighborhood`)
 
 crime_demostats_2016geo <- crime_demostats_2016geo[, c(-38, -39, -41)]
+```
+
+```{r}
+crime_2016 <- crime2003_2020_datesep %>% 
+  filter(year == 2016)
+
+crime_2016_neighborhood <- crime2003_2020_datesep %>% 
+  filter(year == 2016, !(is.na(`Analysis Neighborhood`))) %>%
+  count(`Analysis Neighborhood`, name = "Total crimes")
+
+violent_crime_2016_neighborhood <- crime2003_2020_datesep %>%
+  filter(year == 2016,!(is.na(`Analysis Neighborhood`)),`Incident Category` %in% c("Assault", "Homicide", "Robbery", "Sexual Assault") | `Analysis Neighborhood` == "Presidio") %>% count(`Analysis Neighborhood`, name = "Violent crimes")
+violent_crime_2016_neighborhood$`Violent crimes`[violent_crime_2016_neighborhood$`Violent crimes` == "51"] <- 0
+
+demostats_2016 <- data3[-c(42,43,44,45,46,47,48), ]
+
+demostats_2016geo <-
+  bind_cols(violent_crime_2016_neighborhood,
+            crime_2016_neighborhood,
+            demostats_2016, neigh)
+#no need of extra-cleaning: we just want the socio-demographic column and the geometry one.
+
+```
+
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+This data set highlights the number of COVID cases by neighborhood. This dataset will be useful to answer our second research questions.
+</div>
+
+<br>
+
+```{r}
+covid_neighborhoods <- data10 %>% 
+  filter(area_type == "Analysis Neighborhood", !(is.na(`rate`))) %>%
+  select(id, count, rate)
+
+datatable(
+  covid_neighborhoods,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 5, scrollX = T)
+)
+```
+
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+This data set highlights the number of COVID cases in San Francisco. This dataset will be useful to answer our second research questions.
+</div>
+
+<br>
+
+```{r}
+covid_sf <- data11 %>% 
+  group_by(`Specimen Collection Date`) %>%
+  summarise(`Case Count` = sum(`Case Count`)) %>%
+  filter(  `Specimen Collection Date` <= as.Date("2020-11-13") &
+           `Specimen Collection Date` >= as.Date("2020-03-10") ) %>%
+  rename(date = `Specimen Collection Date`)
+
+kable(head(covid_sf), "simple")
 ```
 
 <br><br>

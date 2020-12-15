@@ -5,7 +5,7 @@
 source(here::here("scripts/setup.R"))
 ```
 
-## 4.1 Research question 1 : Public Transportation
+## 4.1 Research question 1
 
 - Let's put ourselves in context. Our first research question is as follows:
 
@@ -20,7 +20,7 @@ Given the organization of public transportion in the city, can we say that the p
 
 <br><br><br>
 
-As we have seen in the EDA of the data set on crime in San Francisco, most crimes are thefts. We wanted to see if, as in some European cities such as Barcelona or Paris, public transportation was a place which facilitated theft. Since the majority of crimes have very little follow-up, we also presumed that criminal activity is not static. Public transportation might therefore be a vector that could influence the choice of target neighborhoods to rob, while also providing a better means of leavinf the scene of the crime quickly.
+As we have seen in the EDA of the data set on crime in San Francisco, most crimes are thefts. We wanted to see if, as in some European cities such as Barcelona or Paris, public transportation was a place which facilitated theft. Since the majority of crimes have very little follow-up, we also presumed that criminal activity is not static. Public transportation might therefore be a vector that could influence the choice of target neighborhoods to rob, while also providing a better means of leaving the scene of the crime quickly.
 
 <br>
 
@@ -36,6 +36,7 @@ We see a very small correlation. It would be interesting to push the analysis a 
 <br><br><br>
 
 If we highlight San Francisco's transportation network by comparing it to the segmentation of neighborhoods according to the number of crimes, we can create this map.
+
 
 <br>
 
@@ -100,7 +101,7 @@ As expected, this small correlation is not statistically significant (p-value = 
 
 <br><br><br>
 
-## 4.2 Research question 2: COVID-19
+## 4.2 Research question 2
 
 <br>
 
@@ -115,6 +116,7 @@ Here we will explore whether the COVID-19 pandemic had any effect on crime rates
 
 
 We will first compare the total number of crimes citywide in the past 5 years, limiting the time period to the period between March 10th and November 13th so that all numbers are comparable to the start of the pandemic in the United States and the last date of our 2020 crime dataset.
+
 
 ```{r}
 crime_2015_2020_year <- crime2003_2020_datesep %>% 
@@ -154,7 +156,7 @@ crime_2018_2020_date <- crime2003_2020 %>%
 <br>
 
 This graph shows the timeline of crime rates for 2018, 2019 an 2020 and case counts for 2020 over the course of their respective years. We can see clearly that 2020 was following the same trend in crime rates as in the two previous years in January eand February, there is no real distinction between the three lines. Once the pandemic comes into play, the 2020 crime line becomes clearly distinct, at a lower rate than the two lines representing previous years.
-  
+
 ```{r}
   crime_covid_long_2018_2020_noyears <-
     crime_covid_long_2018_2020 %>% mutate(
@@ -170,7 +172,6 @@ This graph shows the timeline of crime rates for 2018, 2019 an 2020 and case cou
 <br>
 
 While it would be important to look into the exact timeline of lockdown measures, it would seem that the decrease in interactions since the beginning of the pandemic, through government measures and individual choices, has led to a decrease in reported crime rates.
-
 
 <br><br><br>
 
@@ -188,7 +189,6 @@ We will try to predict the number of crimes in a neighbourhood with it's socio-e
 </div>
 
 <br><br><br>
-
 
 
 #### Variable Selection
@@ -271,7 +271,8 @@ summary(fit2.1_3)
 
 <br>
 
-We have chosen to select a significance level of 5%. As the variable `Units of Housing' has a p-value that is greater than 5%, we will also remove it. We remove this variable.
+We have chosen to select a significance level of 5%. As the variable `Units of Housing` has a p-value that is greater than 5%, we will also remove it. We remove this variable..
+
 <br><br>
 
 #### Model 1.4
@@ -292,6 +293,7 @@ summary(fit2.2)
 <br>
 
 To reduce the effects of non-normality of the distribution, we chose to perform some transformations on the variables. All of our variables are statistically significant. Moreover, the Multiple R-squared is not so bad. It seems to be a good model. 
+
 ```{r}
 car::vif(fit2.2)
 ```
@@ -306,6 +308,7 @@ plot(fit2.2)
 <br>
 
 As can be seen on the normal QQ graph, our errors are not normally distributed at the extremes. On the Residuals vs Fitted graph, we see a certain pattern, which would mean that our errors are not constant. With this graph, we also see outliers: observations 8, 49 and 90. These three observations represent the same neighborhood of San Francisco at three different time intervals. However, this neighborhood is a park with very few inhabitants, making the demogrpahic data on this place not very relevant. We have chosen to delete these three observations.
+
 <br><br><br>
 
 ```{r}
@@ -330,9 +333,11 @@ Let's take a close look now to see if the assumptions of normality on errors see
 ```{r, fig.width=10, fig.height=2, fig.fullwidth=TRUE}
 plot(fit2.3)
 ```
+
 Consistency of errors seem to be respected. However, the extreme values still deviate a little from the values we should have. The distribution of errors does not totally follow a normal law but it is close enough for our model be relevant.
 
 <br><br><br>
+
 
 What can we conclude from this model?
 Since this kind of model is just an explanation of correlation, we cannot establish a causal link between the independent variables and the dependent variable. Moreover, like all social studies, there is a lot noise that make it difficult to explain the phenomenon that we are studying.
@@ -344,20 +349,22 @@ First, the two most predictive variables for crime by neighborhood are poverty a
 It is also possible that this indicates the demographic categories who are more likely to commit crimes. Risky behaviour such as criminal activity might be more common among people who are poorer and do not have families.
 
 ```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
-c1 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Non-Family Households`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Non-Family households in neighborhood", fill = "Number Non-Family Households") 
+c1 <- demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = demostats_2016geo$`Non-Family Households`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Unstable situation neighborhood", fill = "Percentage of Non-Family Households") 
 
-c2 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`18-34 years`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Young Neighborhood", fill = "Number of 18-34 years people") 
+c2 <- demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = demostats_2016geo$`18-34 years`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Young Neighborhood", fill = "Percentage of of 18-34 years people") 
 
-c3 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Number of people Poverty`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Poverty", fill = "Number of Poor in the neighborhood")
+c3 <- demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = demostats_2016geo$`Percent in Poverty`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Poverty", fill = "Percentage of Poor in the neighborhood")
 
-c4 <- crime_demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = crime_demostats_2016geo$`Median Household Income`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Income: Look the lowest average income neighborhood ", fill = "Average Income")
+c4 <- demostats_2016geo$geometry %>% ggplot() + geom_sf(aes(fill = demostats_2016geo$`Median Household Income`)) + scale_fill_gradient(low = "#56B1F7", high = "#132B43") + xlab("Longitude") + ylab("Latitude") + labs(title = "Income: Look the lowest average income neighborhood ", fill = "Average Income in $")
 
 c1 + c2 + c3 + c4
 
 ```
 
+
 In an attempt to add weight to our hypothesis, we wanted to make a geographical representation of factors that represent characteristics of young people: poverty, presence of non-family households situation, an age range between 18 and 35 years old and a low salary.
 Looking at that these 4 variables, the neighbourhoods with the most crime are often linked to these characteristics, but not always in the same way. To take an example, Mission stands out as
 It would be interesting to carry out further research !
 
-
+The second proposal of interpretation that we had thought of is more in the sense of an analysis of an explanation of the crime.
+Let's take the case of static crime (the one that stays in one's neighborhood), we could explain the fact that people steal with the fact that they are poor and that they are in an unstable situation. Theft would be a solution that would alleviate their worries.
