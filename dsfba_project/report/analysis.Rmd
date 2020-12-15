@@ -173,13 +173,12 @@ This graph shows the timeline of crime rates for 2018, 2019 an 2020 and case cou
 
 While it would be important to look into the exact timeline of lockdown measures, it would seem that the decrease in interactions since the beginning of the pandemic, through government measures and individual choices, has led to a decrease in reported crime rates.
 
-```{r, fig.width=12.5}
+```{r, fig.width=12.5, fig.height=2, fig.fullwidth=TRUE, out.width = '100%', fig.align='center'}
 
-crime_2015_2019_neighborhood <- crime2003_2020_datesep %>% 
+crime_2015_2019_neighborhood <- crime2003_2020_datesep %>%
   filter(year %in% c(2015,2016,2017,2018,2019),  !(is.na(`Analysis Neighborhood`))) %>%
   count(`Analysis Neighborhood`, name = "Total crimes") %>%
   arrange(desc(`Total crimes`))
-
 crime_during_covid <- crime2003_2020 %>%
   filter(  `Incident Date` <= as.Date("2020-11-13") &
              `Incident Date` >= as.Date("2020-03-10"),
@@ -187,20 +186,18 @@ crime_during_covid <- crime2003_2020 %>%
   count(`Analysis Neighborhood`, name = "Total crimes") %>%
   arrange(desc(`Total crimes`))
 
-ggplot(crime_during_covid, aes(reorder(`Analysis Neighborhood`, `Total crimes`), `Total crimes`)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
+d1 <- ggplot(head(crime_during_covid), aes(reorder(`Analysis Neighborhood`, `Total crimes`), `Total crimes`)) +
+  geom_bar(stat = "identity", fill = "#2b8cbe") +
+  coord_flip() + labs(title = "Number of Crime during COVID19") + xlab("SF Neighborhood") + ylab("Number of crime")
 
-
-ggplot(crime_2015_2019_neighborhood, aes(reorder(`Analysis Neighborhood`, `Total crimes`), `Total crimes`)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
-
-
+d2 <- ggplot(head(crime_2015_2019_neighborhood), aes(reorder(`Analysis Neighborhood`, `Total crimes`), `Total crimes`)) +
+  geom_bar(stat = "identity", fill = "#2b8cbe") +
+  coord_flip() + labs(title = "Number of Crime") + xlab("SF Neighborhood") + ylab("Number of crime")
+d1 + d2
 
 ```
 
-As we can see this relative drop in crime does not seem to have decreased the crime rate more in particularly affected neighborhoods. It would appear that to the extent it had any effect, the COVID-19 pandemic only had a citywide effect on crime. It is interesting however to observe that some of the neighborhoods with highest rate of COVID-19 infections are also some of the neighborhoods that have consistently had the highest rates of crime over the past 5 years (Bayview Hunters Point, Mission, and Tenderloin in particular). Perhaps both viral infections and crime tend to happen in the areas with the most frequent rate of interactions between people.
+As we can see this relative drop in crime does not seem to have decreased the crime rate more in particularly affected neighborhoods more than in other ones. It would appear that to the extent it had any effect, the COVID-19 pandemic only had a citywide effect on crime. It is interesting however to observe that some of the neighborhoods with highest rate of COVID-19 infections are also some of the neighborhoods that have consistently had the highest rates of crime over the past 5 years (Bayview Hunters Point, Mission, and Tenderloin in particular). Perhaps both viral infections and crime tend to happen in the areas with the most frequent rate of interactions between people. Overall the data here is much less conclusive than the citywide data.
 <br><br><br>
 
 ## 4.3 Research question 3
